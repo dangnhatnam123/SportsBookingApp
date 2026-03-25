@@ -7,14 +7,12 @@ from datetime import datetime, time
 import hashlib
 
 
-# ================= BASE MODEL =================
 class BaseModel(db.Model):
     __abstract__ = True
     id = Column(Integer, primary_key=True, autoincrement=True)
     active = Column(Boolean, default=True)
 
 
-# ================= ENUMS =================
 class VaiTro(UserEnum):
     NGUOI_DUNG = 1
     NHAN_VIEN = 2
@@ -49,8 +47,6 @@ class TrangThaiHoaDon(UserEnum):
     CHUA_THANH_TOAN = 2
 
 
-# ================= MODELS =================
-
 class NguoiDung(BaseModel, UserMixin):
     __tablename__ = 'nguoi_dung'
     ho_ten = Column(String(100), nullable=False)
@@ -59,7 +55,6 @@ class NguoiDung(BaseModel, UserMixin):
     vai_tro = Column(Enum(VaiTro), default=VaiTro.NGUOI_DUNG)
     gioi_tinh = Column(Enum(GioiTinh))
 
-    # Đặc thù cho Nhân viên/Quản lý (theo sơ đồ kế thừa)
     ngay_vao_lam = Column(DateTime)
     ma_ql = Column(String(20))
 
@@ -75,6 +70,7 @@ class San(BaseModel):
     ten_san = Column(String(50), nullable=False, unique=True)
     loai_san = Column(Enum(LoaiSan), nullable=False)
     trang_thai = Column(Enum(TrangThaiSan), default=TrangThaiSan.CHUA_DAT)
+    gia_san_theo_gio = Column(Float, default=100000)
 
     dat_lichs = relationship('DatLich', backref='san', lazy=True)
 
@@ -84,7 +80,7 @@ class San(BaseModel):
 
 class DatLich(BaseModel):
     __tablename__ = 'dat_lich'
-    ngay_dat = Column(DateTime, default=datetime.now())
+    ngay_dat = Column(DateTime, default=datetime.now)
     gio_bd = Column(Time, nullable=False)
     gio_kt = Column(Time, nullable=False)
     trang_thai = Column(Enum(TrangThaiDL), default=TrangThaiDL.CHUA_HOAN_THANH)
@@ -102,15 +98,14 @@ class HoaDon(BaseModel):
     trang_thai = Column(Enum(TrangThaiHoaDon), default=TrangThaiHoaDon.CHUA_THANH_TOAN)
 
     ma_dat = Column(Integer, ForeignKey(DatLich.id), nullable=False)
-    ma_nv = Column(Integer, ForeignKey(NguoiDung.id))  # Nhân viên lập hóa đơn
+    ma_nv = Column(Integer, ForeignKey(NguoiDung.id))
 
 
-# ================= SEED DATA =================
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
 
-        # 1. Thêm Admin & User mẫu
+
         pwd = str(hashlib.md5('123456'.encode('utf-8')).hexdigest())
         u1 = NguoiDung(ho_ten='Quan Ly Sân', ten_nd='admin', mat_khau=pwd, vai_tro=VaiTro.QUAN_LY)
         u2 = NguoiDung(ho_ten='Nguyễn Văn A', ten_nd='user1', mat_khau=pwd, vai_tro=VaiTro.NGUOI_DUNG)
@@ -118,7 +113,7 @@ if __name__ == '__main__':
         db.session.add_all([u1, u2])
         db.session.commit()
 
-        # 2. Thêm Sân mẫu
+
         s1 = San(ten_san='Sân Bóng Đá A', loai_san=LoaiSan.BONG_DA)
         s2 = San(ten_san='Sân Tennis 1', loai_san=LoaiSan.TENNIS)
         s3 = San(ten_san='Sân Cầu Lông 1', loai_san=LoaiSan.CAU_LONG)
@@ -126,7 +121,7 @@ if __name__ == '__main__':
         db.session.add_all([s1, s2, s3])
         db.session.commit()
 
-        # 3. Đặt lịch mẫu (Sân A, khung giờ 8h-9h)
+
         dl1 = DatLich(ngay_dat=datetime.now(),
                       gio_bd=time(8, 0),
                       gio_kt=time(9, 0),
