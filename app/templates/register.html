@@ -1,4 +1,3 @@
-<!-- templates/register.html -->
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -16,7 +15,7 @@
 </head>
 <body class="flex items-center justify-center p-4">
     <div class="w-full max-w-md">
-        <!-- Logo -->
+
         <div class="text-center mb-8">
             <div class="inline-flex items-center justify-center w-16 h-16 bg-emerald-500 rounded-2xl mb-4">
                 <i class="fas fa-futbol text-white text-2xl"></i>
@@ -25,10 +24,10 @@
             <p class="text-slate-400 mt-2">Dang ky de bat dau dat san</p>
         </div>
 
-        <!-- Form Card -->
+
         <div class="bg-slate-800/50 backdrop-blur-xl rounded-2xl p-8 border border-slate-700/50 shadow-2xl">
 
-            <!-- Error Message -->
+
             {% if err_msg %}
             <div class="mb-4 p-3 rounded-lg bg-red-500/20 text-red-400 border border-red-500/30">
                 {{ err_msg }}
@@ -36,7 +35,7 @@
             {% endif %}
 
             <form method="POST" action="/register" enctype="multipart/form-data">
-                <!-- Ho ten -->
+
                 <div class="mb-4">
                     <label class="block text-slate-300 text-sm font-medium mb-2">
                         Ho va ten <span class="text-red-400">*</span>
@@ -51,7 +50,7 @@
                     </div>
                 </div>
 
-                <!-- Ten dang nhap -->
+
                 <div class="mb-4">
                     <label class="block text-slate-300 text-sm font-medium mb-2">
                         Ten dang nhap <span class="text-red-400">*</span>
@@ -67,7 +66,7 @@
                     <p class="text-slate-500 text-xs mt-1">It nhat 3 ky tu</p>
                 </div>
 
-                <!-- Mat khau -->
+
                 <div class="mb-4">
                     <label class="block text-slate-300 text-sm font-medium mb-2">
                         Mat khau <span class="text-red-400">*</span>
@@ -87,7 +86,7 @@
                     <p class="text-slate-500 text-xs mt-1">It nhat 6 ky tu</p>
                 </div>
 
-                <!-- Xac nhan mat khau -->
+
                 <div class="mb-4">
                     <label class="block text-slate-300 text-sm font-medium mb-2">
                         Xac nhan mat khau <span class="text-red-400">*</span>
@@ -106,7 +105,7 @@
                     </div>
                 </div>
 
-                <!-- Avatar -->
+
                 <div class="mb-6">
                     <label class="block text-slate-300 text-sm font-medium mb-2">
                         Anh dai dien
@@ -126,14 +125,14 @@
                     </div>
                 </div>
 
-                <!-- Submit Button -->
+
                 <button type="submit"
                         class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold rounded-lg transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-emerald-500/25">
                     <i class="fas fa-user-plus mr-2"></i>Dang Ky
                 </button>
             </form>
 
-            <!-- Login Link -->
+
             <p class="text-center text-slate-400 mt-6">
                 Da co tai khoan?
                 <a href="/login" class="text-emerald-400 hover:text-emerald-300 font-medium transition-colors">
@@ -142,9 +141,9 @@
             </p>
         </div>
 
-        <!-- Footer -->
+
         <p class="text-center text-slate-500 text-sm mt-6">
-            2024 SportBook. All rights reserved.
+            2026 SportBook. All rights reserved.
         </p>
     </div>
 

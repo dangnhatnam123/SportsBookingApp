@@ -119,17 +119,17 @@ if __name__ == '__main__':
         db.session.add_all([admin, user1, user2])
         db.session.commit()
 
-        # --- 40 Sân Bóng Đá (10 Cụm sân x 4 sân) ---
+
         cum_bong_da = ["Chảo Lửa", "Hoa Lư", "Tao Đàn", "Phú Thọ", "K34", "Thành Phát", "An Khang", "Bách Khoa",
                        "Mỹ Đình", "Thống Nhất"]
         anh_bong_da = "https://images.unsplash.com/photo-1518605368461-1e1e38ce71bd?q=80&w=800"
 
-        # --- 40 Sân Cầu Lông (10 Cụm sân x 4 sân) ---
+
         cum_cau_long = ["Kỳ Hòa", "Tiến Minh", "Thiên Vân", "Vạn Xuân", "Hải Đăng", "Phượng Hoàng", "Tân Phú", "Gò Vấp",
                         "Bình Minh", "Lan Anh"]
         anh_cau_long = "https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?q=80&w=800"
 
-        # --- 20 Sân Tennis (5 Cụm sân x 4 sân) ---
+
         cum_tennis = ["Phú Mỹ Hưng", "Thảo Điền", "Đảo Kim Cương", "Sunrise City", "Masteri"]
         anh_tennis = "https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?q=80&w=800"
 
@@ -141,7 +141,7 @@ if __name__ == '__main__':
         cac_trang_thai = [TrangThaiSan.CHUA_DAT, TrangThaiSan.DA_DAT, TrangThaiSan.DANG_XU_LY]
         danh_sach_san = []
 
-        # --- Tạo Bóng đá ---
+
         for cum in cum_bong_da:
             for i in range(1, 5):
                 gia = random.choice([150000, 200000, 250000, 300000])
@@ -155,7 +155,7 @@ if __name__ == '__main__':
                 )
                 danh_sach_san.append(s)
 
-        # --- Tạo Cầu lông ---
+
         for cum in cum_cau_long:
             for i in range(1, 5):
                 gia = random.choice([60000, 80000, 100000])
@@ -169,7 +169,7 @@ if __name__ == '__main__':
                 )
                 danh_sach_san.append(s)
 
-        # --- Tạo Tennis ---
+
         for cum in cum_tennis:
             for i in range(1, 5):
                 gia = random.choice([200000, 250000, 350000])
@@ -187,7 +187,7 @@ if __name__ == '__main__':
         db.session.add_all(danh_sach_san)
         db.session.commit()
 
-        # 4. Tạo vài Lịch đặt mẫu
+
         hom_nay = date.today()
         ngay_mai = hom_nay + timedelta(days=1)
         san_bd_1 = danh_sach_san[0]

@@ -34,7 +34,6 @@ def login_view():
 
     return render_template('login.html', err_msg=err_msg)
 
-# --- ĐĂNG KÝ ---
 @app.route('/register', methods=['GET', 'POST'])
 def register_view():
     err_msg = ''
@@ -56,13 +55,11 @@ def register_view():
 
     return render_template('register.html', err_msg=err_msg)
 
-# --- ĐĂNG XUẤT ---
 @app.route('/logout')
 def logout_process():
     logout_user()
     return redirect('/login')
 
-# --- HÀM BẮT BUỘC CỦA FLASK-LOGIN ---
 @login.user_loader
 def load_user(user_id):
     return dao.get_user_by_id(user_id)
