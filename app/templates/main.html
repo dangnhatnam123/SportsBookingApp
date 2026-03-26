@@ -1,0 +1,102 @@
+{% extends 'layout/base.html' %}
+
+{% block content %}
+
+<div class="hero-section">
+    <div class="hero-overlay"></div>
+
+    <div class="hero-container">
+        <div class="hero-header text-center text-white">
+            <div class="stars mb-2">
+                <i class="bi bi-star-fill text-white-50"></i>
+                <i class="bi bi-star-fill text-warning mx-1"></i>
+                <i class="bi bi-star-fill text-white-50"></i>
+            </div>
+            <h1 class="hero-title fw-bold">HỆ THỐNG ĐẶT SÂN THỂ THAO TRỰC TUYẾN</h1>
+            <div class="blue-line-divider"></div>
+            <p class="hero-subtitle">Tìm kiếm sân trống nhanh chóng và chính xác theo ngày, giờ và loại sân</p>
+        </div>
+
+        <div class="search-wrapper">
+            <form action="/search" method="GET" class="search-bar-main">
+
+                <div class="search-box-item">
+                    <i class="bi bi-trophy ms-3 text-primary" style="font-size: 1.1rem;"></i>
+                    <select name="sport_type" class="form-select-custom" required title="Vui lòng chọn môn thể thao">
+                        <option value="" selected disabled>Chọn loại sân</option>
+                        <option value="Football">Bóng đá</option>
+                        <option value="Badminton">Cầu lông</option>
+                        <option value="Tennis">Tennis</option>
+                    </select>
+                </div>
+
+                <div class="search-box-item border-left-line">
+                    <i class="bi bi-calendar-event ms-3 text-primary" style="font-size: 1.1rem;"></i>
+                    <input type="date" name="booking_date" class="form-input-custom" required title="Vui lòng chọn ngày đặt">
+                </div>
+
+                <div class="search-box-item border-left-line">
+                    <i class="bi bi-clock ms-3 text-primary" style="font-size: 1.1rem;"></i>
+                    <select name="time_slot" class="form-select-custom" required title="Vui lòng chọn khung giờ">
+                        <option value="">Chọn khung giờ</option>
+                        <option value="06:00-07:00">06:00 - 07:00</option>
+                        <option value="07:00-08:00">07:00 - 08:00</option>
+                        <option value="08:00-09:00">08:00 - 09:00</option>
+                        <option value="17:00-18:00">17:00 - 18:00</option>
+                        <option value="18:00-19:00">18:00 - 19:00</option>
+                        </select>
+                </div>
+
+                <button type="submit" class="btn-search-yellow">
+                    Tìm sân trống <i class="bi bi-search ms-2"></i>
+                </button>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="features-section py-5">
+    <div class="container">
+        <div class="row g-4 justify-content-center"> <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon-box">
+                        <i class="bi bi-search-heart"></i>
+                    </div>
+                    <h3 class="feature-title">Tìm sân thông minh</h3>
+                    <p class="feature-text">
+                        Hỗ trợ tìm kiếm nhanh theo <strong>loại sân</strong> (Bóng đá, Cầu lông, Tennis) và <strong>khung giờ trống</strong> thực tế từ hệ thống.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon-box">
+                        <i class="bi bi-shield-check"></i>
+                    </div>
+                    <h3 class="feature-title">Đặt lịch & Bảo mật</h3>
+                    <p class="feature-text">
+                        Hệ thống tự động kiểm tra <strong>trùng lịch</strong> và <strong>không đặt sân trong quá khứ</strong>, đảm bảo quy trình đặt sân chuẩn xác 100%.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon-box">
+                        <i class="bi bi-arrow-left-right"></i>
+                    </div>
+                    <h3 class="feature-title">Quản lý linh hoạt</h3>
+                    <p class="feature-text">
+                        Người dùng dễ dàng theo dõi lịch sử và <strong>hủy lịch đặt</strong> (trước 2 giờ thi đấu). Admin toàn quyền quản lý danh sách sân bãi.
+                    </p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}
