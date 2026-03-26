@@ -1,5 +1,4 @@
 import random
-
 from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, Float, Enum, DateTime, Time, Date
 from sqlalchemy.orm import relationship
 from app import db, app
@@ -46,18 +45,20 @@ class TrangThaiDL(UserEnum):
 
 
 class TrangThaiHoaDon(UserEnum):
-    DA_THANH_TOAN = 1
-    CHUA_THANH_TOAN = 2
+    DA_THAN_TOAN = 1
+    CHUA_THAN_TOAN = 2
 
 
 class NguoiDung(BaseModel, UserMixin):
     __tablename__ = 'nguoi_dung'
+    __table_args__ = {'extend_existing': True}
     ho_ten = Column(String(100), nullable=False)
     ten_nd = Column(String(50), nullable=False, unique=True)
     mat_khau = Column(String(100), nullable=False)
+    avatar = Column(String(255),
+                    default='https://res.cloudinary.com/dxx9vab4f/image/upload/v1618885611/default-avatar.png')
     vai_tro = Column(Enum(VaiTro), default=VaiTro.NGUOI_DUNG)
     gioi_tinh = Column(Enum(GioiTinh))
-
     ngay_vao_lam = Column(DateTime)
     ma_ql = Column(String(20))
 
@@ -70,6 +71,7 @@ class NguoiDung(BaseModel, UserMixin):
 
 class San(BaseModel):
     __tablename__ = 'san'
+    __table_args__ = {'extend_existing': True}
     ten_san = Column(String(50), nullable=False, unique=True)
     loai_san = Column(Enum(LoaiSan), nullable=False)
     trang_thai = Column(Enum(TrangThaiSan), default=TrangThaiSan.CHUA_DAT)
@@ -84,6 +86,7 @@ class San(BaseModel):
 
 class DatLich(BaseModel):
     __tablename__ = 'dat_lich'
+    __table_args__ = {'extend_existing': True}
     thoi_gian_dat = Column(DateTime, default=datetime.now)
     ngay_choi = Column(Date, nullable=False)
     gio_bd = Column(Time, nullable=False)
@@ -98,9 +101,10 @@ class DatLich(BaseModel):
 
 class HoaDon(BaseModel):
     __tablename__ = 'hoa_don'
+    __table_args__ = {'extend_existing': True}
     tong_tien = Column(Float, default=0)
-    ngay_tao = Column(DateTime, default=datetime.now())
-    trang_thai = Column(Enum(TrangThaiHoaDon), default=TrangThaiHoaDon.CHUA_THANH_TOAN)
+    ngay_tao = Column(DateTime, default=datetime.now)
+    trang_thai = Column(Enum(TrangThaiHoaDon), default=TrangThaiHoaDon.CHUA_THAN_TOAN)
 
     ma_dat = Column(Integer, ForeignKey(DatLich.id), nullable=False)
     ma_nv = Column(Integer, ForeignKey(NguoiDung.id))
@@ -119,87 +123,56 @@ if __name__ == '__main__':
         db.session.add_all([admin, user1, user2])
         db.session.commit()
 
-
+        # Phần tạo dữ liệu sân ngẫu nhiên
         cum_bong_da = ["Chảo Lửa", "Hoa Lư", "Tao Đàn", "Phú Thọ", "K34", "Thành Phát", "An Khang", "Bách Khoa",
                        "Mỹ Đình", "Thống Nhất"]
         anh_bong_da = "https://images.unsplash.com/photo-1518605368461-1e1e38ce71bd?q=80&w=800"
-
 
         cum_cau_long = ["Kỳ Hòa", "Tiến Minh", "Thiên Vân", "Vạn Xuân", "Hải Đăng", "Phượng Hoàng", "Tân Phú", "Gò Vấp",
                         "Bình Minh", "Lan Anh"]
         anh_cau_long = "https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?q=80&w=800"
 
-
         cum_tennis = ["Phú Mỹ Hưng", "Thảo Điền", "Đảo Kim Cương", "Sunrise City", "Masteri"]
         anh_tennis = "https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?q=80&w=800"
-
-
-        s1 = San(ten_san='Sân Bóng Đá A', loai_san=LoaiSan.BONG_DA)
-        s2 = San(ten_san='Sân Tennis 1', loai_san=LoaiSan.TENNIS)
-        s3 = San(ten_san='Sân Cầu Lông 1', loai_san=LoaiSan.CAU_LONG)
 
         cac_trang_thai = [TrangThaiSan.CHUA_DAT, TrangThaiSan.DA_DAT, TrangThaiSan.DANG_XU_LY]
         danh_sach_san = []
 
-
         for cum in cum_bong_da:
             for i in range(1, 5):
-                gia = random.choice([150000, 200000, 250000, 300000])
-                tt_ngau_nhien = random.choice(cac_trang_thai)  # Bốc thăm trạng thái
-                s = San(
-                    ten_san=f"Sân Bóng đá {cum} - Số {i}",
-                    loai_san=LoaiSan.BONG_DA,
-                    gia_san_theo_gio=gia,
-                    hinh_anh=anh_bong_da,
-                    trang_thai=tt_ngau_nhien
-                )
+                s = San(ten_san=f"Sân Bóng đá {cum} - Số {i}", loai_san=LoaiSan.BONG_DA,
+                        gia_san_theo_gio=random.choice([150000, 200000, 250000, 300000]),
+                        hinh_anh=anh_bong_da, trang_thai=random.choice(cac_trang_thai))
                 danh_sach_san.append(s)
-
 
         for cum in cum_cau_long:
             for i in range(1, 5):
-                gia = random.choice([60000, 80000, 100000])
-                tt_ngau_nhien = random.choice(cac_trang_thai)
-                s = San(
-                    ten_san=f"CLB Cầu lông {cum} - Sân {i}",
-                    loai_san=LoaiSan.CAU_LONG,
-                    gia_san_theo_gio=gia,
-                    hinh_anh=anh_cau_long,
-                    trang_thai=tt_ngau_nhien
-                )
+                s = San(ten_san=f"CLB Cầu lông {cum} - Sân {i}", loai_san=LoaiSan.CAU_LONG,
+                        gia_san_theo_gio=random.choice([60000, 80000, 100000]),
+                        hinh_anh=anh_cau_long, trang_thai=random.choice(cac_trang_thai))
                 danh_sach_san.append(s)
-
 
         for cum in cum_tennis:
             for i in range(1, 5):
-                gia = random.choice([200000, 250000, 350000])
-                tt_ngau_nhien = random.choice(cac_trang_thai)
-                s = San(
-                    ten_san=f"Sân Tennis {cum} - VIP {i}",
-                    loai_san=LoaiSan.TENNIS,
-                    gia_san_theo_gio=gia,
-                    hinh_anh=anh_tennis,
-                    trang_thai=tt_ngau_nhien
-                )
+                s = San(ten_san=f"Sân Tennis {cum} - VIP {i}", loai_san=LoaiSan.TENNIS,
+                        gia_san_theo_gio=random.choice([200000, 250000, 350000]),
+                        hinh_anh=anh_tennis, trang_thai=random.choice(cac_trang_thai))
                 danh_sach_san.append(s)
-
 
         db.session.add_all(danh_sach_san)
         db.session.commit()
 
-
+        # Thêm lịch mẫu
         hom_nay = date.today()
         ngay_mai = hom_nay + timedelta(days=1)
-        san_bd_1 = danh_sach_san[0]
-        san_cl_1 = danh_sach_san[40]
 
         lich_mau = [
-            DatLich(ngay_choi=hom_nay, gio_bd=time(18, 0), gio_kt=time(19, 0), ma_nd=user1.id, ma_san=san_bd_1.id,
-                    trang_thai=TrangThaiDL.DA_HOAN_THANH),
-            DatLich(ngay_choi=ngay_mai, gio_bd=time(17, 0), gio_kt=time(18, 0), ma_nd=user2.id, ma_san=san_bd_1.id,
-                    trang_thai=TrangThaiDL.CHUA_HOAN_THANH),
-            DatLich(ngay_choi=ngay_mai, gio_bd=time(18, 0), gio_kt=time(19, 0), ma_nd=user1.id, ma_san=san_cl_1.id,
-                    trang_thai=TrangThaiDL.CHUA_HOAN_THANH),
+            DatLich(ngay_choi=hom_nay, gio_bd=time(18, 0), gio_kt=time(19, 0), ma_nd=user1.id,
+                    ma_san=danh_sach_san[0].id, trang_thai=TrangThaiDL.DA_HOAN_THANH),
+            DatLich(ngay_choi=ngay_mai, gio_bd=time(17, 0), gio_kt=time(18, 0), ma_nd=user2.id,
+                    ma_san=danh_sach_san[0].id, trang_thai=TrangThaiDL.CHUA_HOAN_THANH),
+            DatLich(ngay_choi=ngay_mai, gio_bd=time(18, 0), gio_kt=time(19, 0), ma_nd=user1.id,
+                    ma_san=danh_sach_san[40].id, trang_thai=TrangThaiDL.CHUA_HOAN_THANH),
         ]
 
         db.session.add_all(lich_mau)

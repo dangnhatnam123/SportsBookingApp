@@ -16,15 +16,17 @@ def auth_user(username, password):
                                   NguoiDung.mat_khau == password_hashed).first()
 
 
-def add_user(name, username, password):
+def add_user(name, username, password, vai_tro='NGUOI_DUNG'):
 
     password_hashed = str(hashlib.md5(password.strip().encode('utf-8')).hexdigest())
+
+    vt_enum = VaiTro[vai_tro] if vai_tro in VaiTro.__members__ else VaiTro.NGUOI_DUNG
 
     u = NguoiDung(
         ho_ten=name.strip(),
         ten_nd=username.strip(),
         mat_khau=password_hashed,
-        vai_tro=VaiTro.NGUOI_DUNG
+        vai_tro=vt_enum
     )
 
     db.session.add(u)

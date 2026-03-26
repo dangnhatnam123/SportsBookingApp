@@ -16,11 +16,11 @@ def home():
 def services():
     return "Danh sách các dịch vụ thể thao hiện có..."
 
+
 @app.route('/login', methods=['GET', 'POST'])
 def login_view():
     err_msg = ''
     if request.method == 'POST':
-        # Lấy theo name="username" và name="password" ở file HTML
         username = request.form.get('username')
         password = request.form.get('password')
 
@@ -42,13 +42,16 @@ def register_view():
         password = data.get('password')
         confirm = data.get('confirm')
 
+        vai_tro_chon = data.get('vai_tro')
+
         if password != confirm:
             err_msg = 'Mật khẩu xác nhận không khớp!'
         else:
             try:
                 dao.add_user(name=data.get('name'),
                              username=data.get('username'),
-                             password=password)
+                             password=password,
+                             vai_tro=vai_tro_chon)
                 return redirect('/login')
             except Exception as ex:
                 err_msg = str(ex)
