@@ -1,0 +1,101 @@
+{% extends 'layout/base.html' %}
+
+{% block title %}Tìm kiếm{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/search.css') }}">
+
+<div class="container mt-4">
+    <div class="search-top-bar p-4 mb-4 bg-light rounded shadow-sm">
+        <form action="/booking" method="get" class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <label class="small fw-bold">Loại sân</label>
+                <select name="loai_san" class="form-select border-0 shadow-sm">
+                    <option value="">Tất cả loại sân</option>
+                    {% for l in LoaiSan %}
+                    <option value="{{ l.name }}">{{ l.value }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="small fw-bold">Ngày chơi</label>
+                <input type="date" name="ngay" class="form-control border-0 shadow-sm" required>
+            </div>
+            <div class="col-md-2">
+                <label class="small fw-bold">Từ giờ</label>
+                <select name="gio_bd" class="form-select border-0 shadow-sm" required>
+                    <option value="">Chọn giờ</option>
+                    {% for h in range(5, 24) %}
+                    <option value="{{ h }}:00">{{ h }}:00</option>
+                    <option value="{{ h }}:30">{{ h }}:30</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <label class="small fw-bold">Đến giờ</label>
+                <select name="gio_kt" class="form-select border-0 shadow-sm" required>
+                    <option value="">Chọn giờ</option>
+                    {% for h in range(5, 24) %}
+                    <option value="{{ h }}:00">{{ h }}:00</option>
+                    <option value="{{ h }}:30">{{ h }}:30</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-warning w-100 fw-bold text-white shadow-sm py-2">
+                    Tìm sân trống <i class="bi bi-search ms-1"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div class="row">
+        <div class="col-md-3">
+            <div class="category-sidebar">
+                <h6 class="fw-bold border-bottom pb-2">DANH MỤC SÂN</h6>
+                {% for s_type, count in stats %}
+                <a href="?loai_san={{ s_type.name }}"
+                   class="sidebar-link text-decoration-none text-dark">
+                    <span>{{ s_type.value }}</span>
+                    <span class="text-warning fw-bold">{{ count }}</span>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="col-md-9">
+            <div class="row">
+                {% for s in danh_sach_san %}
+                <div class="col-md-4 mb-4">
+                    <div class="card san-card h-100">
+                        <img src="{{ s.hinh_anh }}" class="card-img-top">
+                        <div class="card-body text-center">
+                            <h5 class="fw-bold mb-1">{{ s.ten_san }} <i
+                                    class="bi bi-check-circle-fill text-success"></i></h5>
+                            <p class="text-muted small mb-3">Giá: {{ "{:,.0f}".format(s.gia_san_theo_gio) }}đ/h</p>
+                            <a href="/booking" class="btn-detail">Đặt sân ngay</a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="my-pagination">
+                {% if current_page > 1 %}
+                <a href="{{ url_for('main_bp.booking_view', page=current_page-1, kw=kw, loai_san=loai_san, ngay=ngay, gio_bd=gio_bd, gio_kt=gio_kt) }}">Trang trước</a>
+                {% endif %}
+
+                {% for i in range(1, pages + 1) %}
+                <a href="{{ url_for('main_bp.booking_view', page=i, kw=kw, loai_san=loai_san, ngay=ngay, gio_bd=gio_bd, gio_kt=gio_kt) }}"
+                   class="{{ 'active' if i == current_page else '' }}">{{ i }}</a>
+                {% endfor %}
+
+                {% if current_page < pages %}
+                <a href="{{ url_for('main_bp.booking_view', page=current_page+1, kw=kw, loai_san=loai_san, ngay=ngay, gio_bd=gio_bd, gio_kt=gio_kt) }}">Trang sau</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

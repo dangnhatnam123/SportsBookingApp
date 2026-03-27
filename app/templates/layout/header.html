@@ -14,26 +14,53 @@
                 <li><a href="/" class="home-icon"><i class="bi bi-house-door-fill"></i></a></li>
                 <li><a href="/">Trang chủ</a></li>
                 <li class="dropdown">
-                    <a href="#">Danh sách sân bãi</a>
+                    <a href="/search">Danh sách sân bãi</a>
                     <ul class="submenu">
-                        <li><a href="#">Bóng đá</a></li>
-                        <li><a href="#">Tennis</a></li>
-                        <li><a href="#">Cầu lông</a></li>
+                        <li><a href="/search?loai_san=BONG_DA">Bóng đá</a></li>
+                        <li><a href="/search?loai_san=TENNIS">Tennis</a></li>
+                        <li><a href="/search?loai_san=CAU_LONG">Cầu lông</a></li>
                     </ul>
                 </li>
-                <li><a href="#">Giới thiệu</a></li>
+                <li><a href="#">Đặt sân</a></li>
                 <li><a href="#">Chính sách</a></li>
                 <li><a href="#">Điều khoản</a></li>
                 <li><a href="#">Liên hệ</a></li>
             </ul>
 
             <ul class="right-menu">
-                <li><a href="#">Đăng ký</a></li>
-                <li><a href="#">Đăng nhập</a></li>
-                <li class="search-box">
-                    <a href="#">Tìm kiếm <i class="bi bi-search" style="font-size: 0.9rem; margin-left: 5px;"></i></a>
+
+                {% if current_user.is_authenticated %}
+
+                <li class="dropdown">
+                    <a href="#" class="d-flex align-items-center">
+                        <img src="{{ current_user.avatar }}"
+                             onerror="this.src='https://ui-avatars.com/api/?name={{ current_user.ho_ten }}&background=random'"
+                             alt="Avatar"
+                             style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; margin-right: 8px;">
+                        {{ current_user.ho_ten }} <i class="bi bi-caret-down-fill ms-1" style="font-size: 0.8rem;"></i>
+                    </a>
+
+                    <ul class="submenu">
+                        <li><a href="/profile"><i class="bi bi-person-circle me-2"></i> Thông tin cá nhân</a></li>
+                        <li><a href="/orders"><i class="bi bi-clock-history me-2"></i> Lịch sử đặt sân</a></li>
+                        <li><a href="/logout" class="text-danger"><i class="bi bi-box-arrow-right me-2"></i> Đăng
+                            xuất</a></li>
+                    </ul>
                 </li>
+
+                {% else %}
+
+                <li><a href="/register">Đăng ký</a></li>
+                <li><a href="/login">Đăng nhập</a></li>
+                <li class="search-box">
+                    <a href="/search">Tìm kiếm <i class="bi bi-search" style="font-size: 0.9rem; margin-left: 5px;"></i></a>
+                </li>
+                {% endif %}
+
+
             </ul>
+
+
         </div>
     </div>
 </header>
