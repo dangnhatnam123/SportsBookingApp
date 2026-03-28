@@ -1,10 +1,11 @@
 import hashlib
+from datetime import datetime
 
 from sqlalchemy import func
 
 from app import db, app
 from sqlalchemy.exc import IntegrityError
-from app.models import NguoiDung, VaiTro, San, DatLich
+from app.models import NguoiDung, VaiTro, San, DatLich, TrangThaiDL, TrangThaiHoaDon, HoaDon
 import cloudinary.uploader
 
 
@@ -72,3 +73,4 @@ def count_san_trong(kw=None, loai_san_val=None, ngay=None, gio_bd=None, gio_kt=N
 
 def count_san_by_type():
     return db.session.query(San.loai_san, func.count(San.id)).group_by(San.loai_san).all()
+

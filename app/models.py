@@ -31,12 +31,6 @@ class LoaiSan(UserEnum):
     CAU_LONG = "Cầu Lông"
 
 
-class TrangThaiSan(UserEnum):
-    DA_DAT = "Đã Đặt"
-    CHUA_DAT = "Chưa Đặt"
-    DANG_XU_LY = "Đang Xử Lý"
-
-
 class TrangThaiDL(UserEnum):
     DA_HOAN_THANH = "Đã Hoàn Thành"
     CHUA_HOAN_THANH = "Chưa Hoàn Thành"
@@ -50,8 +44,6 @@ class TrangThaiHoaDon(UserEnum):
 
 class NguoiDung(BaseModel, UserMixin):
     __tablename__ = 'nguoi_dung'
-    __table_args__ = {'extend_existing': True}
-
     ho_ten = Column(String(100), nullable=False)
     ten_nd = Column(String(50), nullable=False, unique=True)
     mat_khau = Column(String(100), nullable=False)
@@ -71,11 +63,8 @@ class NguoiDung(BaseModel, UserMixin):
 
 class San(BaseModel):
     __tablename__ = 'san'
-    __table_args__ = {'extend_existing': True}
-
     ten_san = Column(String(50), nullable=False, unique=True)
     loai_san = Column(Enum(LoaiSan), nullable=False)
-    trang_thai = Column(Enum(TrangThaiSan), default=TrangThaiSan.CHUA_DAT)
     gia_san_theo_gio = Column(Float, default=100000)
     hinh_anh = Column(String(255), default='https://images.unsplash.com/photo-1518605368461-1e1e38ce71bd?q=80&w=800')
 
@@ -87,8 +76,6 @@ class San(BaseModel):
 
 class DatLich(BaseModel):
     __tablename__ = 'dat_lich'
-    __table_args__ = {'extend_existing': True}
-
     thoi_gian_dat = Column(DateTime, default=datetime.now)
     ngay_choi = Column(Date, nullable=False)
     gio_bd = Column(Time, nullable=False)
@@ -105,8 +92,6 @@ class DatLich(BaseModel):
 
 class HoaDon(BaseModel):
     __tablename__ = 'hoa_don'
-    __table_args__ = {'extend_existing': True}
-
     tong_tien = Column(Float, default=0)
     ngay_tao = Column(DateTime, default=datetime.now())
     trang_thai = Column(Enum(TrangThaiHoaDon), default=TrangThaiHoaDon.CHUA_THANH_TOAN)
@@ -128,6 +113,10 @@ if __name__ == '__main__':
         admin = NguoiDung(ho_ten='Admin Hệ Thống', ten_nd='admin', mat_khau=pwd, vai_tro=VaiTro.QUAN_LY)
         user1 = NguoiDung(ho_ten='Nguyễn Công Phượng', ten_nd='user1', mat_khau=pwd, vai_tro=VaiTro.NGUOI_DUNG)
         user2 = NguoiDung(ho_ten='Lý Hoàng Nam', ten_nd='user2', mat_khau=pwd, vai_tro=VaiTro.NGUOI_DUNG)
+        user3 = NguoiDung(ho_ten='Trần Văn Tèo', ten_nd='user3', mat_khau=pwd, vai_tro=VaiTro.NGUOI_DUNG)
+        user4 = NguoiDung(ho_ten='Lê Thị Nở', ten_nd='user4', mat_khau=pwd, vai_tro=VaiTro.NGUOI_DUNG)
+        user5 = NguoiDung(ho_ten='Trần Văn Tí', ten_nd='user5', mat_khau=pwd, vai_tro=VaiTro.NGUOI_DUNG)
+        user6 = NguoiDung(ho_ten='Lê Thị Ninh', ten_nd='user6', mat_khau=pwd, vai_tro=VaiTro.NGUOI_DUNG)
 
         db.session.add_all([admin, user1, user2])
         db.session.commit()
@@ -158,40 +147,56 @@ if __name__ == '__main__':
             }
         ]
 
-        cac_trang_thai_san = [TrangThaiSan.CHUA_DAT, TrangThaiSan.DA_DAT, TrangThaiSan.DANG_XU_LY]
-
         danh_sach_san = []
         for item in data_set:
             for cum in item["cums"]:
                 for i in range(1, 5):
-                    # Lấy trạng thái ngẫu nhiên cho từng cái sân
-                    tt_ngau_nhien = random.choice(cac_trang_thai_san)
 
                     s = San(
                         ten_san=f"{item['prefix']} {cum} - Số {i}",
                         loai_san=item["loai"],
                         gia_san_theo_gio=random.choice(item["gia_list"]),
-                        hinh_anh=item["anh"],
-                        trang_thai=tt_ngau_nhien
+                        hinh_anh=item["anh"]
                     )
                     danh_sach_san.append(s)
 
         db.session.add_all(danh_sach_san)
         db.session.commit()
 
-        hom_nay = date.today()
-        ngay_mai = hom_nay + timedelta(days=1)
-        san_bd_1 = danh_sach_san[0]
-        san_cl_1 = danh_sach_san[40]
 
-        lich_mau = [
-            DatLich(ngay_choi=hom_nay, gio_bd=time(18, 0), gio_kt=time(19, 0), ma_nd=user1.id, ma_san=san_bd_1.id,
-                    trang_thai=TrangThaiDL.DA_HOAN_THANH),
-            DatLich(ngay_choi=ngay_mai, gio_bd=time(17, 0), gio_kt=time(18, 0), ma_nd=user2.id, ma_san=san_bd_1.id,
-                    trang_thai=TrangThaiDL.CHUA_HOAN_THANH),
-            DatLich(ngay_choi=ngay_mai, gio_bd=time(18, 0), gio_kt=time(19, 0), ma_nd=user1.id, ma_san=san_cl_1.id,
-                    trang_thai=TrangThaiDL.CHUA_HOAN_THANH),
-        ]
+        hom_nay = date.today()
+        tat_ca_user = NguoiDung.query.filter(NguoiDung.vai_tro == VaiTro.NGUOI_DUNG).all()
+        danh_sach_user_id = [u.id for u in tat_ca_user]
+        tat_ca_san = San.query.all()
+        lich_mau = []
+        used_slots = set()
+        user_daily_counts = {}
+        for _ in range(200):
+            if len(lich_mau) >= 40:
+                break
+            u_id = random.choice(danh_sach_user_id)
+            san_chon = random.choice(tat_ca_san)
+            ngay_pick = hom_nay + timedelta(days=random.randint(0, 7))
+            user_date_key = (u_id, ngay_pick)
+            if user_daily_counts.get(user_date_key, 0) >= 3:
+                continue
+            gio_b = random.randint(6, 20)
+            gio_k = gio_b + 1
+            slot_key = (ngay_pick, san_chon.id, gio_b)
+            if slot_key in used_slots:
+                continue
+            used_slots.add(slot_key)
+            user_daily_counts[user_date_key] = user_daily_counts.get(user_date_key, 0) + 1
+            trang_thai_rand = random.choice([TrangThaiDL.CHUA_HOAN_THANH, TrangThaiDL.DA_HOAN_THANH])
+            lich = DatLich(
+                ngay_choi=ngay_pick,
+                gio_bd=time(gio_b, 0),
+                gio_kt=time(gio_k, 0),
+                ma_nd=u_id,
+                ma_san=san_chon.id,
+                trang_thai=trang_thai_rand
+            )
+            lich_mau.append(lich)
 
         db.session.add_all(lich_mau)
         db.session.commit()

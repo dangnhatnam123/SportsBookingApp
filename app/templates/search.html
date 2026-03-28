@@ -5,85 +5,104 @@
 {% block content %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/search.css') }}">
 
-<div class="container mt-4">
-    <div class="search-top-bar p-4 mb-4 bg-light rounded shadow-sm">
-        <form action="/booking" method="get" class="row g-3 align-items-end">
+<div class="container mt-4 mb-5">
+    <div class="search-top-bar p-4 mb-4 bg-light rounded shadow-sm border-top border-4 border-warning">
+        <form action="/search" method="get" class="row g-3 align-items-end">
             <div class="col-md-3">
-                <label class="small fw-bold">Loại sân</label>
-                <select name="loai_san" class="form-select border-0 shadow-sm">
+                <label class="small fw-bold text-secondary mb-1">Loại sân</label>
+                <select name="loai_san" class="form-select border-0 shadow-sm py-2">
                     <option value="">Tất cả loại sân</option>
                     {% for l in LoaiSan %}
-                    <option value="{{ l.name }}">{{ l.value }}</option>
+                    <option value="{{ l.name }}" {% if request.args.get('loai_san') == l.name %}selected{% endif %}>{{ l.value }}</option>
                     {% endfor %}
                 </select>
             </div>
             <div class="col-md-3">
-                <label class="small fw-bold">Ngày chơi</label>
-                <input type="date" name="ngay" class="form-control border-0 shadow-sm" required>
+                <label class="small fw-bold text-secondary mb-1">Ngày chơi (*)</label>
+                <input type="date" name="ngay" value="{{ request.args.get('ngay', '') }}" class="form-control border-0 shadow-sm py-2" required>
             </div>
-            <div class="col-md-2">
-                <label class="small fw-bold">Từ giờ</label>
-                <select name="gio_bd" class="form-select border-0 shadow-sm" required>
-                    <option value="">Chọn giờ</option>
-                    {% for h in range(5, 24) %}
-                    <option value="{{ h }}:00">{{ h }}:00</option>
-                    <option value="{{ h }}:30">{{ h }}:30</option>
-                    {% endfor %}
-                </select>
-            </div>
+            <div class="search-box-item border-left-line">
+                    <i class="bi bi-clock ms-3 text-primary"></i>
+                    <select name="gio_bd" class="form-select-custom" required>
+                        <option value="" selected disabled>Từ giờ</option>
+                        {% for hour in range(5, 22) %}
+                        <option value="{{ '%02d' % hour }}:00">{{ '%02d' % hour }}:00</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="search-box-item border-left-line">
+                    <i class="bi bi-clock-history ms-3 text-primary"></i>
+                    <select name="gio_kt" class="form-select-custom" required>
+                        <option value="" selected disabled>Đến giờ</option>
+                        {% for hour in range(6, 23) %}
+                        <option value="{{ '%02d' % hour }}:00">{{ '%02d' % hour }}:00</option>
+                        {% endfor %}
+                    </select>
+                </div>
 
             <div class="col-md-2">
-                <label class="small fw-bold">Đến giờ</label>
-                <select name="gio_kt" class="form-select border-0 shadow-sm" required>
-                    <option value="">Chọn giờ</option>
-                    {% for h in range(5, 24) %}
-                    <option value="{{ h }}:00">{{ h }}:00</option>
-                    <option value="{{ h }}:30">{{ h }}:30</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="col-md-2">
-                <button type="submit" class="btn btn-warning w-100 fw-bold text-white shadow-sm py-2">
-                    Tìm sân trống <i class="bi bi-search ms-1"></i>
+                <button type="submit" class="btn btn-warning w-100 fw-bold text-dark shadow-sm py-2">
+                    Tìm sân <i class="bi bi-search ms-1"></i>
                 </button>
             </div>
         </form>
     </div>
 
     <div class="row">
-        <div class="col-md-3">
-            <div class="category-sidebar">
-                <h6 class="fw-bold border-bottom pb-2">DANH MỤC SÂN</h6>
+        <div class="col-md-3 d-none d-md-block">
+            <div class="category-sidebar bg-white p-3 rounded shadow-sm">
+                <h6 class="fw-bold border-bottom pb-2 mb-3">DANH MỤC SÂN</h6>
                 {% for s_type, count in stats %}
                 <a href="?loai_san={{ s_type.name }}"
-                   class="sidebar-link text-decoration-none text-dark">
+                   class="d-flex justify-content-between text-decoration-none text-dark mb-2 p-2 rounded hover-bg-light">
                     <span>{{ s_type.value }}</span>
-                    <span class="text-warning fw-bold">{{ count }}</span>
+                    <span class="badge bg-warning text-dark rounded-pill">{{ count }}</span>
                 </a>
                 {% endfor %}
             </div>
         </div>
 
         <div class="col-md-9">
-            <div class="row">
+            <div class="row g-4">
                 {% for s in danh_sach_san %}
-                <div class="col-md-4 mb-4">
-                    <div class="card san-card h-100">
-                        <img src="{{ s.hinh_anh }}" class="card-img-top">
-                        <div class="card-body text-center">
-                            <h5 class="fw-bold mb-1">{{ s.ten_san }} <i
-                                    class="bi bi-check-circle-fill text-success"></i></h5>
-                            <p class="text-muted small mb-3">Giá: {{ "{:,.0f}".format(s.gia_san_theo_gio) }}đ/h</p>
-                            <a href="/booking" class="btn-detail">Đặt sân ngay</a>
+                <div class="col-md-4">
+                    <div class="card san-card h-100 border-0 shadow-sm rounded-3 overflow-hidden">
+                        <img src="{{ s.hinh_anh }}" class="card-img-top" style="height: 180px; object-fit: cover;" alt="{{ s.ten_san }}">
+                        <div class="card-body text-center d-flex flex-column">
+                            <h5 class="fw-bold mb-2">{{ s.ten_san }} <i class="bi bi-check-circle-fill text-success fs-6"></i></h5>
+                            <p class="text-muted small mb-3">Giá: <span class="text-danger fw-bold fs-5">{{ "{:,.0f}".format(s.gia_san_theo_gio) }}đ</span>/h</p>
+
+                            <div class="mt-auto d-flex gap-2">
+                                <a href="/san/{{ s.id }}" class="btn btn-outline-primary w-50 fw-bold btn-sm py-2">
+                                    Chi tiết
+                                </a>
+
+                                {% if current_user.is_authenticated %}
+                                <button type="button" class="btn btn-success w-50 fw-bold btn-sm py-2"
+                                        onclick="addToCart('{{ s.id }}', '{{ s.ten_san }}', {{ s.gia_san_theo_gio }})">
+                                    Thêm vào giỏ
+                                </button>
+                                {% else %}
+                                <a href="/login?next={{ request.full_path }}" class="btn btn-warning w-50 fw-bold btn-sm py-2">
+                                    Đăng nhập
+                                </a>
+                                {% endif %}
+                            </div>
                         </div>
                     </div>
+                </div>
+                {% else %}
+                <div class="col-12 text-center py-5">
+                    <h4 class="text-secondary">Không tìm thấy sân phù hợp</h4>
                 </div>
                 {% endfor %}
             </div>
 
             <div class="my-pagination">
                 {% if current_page > 1 %}
-                <a href="{{ url_for('main_bp.booking_view', page=current_page-1, kw=kw, loai_san=loai_san, ngay=ngay, gio_bd=gio_bd, gio_kt=gio_kt) }}">Trang trước</a>
+                <a href="{{ url_for('main_bp.booking_view', page=current_page-1, kw=kw, loai_san=loai_san, ngay=ngay, gio_bd=gio_bd, gio_kt=gio_kt) }}">Trang
+                    trước</a>
                 {% endif %}
 
                 {% for i in range(1, pages + 1) %}
@@ -92,7 +111,8 @@
                 {% endfor %}
 
                 {% if current_page < pages %}
-                <a href="{{ url_for('main_bp.booking_view', page=current_page+1, kw=kw, loai_san=loai_san, ngay=ngay, gio_bd=gio_bd, gio_kt=gio_kt) }}">Trang sau</a>
+                <a href="{{ url_for('main_bp.booking_view', page=current_page+1, kw=kw, loai_san=loai_san, ngay=ngay, gio_bd=gio_bd, gio_kt=gio_kt) }}">Trang
+                    sau</a>
                 {% endif %}
             </div>
         </div>
