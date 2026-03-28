@@ -21,10 +21,9 @@
 
         <div class="search-wrapper">
             <form action="/search" method="GET" class="search-bar-main">
-
                 <div class="search-box-item">
-                    <i class="bi bi-trophy ms-3 text-primary" style="font-size: 1.1rem;"></i>
-                    <select name="sport_type" class="form-select-custom" required title="Vui lòng chọn môn thể thao">
+                    <i class="bi bi-trophy ms-3 text-primary"></i>
+                    <select name="loai_san" class="form-select-custom" required>
                         <option value="" selected disabled>Chọn loại sân</option>
                         {% for l in LoaiSan %}
                         <option value="{{ l.name }}">{{ l.value }}</option>
@@ -33,44 +32,31 @@
                 </div>
 
                 <div class="search-box-item border-left-line">
-                    <i class="bi bi-calendar-event ms-3 text-primary" style="font-size: 1.1rem;"></i>
-                    <input type="date" name="booking_date" class="form-input-custom" required
-                           title="Vui lòng chọn ngày đặt">
+                    <i class="bi bi-calendar-event ms-3 text-primary"></i>
+                    <input type="date" name="ngay" class="form-input-custom" required>
                 </div>
 
                 <div class="search-box-item border-left-line">
-                    <i class="bi bi-clock ms-3 text-primary" style="font-size: 1.1rem;"></i>
-                    <select name="gio_bat_dau" id="gio_bat_dau" class="form-select-custom" required title="Giờ bắt đầu">
+                    <i class="bi bi-clock ms-3 text-primary"></i>
+                    <select name="gio_bd" class="form-select-custom" required>
                         <option value="" selected disabled>Từ giờ</option>
                         {% for hour in range(5, 22) %}
                         <option value="{{ '%02d' % hour }}:00">{{ '%02d' % hour }}:00</option>
-                        <option value="{{ '%02d' % hour }}:30">{{ '%02d' % hour }}:30</option>
                         {% endfor %}
                     </select>
                 </div>
 
                 <div class="search-box-item border-left-line">
-                    <i class="bi bi-clock-history ms-3 text-primary" style="font-size: 1.1rem;"></i>
-                    <select name="gio_ket_thuc" id="gio_ket_thuc" class="form-select-custom" required
-                            title="Giờ kết thúc">
+                    <i class="bi bi-clock-history ms-3 text-primary"></i>
+                    <select name="gio_kt" class="form-select-custom" required>
                         <option value="" selected disabled>Đến giờ</option>
                         {% for hour in range(6, 23) %}
                         <option value="{{ '%02d' % hour }}:00">{{ '%02d' % hour }}:00</option>
-                        <option value="{{ '%02d' % hour }}:30">{{ '%02d' % hour }}:30</option>
                         {% endfor %}
                     </select>
                 </div>
-                {% if current_user.is_authenticated %}
-                <button type="submit" class="btn-search-yellow">
-                    Tìm sân trống <i class="bi bi-search ms-2"></i>
-                </button>
-                {% else %}
-                <a href="../login"
-                   class="btn-search-yellow text-decoration-none d-flex align-items-center justify-content-center">
-                    Tìm sân trống <i class="bi bi-search ms-2"></i>
-                </a>
-                {% endif %}
 
+                <button type="submit" class="btn-search-yellow">Tìm sân trống</button>
             </form>
         </div>
     </div>
