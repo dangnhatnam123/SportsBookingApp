@@ -113,3 +113,25 @@ def luu_dat_san(ma_nd, ma_san, ngay_choi, gio_bd, gio_kt, tong_tien):
         print(f"Lỗi khi lưu DB: {str(ex)}")
         db.session.rollback()
         return False
+
+
+def get_history_by_user(user_id):
+    return DatLich.query.filter(DatLich.ma_nd == user_id) \
+        .order_by(DatLich.thoi_gian_dat.desc()).all()
+
+
+def huy_dat_san(ma_dat_san):
+    try:
+        dat_lich = DatLich.query.get(ma_dat_san)
+        if dat_lich:
+            if dat_lich.hoa_don:
+                db.session.delete(dat_lich.hoa_don)
+
+            db.session.delete(dat_lich)
+            db.session.commit()
+            return True
+
+    except Exception as ex:
+        print(f"Lỗi khi hủy: {ex}")
+        db.session.rollback()
+        return False
