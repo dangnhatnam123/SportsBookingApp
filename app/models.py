@@ -105,7 +105,7 @@ class HoaDon(BaseModel):
 
 if __name__ == '__main__':
     with app.app_context():
-        # db.drop_all()
+        db.drop_all()
         db.create_all()
 
         pwd = str(hashlib.md5('123456'.encode('utf-8')).hexdigest())
@@ -126,7 +126,7 @@ if __name__ == '__main__':
                 "cums": ["Chảo Lửa", "Hoa Lư", "Tao Đàn", "Phú Thọ", "K34", "Thành Phát", "An Khang", "Bách Khoa",
                          "Mỹ Đình", "Thống Nhất"],
                 "loai": LoaiSan.BONG_DA,
-                "anh": "https://images.unsplash.com/photo-1518605368461-1e1e38ce71bd?q=80&w=800",
+                "anh": "https://hoanghamobile.com/tin-tuc/wp-content/uploads/2023/09/hinh-nen-bong-da-49.jpg",
                 "gia_list": [150000, 200000, 250000, 300000],
                 "prefix": "Sân Bóng đá"
             },
