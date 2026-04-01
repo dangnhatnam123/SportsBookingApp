@@ -78,30 +78,20 @@ def load_user(user_id):
     return dao.get_user_by_id(user_id)
 
 
-@main_bp.route('/search')
-def booking_view():
-    kw = request.args.get('kw')
-    loai = request.args.get('loai_san')
+@main_bp.route('/search', methods= ['GET', 'POST'])
+@login_required
+def book_san():
+    san_id = request.args.get('san_id')
     ngay_str = request.args.get('ngay')
     gio_bd_str = request.args.get('gio_bd')
     gio_kt_str = request.args.get('gio_kt')
     page = request.args.get('page', 1, type=int)
 
-    ngay = datetime.strptime(ngay_str, '%Y-%m-%d').date() if ngay_str else None
-    t1 = datetime.strptime(gio_bd_str, '%H:%M').time() if gio_bd_str else None
-    t2 = datetime.strptime(gio_kt_str, '%H:%M').time() if gio_kt_str else None
+    ngay_dat = datetime.strptime(ngay_str, '%Y-%m-%d').date()
+    t1 = datetime.strptime(gio_bd_str, '%H:%M').time()
+    t2 = datetime.strptime(gio_kt_str, '%H:%M').time()
 
-    danh_sach = dao.load_san_trong(kw=kw, loai_san_val=loai, ngay=ngay, gio_bd=t1, gio_kt=t2, page=page)
-    total = dao.count_san_trong(kw=kw, loai_san_val=loai, ngay=ngay, gio_bd=t1, gio_kt=t2)
-    pages = math.ceil(total / current_app.config['PAGE_SIZE'])
 
-    return render_template('search.html',
-                           danh_sach_san=danh_sach,
-                           pages=pages,
-                           current_page=page,
-                           kw=kw, loai_san=loai, ngay=ngay_str, gio_bd=gio_bd_str, gio_kt=gio_kt_str,
-                           LoaiSan=models.LoaiSan,
-                           stats=dao.count_san_by_type())
 
 
 

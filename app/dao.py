@@ -54,11 +54,12 @@ def load_san_trong(kw=None, loai_san_val=None, ngay=None, gio_bd=None, gio_kt=No
     if ngay and gio_bd and gio_kt:
         da_dat = db.session.query(DatLich.ma_san).filter(
             DatLich.ngay_choi == ngay,
-            (DatLich.gio_bd < gio_kt) & (DatLich.gio_kt > gio_bd)
+            (DatLich.gio_bd < gio_kt) & (DatLich.gio_kt > gio_bd),
+            DatLich.trang_thai != TrangThaiDL.DA_HUY
         )
         query = query.filter(~San.id.in_(da_dat))
 
-    page_size = app.config.get('PAGE_SIZE', 9)
+    page_size = app.config.get('PAGE_SIZE', 6)
     start = (page - 1) * page_size
     return query.slice(start, start + page_size).all()
 
@@ -67,10 +68,16 @@ def count_san_trong(kw=None, loai_san_val=None, ngay=None, gio_bd=None, gio_kt=N
     if kw: query = query.filter(San.ten_san.contains(kw))
     if loai_san_val: query = query.filter(San.loai_san == loai_san_val)
     if ngay and gio_bd and gio_kt:
-        da_dat = db.session.query(DatLich.ma_san).filter(DatLich.ngay_choi == ngay, (DatLich.gio_bd < gio_kt) & (DatLich.gio_kt > gio_bd))
+        da_dat = (db.session.query(DatLich.ma_san)
+                  .filter(DatLich.ngay_choi == ngay,
+                          (DatLich.gio_bd < gio_kt) & (DatLich.gio_kt > gio_bd),
+                          DatLich.trang_thai != TrangThaiDL.DA_HUY
+                          )
+                  )
         query = query.filter(~San.id.in_(da_dat))
     return query.count()
 
 def count_san_by_type():
-    return db.session.query(San.loai_san, func.count(San.id)).group_by(San.loai_san).all()
+    return db.session.query(San.loai_san,
+                            func.count(San.id)).group_by(San.loai_san).all()
 

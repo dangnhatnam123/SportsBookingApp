@@ -88,10 +88,17 @@
                                 </a>
 
                                 {% if current_user.is_authenticated %}
-                                <button type="button" class="btn btn-success w-50 fw-bold btn-sm py-2"
-                                        onclick="datSanNgay('{{ s.id }}', '{{ s.ten_san }}', '{{ ngay }}', '{{ gio_bd }}', '{{ gio_kt }}')">
-                                    Đặt ngay
+                                {% if ngay and gio_bd and gio_kt %}
+                                <a href="{{ url_for('main_bp.checkout_view', san_id=s.id, ngay=ngay, gio_bd=gio_bd, gio_kt=gio_kt) }}"
+                                   class="btn btn-success w-50 fw-bold btn-sm py-2">
+                                    Thanh toán
+                                </a>
+                                {% else %}
+                                <button type="button" class="btn btn-secondary w-50 fw-bold btn-sm py-2" disabled
+                                        title="Vui lòng chọn ngày và giờ để đặt sân">
+                                    Chọn giờ trước
                                 </button>
+                                {% endif %}
                                 {% else %}
                                 <a href="/login?next={{ request.full_path }}"
                                    class="btn btn-warning w-50 fw-bold btn-sm py-2">
