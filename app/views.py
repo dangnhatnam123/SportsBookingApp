@@ -151,3 +151,21 @@ def process_payment():
          return "<h2 style='color:green; text-align:center;'>Thanh toán thành công! Sân đã được đặt.</h2><div style='text-align:center;'><a href='/'>Trở về trang chủ</a></div>"
     else:
         return "<h2 style='color:red; text-align:center;'>Có lỗi xảy ra, vui lòng thử lại!</h2>"
+
+
+@main_bp.route('/orders')
+@login_required
+def history_view():
+    history = dao.get_history_by_user(user_id=current_user.id)
+
+    now = datetime.now()
+
+    return render_template('history.html', history=history, now=now, datetime=datetime)
+
+
+@main_bp.route('/huy-dat-san/<int:ma_dat_san>', methods=['POST'])
+@login_required
+def process_huy_dat(ma_dat_san):
+    if dao.huy_dat_san(ma_dat_san):
+         return redirect(url_for('main_bp.history_view'))
+    return "Có lỗi xảy ra khi hủy đặt sân!"
