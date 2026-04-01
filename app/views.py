@@ -102,10 +102,3 @@ def booking_view():
                            kw=kw, loai_san=loai, ngay=ngay_str, gio_bd=gio_bd_str, gio_kt=gio_kt_str,
                            LoaiSan=models.LoaiSan,
                            stats=dao.count_san_by_type())
-
-
-
-
-
-if __name__ == '__main__':
-    app.run(debug=True)
