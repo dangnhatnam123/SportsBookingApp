@@ -148,7 +148,8 @@ def process_payment():
     )
 
     if thanh_cong:
-         return "<h2 style='color:green; text-align:center;'>Thanh toán thành công! Sân đã được đặt.</h2><div style='text-align:center;'><a href='/'>Trở về trang chủ</a></div>"
+         return ("<h2 style='color:green; text-align:center;'>Thanh toán thành công! "
+                 "Sân đã được đặt.</h2><div style='text-align:center;'><a href='/'>Trở về trang chủ</a></div>")
     else:
         return "<h2 style='color:red; text-align:center;'>Có lỗi xảy ra, vui lòng thử lại!</h2>"
 
