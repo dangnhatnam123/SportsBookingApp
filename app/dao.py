@@ -57,7 +57,7 @@ def load_san_trong(kw=None, loai_san_val=None, ngay=None, gio_bd=None, gio_kt=No
         )
         query = query.filter(~San.id.in_(da_dat))
 
-    page_size = app.config.get('PAGE_SIZE', 9)
+    page_size = app.config.get('PAGE_SIZE', 6)
     start = (page - 1) * page_size
     return query.slice(start, start + page_size).all()
 
