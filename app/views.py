@@ -1,6 +1,6 @@
-
+import math
 from datetime import datetime, date
-from flask import Blueprint
+from flask import Blueprint, current_app
 from flask import render_template, request, redirect, url_for
 from app import app, dao, login, models, db
 from flask_login import login_user, logout_user, login_required, current_user
@@ -79,45 +79,63 @@ def load_user(user_id):
     return dao.get_user_by_id(user_id)
 
 
-@main_bp.route('/search', methods=['GET', 'POST'])
-@login_required
-def search_view():
-    san_id = request.args.get('san_id')
-    ngay_str = request.args.get('ngay')
-    gio_bd_str = request.args.get('gio_bd')
-    gio_kt_str = request.args.get('gio_kt')
+@main_bp.route('/search')
+def booking_view():
+    kw = request.args.get('kw')
+    loai = request.args.get('loai_san')
+    ngay_chon = request.args.get('ngay_chon')
+    gio_bd = request.args.get('gio_bd')
+    gio_kt = request.args.get('gio_kt')
+    page = request.args.get('page', 1, type=int)
 
-    san = dao.get_san_by_id(san_id)
-    ngay_dat = datetime.strptime(ngay_str, '%Y-%m-%d').date()
-    t1 = datetime.strptime(gio_bd_str, '%H:%M').time()
-    t2 = datetime.strptime(gio_kt_str, '%H:%M').time()
+    hom_nay = date.today()
+    err_msg = ""
+    danh_sach = []
+    pages = 0
+    total = 0
+    ngay = None
+    t1 = None
+    t2 = None
 
-    if request.method == 'POST':
-        if ngay_dat < date.today():
-            return render_template('error.html', msg="Không được đặt sân trong quá khứ!")
+    if ngay_chon and gio_bd and gio_kt:
+        try:
+            ngay = datetime.strptime(ngay_chon, '%Y-%m-%d').date()
+            t1 = datetime.strptime(gio_bd, '%H:%M').time()
+            t2 = datetime.strptime(gio_kt, '%H:%M').time()
 
-        count = DatLich.query.filter(DatLich.ma_nd == current_user.id,
-                                     DatLich.ngay_choi == ngay_dat,
-                                     DatLich.trang_thai != models.TrangThaiDL.DA_HUY).count()
-        if count >= 3:
-            return render_template('error.html', msg="Bạn đã đặt tối đa 3 sân trong ngày này!")
+            tong_phut_bd = t1.hour * 60 + t1.minute
+            tong_phut_kt = t2.hour * 60 + t2.minute
+            so_phut_choi = tong_phut_kt - tong_phut_bd
 
-        check = DatLich.query.filter(DatLich.ma_san == san_id,
-                                     DatLich.ngay_choi == ngay_dat,
-                                     DatLich.trang_thai != models.TrangThaiDL.DA_HUY,
-                                     (DatLich.gio_bd < t2) & (DatLich.gio_kt > t1)).first()
-        if check:
-            return render_template('error.html', msg="Sân đã có người đặt trong khung giờ này!")
+            if ngay < hom_nay:
+                err_msg = "Lỗi: Không thể tìm sân trong quá khứ!"
+            elif ngay == hom_nay and t1 < datetime.now().time():
+                err_msg = "Lỗi: Vui lòng chọn giờ khác, không được chọn giờ tỏng quá khứ!"
+            elif so_phut_choi <= 0:
+                err_msg = "Lỗi: Giờ kết thúc phải lớn hơn giờ bắt đầu!"
+            elif so_phut_choi < 60:
+                err_msg = "Lỗi: Thời gian thuê tối thiểu phải là 1 tiếng!"
 
-        # Lưu Database
-        new_booking = DatLich(ngay_choi=ngay_dat, gio_bd=t1, gio_kt=t2,
-                              ma_nd=current_user.id, ma_san=san_id)
-        db.session.add(new_booking)
-        db.session.commit()
-        return redirect('/')
+        except ValueError:
+            err_msg = "Lỗi: Định dạng ngày giờ không hợp lệ!"
 
-    return render_template('checkout.html', ten_san=san.ten_san, gia=san.gia_san_theo_gio,
-                           ngay=ngay_str, t1=gio_bd_str, t2=gio_kt_str)
+    if not err_msg:
+        danh_sach = dao.load_san_trong(kw=kw, loai_san_val=loai, ngay=ngay, gio_bd=t1, gio_kt=t2, page=page)
+        total = dao.count_san_trong(kw=kw, loai_san_val=loai, ngay=ngay, gio_bd=t1, gio_kt=t2)
+
+        if total > 0:
+            pages = math.ceil(total / current_app.config.get('PAGE_SIZE', 6))
+
+    return render_template('search.html',
+                           danh_sach_san=danh_sach,
+                           pages=pages,
+                           current_page=page,
+                           kw=kw, loai_san=loai, ngay=ngay_chon, gio_bd=gio_bd, gio_kt=gio_kt,
+                           LoaiSan=models.LoaiSan,
+                           stats=dao.count_san_by_type(),
+                           today=hom_nay,
+                           err_msg=err_msg)
+
 
 
 @main_bp.route('/checkout/<int:san_id>')
@@ -183,5 +201,5 @@ def history_view():
 @login_required
 def process_huy_dat(ma_dat_san):
     if dao.huy_dat_san(ma_dat_san):
-         return redirect(url_for('main_bp.history_view'))
+        return redirect(url_for('main_bp.history_view'))
     return "Có lỗi xảy ra khi hủy đặt sân!"
