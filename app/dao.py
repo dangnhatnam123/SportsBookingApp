@@ -3,7 +3,7 @@ from datetime import datetime
 
 from sqlalchemy import func
 
-from app import db, app
+from app import db, app, models
 from sqlalchemy.exc import IntegrityError
 from app.models import NguoiDung, VaiTro, San, DatLich, TrangThaiDL, TrangThaiHoaDon, HoaDon
 import cloudinary.uploader
@@ -74,3 +74,10 @@ def count_san_trong(kw=None, loai_san_val=None, ngay=None, gio_bd=None, gio_kt=N
 def count_san_by_type():
     return db.session.query(San.loai_san, func.count(San.id)).group_by(San.loai_san).all()
 
+def load_all_san():
+    return San.query.all()
+
+def add_san(ten_san, loai_san, gia):
+    san_moi = models.San(ten_san = ten_san, loai_san = loai_san, gia_san_theo_gio = gia)
+    db.session.add(san_moi)
+    db.session.commit()

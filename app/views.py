@@ -2,17 +2,38 @@ import math
 from datetime import datetime, date
 
 from flask import Blueprint, render_template, current_app, session, jsonify
-from flask import render_template, request, redirect, url_for
+from flask import render_template, request, redirect, url_for,flash
 from app import app, dao, login, models, urls
 from flask_login import login_user, logout_user, login_required, current_user
 
 main_bp = Blueprint('main_bp', __name__, template_folder='templates')
 
 
-@main_bp.route('/admin')
-def admin():
-    return render_template('admin/admin.html')
+@main_bp.route('/admin/manage_san')
+def manage_san():
 
+    try:
+        danh_sach = dao.load_all_san()
+    except Exception as e:
+        print(f"Lỗi lấy dữ liệu: {e}")
+        danh_sach = []
+
+    return render_template('admin/manage_san.html', danh_sach_san=danh_sach)
+
+@main_bp.route('/admin/add_san', methods=['POST'])
+def add_san():
+
+    ten_san = request.form.get('ten_san')
+    loai = request.form.get('loai_san')
+    gia = request.form.get('gia')
+
+    try:
+        dao.add_san(ten_san, loai, gia)
+        print("đã thêm sân thành công")
+    except Exception as e:
+        print(e)
+
+    return redirect(url_for('main_bp.manage_san'))
 
 @main_bp.route('/')
 def home():
