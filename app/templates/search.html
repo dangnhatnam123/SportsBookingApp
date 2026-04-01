@@ -13,33 +13,35 @@
                 <select name="loai_san" class="form-select border-0 shadow-sm py-2">
                     <option value="">Tất cả loại sân</option>
                     {% for l in LoaiSan %}
-                    <option value="{{ l.name }}" {% if request.args.get('loai_san') == l.name %}selected{% endif %}>{{ l.value }}</option>
+                    <option value="{{ l.name }}" {% if request.args.get(
+                    'loai_san') == l.name %}selected{% endif %}>{{ l.value }}</option>
                     {% endfor %}
                 </select>
             </div>
             <div class="col-md-3">
                 <label class="small fw-bold text-secondary mb-1">Ngày chơi (*)</label>
-                <input type="date" name="ngay" value="{{ request.args.get('ngay', '') }}" class="form-control border-0 shadow-sm py-2" required>
+                <input type="date" name="ngay" value="{{ request.args.get('ngay', '') }}"
+                       class="form-control border-0 shadow-sm py-2" required>
             </div>
             <div class="search-box-item border-left-line">
-                    <i class="bi bi-clock ms-3 text-primary"></i>
-                    <select name="gio_bd" class="form-select-custom" required>
-                        <option value="" selected disabled>Từ giờ</option>
-                        {% for hour in range(5, 22) %}
-                        <option value="{{ '%02d' % hour }}:00">{{ '%02d' % hour }}:00</option>
-                        {% endfor %}
-                    </select>
-                </div>
+                <i class="bi bi-clock ms-3 text-primary"></i>
+                <select name="gio_bd" class="form-select-custom" required>
+                    <option value="" selected disabled>Từ giờ</option>
+                    {% for hour in range(5, 22) %}
+                    <option value="{{ '%02d' % hour }}:00">{{ '%02d' % hour }}:00</option>
+                    {% endfor %}
+                </select>
+            </div>
 
-                <div class="search-box-item border-left-line">
-                    <i class="bi bi-clock-history ms-3 text-primary"></i>
-                    <select name="gio_kt" class="form-select-custom" required>
-                        <option value="" selected disabled>Đến giờ</option>
-                        {% for hour in range(6, 23) %}
-                        <option value="{{ '%02d' % hour }}:00">{{ '%02d' % hour }}:00</option>
-                        {% endfor %}
-                    </select>
-                </div>
+            <div class="search-box-item border-left-line">
+                <i class="bi bi-clock-history ms-3 text-primary"></i>
+                <select name="gio_kt" class="form-select-custom" required>
+                    <option value="" selected disabled>Đến giờ</option>
+                    {% for hour in range(6, 23) %}
+                    <option value="{{ '%02d' % hour }}:00">{{ '%02d' % hour }}:00</option>
+                    {% endfor %}
+                </select>
+            </div>
 
             <div class="col-md-2">
                 <button type="submit" class="btn btn-warning w-100 fw-bold text-dark shadow-sm py-2">
@@ -68,10 +70,13 @@
                 {% for s in danh_sach_san %}
                 <div class="col-md-4">
                     <div class="card san-card h-100 border-0 shadow-sm rounded-3 overflow-hidden">
-                        <img src="{{ s.hinh_anh }}" class="card-img-top" style="height: 180px; object-fit: cover;" alt="{{ s.ten_san }}">
+                        <img src="{{ s.hinh_anh }}" class="card-img-top" style="height: 180px; object-fit: cover;"
+                             alt="{{ s.ten_san }}">
                         <div class="card-body text-center d-flex flex-column">
-                            <h5 class="fw-bold mb-2">{{ s.ten_san }} <i class="bi bi-check-circle-fill text-success fs-6"></i></h5>
-                            <p class="text-muted small mb-3">Giá: <span class="text-danger fw-bold fs-5">{{ "{:,.0f}".format(s.gia_san_theo_gio) }}đ</span>/h</p>
+                            <h5 class="fw-bold mb-2">{{ s.ten_san }} <i
+                                    class="bi bi-check-circle-fill text-success fs-6"></i></h5>
+                            <p class="text-muted small mb-3">Giá: <span class="text-danger fw-bold fs-5">{{ "{:,.0f}".format(s.gia_san_theo_gio) }}đ</span>/h
+                            </p>
 
                             <div class="mt-auto d-flex gap-2">
                                 <a href="/san/{{ s.id }}" class="btn btn-outline-primary w-50 fw-bold btn-sm py-2">
@@ -79,12 +84,20 @@
                                 </a>
 
                                 {% if current_user.is_authenticated %}
-                                <button type="button" class="btn btn-success w-50 fw-bold btn-sm py-2"
-                                        onclick="addToCart('{{ s.id }}', '{{ s.ten_san }}', {{ s.gia_san_theo_gio }})">
-                                    Thêm vào giỏ
-                                </button>
+                                {% if ngay and gio_bd and gio_kt %}
+                                <a href="{{ url_for('main_bp.checkout_view', san_id=s.id, ngay=ngay, gio_bd=gio_bd, gio_kt=gio_kt) }}"
+                                   class="btn btn-success w-50 fw-bold btn-sm py-2">
+                                    Thanh toán
+                                </a>
                                 {% else %}
-                                <a href="/login?next={{ request.full_path }}" class="btn btn-warning w-50 fw-bold btn-sm py-2">
+                                <button type="button" class="btn btn-secondary w-50 fw-bold btn-sm py-2"
+                                        onclick="nhacNhoChonGio()" title="Vui lòng chọn ngày và giờ để đặt sân">
+                                    Chọn giờ trước
+                                </button>
+                                {% endif %}
+                                {% else %}
+                                <a href="/login?next={{ request.full_path }}"
+                                   class="btn btn-warning w-50 fw-bold btn-sm py-2">
                                     Đăng nhập
                                 </a>
                                 {% endif %}
@@ -118,4 +131,25 @@
         </div>
     </div>
 </div>
+
+<script>
+    function nhacNhoChonGio() {
+        // Hiện thông báo
+        alert("Vui lòng chọn Ngày chơi và Giờ chơi ở bảng tìm kiếm phía trên trước khi đặt sân nhé!");
+
+        // Cuộn màn hình lên đầu trang chỗ thanh tìm kiếm
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+
+        // Highlight ô chọn ngày cho khách dễ thấy
+        const ngayInput = document.querySelector('input[name="ngay"]');
+        if (ngayInput) {
+            ngayInput.focus();
+            ngayInput.style.outline = "3px solid #ffc107";
+            setTimeout(() => { ngayInput.style.outline = ""; }, 2000);
+        }
+    }
+</script>
 {% endblock %}
