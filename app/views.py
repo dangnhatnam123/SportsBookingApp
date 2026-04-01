@@ -83,14 +83,14 @@ def load_user(user_id):
 def booking_view():
     kw = request.args.get('kw')
     loai = request.args.get('loai_san')
-    ngay_chon = request.args.get('ngay_chon')
+    ngay_chon = request.args.get('ngay')
     gio_bd = request.args.get('gio_bd')
     gio_kt = request.args.get('gio_kt')
     page = request.args.get('page', 1, type=int)
 
-    hom_nay = date.today()
+    today = date.today()
     err_msg = ""
-    danh_sach = []
+    DS = []
     pages = 0
     total = 0
     ngay = None
@@ -107,9 +107,9 @@ def booking_view():
             tong_phut_kt = t2.hour * 60 + t2.minute
             so_phut_choi = tong_phut_kt - tong_phut_bd
 
-            if ngay < hom_nay:
+            if ngay < today:
                 err_msg = "Lỗi: Không thể tìm sân trong quá khứ!"
-            elif ngay == hom_nay and t1 < datetime.now().time():
+            elif ngay == today and t1 < datetime.now().time():
                 err_msg = "Lỗi: Vui lòng chọn giờ khác, không được chọn giờ tỏng quá khứ!"
             elif so_phut_choi <= 0:
                 err_msg = "Lỗi: Giờ kết thúc phải lớn hơn giờ bắt đầu!"
@@ -120,21 +120,15 @@ def booking_view():
             err_msg = "Lỗi: Định dạng ngày giờ không hợp lệ!"
 
     if not err_msg:
-        danh_sach = dao.load_san_trong(kw=kw, loai_san_val=loai, ngay=ngay, gio_bd=t1, gio_kt=t2, page=page)
+        DS = dao.load_san_trong(kw=kw, loai_san_val=loai, ngay=ngay, gio_bd=t1, gio_kt=t2, page=page)
         total = dao.count_san_trong(kw=kw, loai_san_val=loai, ngay=ngay, gio_bd=t1, gio_kt=t2)
 
         if total > 0:
             pages = math.ceil(total / current_app.config.get('PAGE_SIZE', 6))
 
-    return render_template('search.html',
-                           danh_sach_san=danh_sach,
-                           pages=pages,
-                           current_page=page,
-                           kw=kw, loai_san=loai, ngay=ngay_chon, gio_bd=gio_bd, gio_kt=gio_kt,
-                           LoaiSan=models.LoaiSan,
-                           stats=dao.count_san_by_type(),
-                           today=hom_nay,
-                           err_msg=err_msg)
+    return render_template('search.html',danh_sach_san=DS,pages=pages,
+                           current_page=page,kw=kw, loai_san=loai, ngay=ngay_chon, gio_bd=gio_bd, gio_kt=gio_kt,
+                           LoaiSan=models.LoaiSan,stats=dao.count_san_by_type(),today=today,err_msg=err_msg)
 
 
 

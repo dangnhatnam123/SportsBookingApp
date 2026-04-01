@@ -96,7 +96,7 @@ def luu_dat_san(ma_nd, ma_san, ngay_choi, gio_bd, gio_kt, tong_tien):
             trang_thai=TrangThaiDL.CHUA_HOAN_THANH
         )
         db.session.add(dat_lich)
-        db.session.flush()  # Đẩy tạm vào DB để lấy được dat_lich.id (mã đặt)
+        db.session.flush()
 
         hoa_don = HoaDon(
             tong_tien=float(tong_tien),

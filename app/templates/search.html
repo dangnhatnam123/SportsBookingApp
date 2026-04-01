@@ -26,9 +26,18 @@
             <div class="search-box-item border-left-line">
                 <i class="bi bi-clock ms-3 text-primary"></i>
                 <select name="gio_bd" class="form-select-custom" required>
-                    <option value="" selected disabled>Từ giờ</option>
+                    <option value="" {% if not gio_bd %}selected{% endif %} disabled>Từ giờ</option>
+
                     {% for hour in range(5, 22) %}
-                    <option value="{{ '%02d' % hour }}:00">{{ '%02d' % hour }}:00</option>
+                    <option value="{{ '%02d:00' % hour }}" {% if gio_bd== (
+                    '%02d:00' % hour) %} selected {% endif %}>
+                    {{ '%02d:00' % hour }}
+                    </option>
+
+                    <option value="{{ '%02d:30' % hour }}" {% if gio_bd== (
+                    '%02d:30' % hour) %} selected {% endif %}>
+                    {{ '%02d:30' % hour }}
+                    </option>
                     {% endfor %}
                 </select>
             </div>
@@ -36,9 +45,18 @@
             <div class="search-box-item border-left-line">
                 <i class="bi bi-clock-history ms-3 text-primary"></i>
                 <select name="gio_kt" class="form-select-custom" required>
-                    <option value="" selected disabled>Đến giờ</option>
+                    <option value="" {% if not gio_kt %}selected{% endif %} disabled>Đến giờ</option>
+
                     {% for hour in range(6, 23) %}
-                    <option value="{{ '%02d' % hour }}:00">{{ '%02d' % hour }}:00</option>
+                    <option value="{{ '%02d:00' % hour }}" {% if gio_kt== (
+                    '%02d:00' % hour) %} selected {% endif %}>
+                    {{ '%02d:00' % hour }}
+                    </option>
+
+                    <option value="{{ '%02d:30' % hour }}" {% if gio_kt== (
+                    '%02d:30' % hour) %} selected {% endif %}>
+                    {{ '%02d:30' % hour }}
+                    </option>
                     {% endfor %}
                 </select>
             </div>
@@ -52,6 +70,8 @@
     </div>
 
     <div class="row">
+
+        {% if not loai_san %}
         <div class="col-md-3 d-none d-md-block">
             <div class="category-sidebar bg-white p-3 rounded shadow-sm">
                 <h6 class="fw-bold border-bottom pb-2 mb-3">DANH MỤC SÂN</h6>
@@ -64,8 +84,27 @@
                 {% endfor %}
             </div>
         </div>
+        {% endif %}
 
-        <div class="col-md-9">
+        <div class="{% if not loai_san %}col-md-9{% else %}col-12{% endif %}">
+
+            {% if loai_san %}
+            <div class="d-flex justify-content-between align-items-center bg-white p-3 rounded shadow-sm mb-4 border-start border-4 border-primary">
+                <h5 class="mb-0 fw-bold text-secondary">
+                    <i class="bi bi-funnel-fill text-primary me-2"></i>
+                    Kết quả tìm kiếm cho:
+                    <span class="text-primary">
+                    {% for l in LoaiSan %}
+                        {% if l.name == loai_san %}{{ l.value }}{% endif %}
+                    {% endfor %}
+                </span>
+                </h5>
+                <a href="/search" class="btn btn-outline-danger btn-sm fw-bold">
+                    <i class="bi bi-x-circle me-1"></i> Bỏ lọc
+                </a>
+            </div>
+            {% endif %}
+
             <div class="row g-4">
                 {% for s in danh_sach_san %}
                 <div class="col-md-4">
@@ -90,9 +129,9 @@
                                     Thanh toán
                                 </a>
                                 {% else %}
-                                <button type="button" class="btn btn-secondary w-50 fw-bold btn-sm py-2"
-                                        onclick="nhacNhoChonGio()" title="Vui lòng chọn ngày và giờ để đặt sân">
-                                    Chọn giờ trước
+                                <button type="button" onclick="nhacNhoChonGio()"
+                                        class="btn btn-success w-50 fw-bold btn-sm py-2">
+                                    Thanh toán
                                 </button>
                                 {% endif %}
                                 {% else %}
@@ -107,7 +146,7 @@
                 </div>
                 {% else %}
                 <div class="col-12 text-center py-5">
-                    <h4 class="text-secondary">Không tìm thấy sân phù hợp</h4>
+                    <h4 class="text-secondary">Không tìm thấy sân phù hợp với yêu cầu của bạn!</h4>
                 </div>
                 {% endfor %}
             </div>
@@ -142,22 +181,5 @@
         </div>
     </div>
 </div>
-
-<script>
-    function nhacNhoChonGio() {
-        alert("Vui lòng chọn Ngày chơi và Giờ chơi ở bảng tìm kiếm phía trên trước khi đặt sân nhé!");
-
-        window.scrollTo({
-            top: 0,
-            behavior: 'smooth'
-        });
-
-        const ngayInput = document.querySelector('input[name="ngay"]');
-        if (ngayInput) {
-            ngayInput.focus();
-            ngayInput.style.outline = "3px solid #ffc107";
-            setTimeout(() => { ngayInput.style.outline = ""; }, 2000);
-        }
-    }
-</script>
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
 {% endblock %}
