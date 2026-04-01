@@ -28,9 +28,7 @@
                 <select name="gio_bd" class="form-select-custom" required>
                     <option value="" selected disabled>Từ giờ</option>
                     {% for hour in range(5, 22) %}
-                    {% for minute in ['00', '30'] %}
-                    <option value="{{ '%02d' % hour }}:{{ minute }}">{{ '%02d' % hour }}:{{ minute }}</option>
-                    {% endfor %}
+                    <option value="{{ '%02d' % hour }}:00">{{ '%02d' % hour }}:00</option>
                     {% endfor %}
                 </select>
             </div>
@@ -40,9 +38,7 @@
                 <select name="gio_kt" class="form-select-custom" required>
                     <option value="" selected disabled>Đến giờ</option>
                     {% for hour in range(6, 23) %}
-                    {% for minute in ['00', '30'] %}
-                    <option value="{{ '%02d' % hour }}:{{ minute }}">{{ '%02d' % hour }}:{{ minute }}</option>
-                    {% endfor %}
+                    <option value="{{ '%02d' % hour }}:00">{{ '%02d' % hour }}:00</option>
                     {% endfor %}
                 </select>
             </div>
@@ -94,8 +90,8 @@
                                     Thanh toán
                                 </a>
                                 {% else %}
-                                <button type="button" class="btn btn-secondary w-50 fw-bold btn-sm py-2" disabled
-                                        title="Vui lòng chọn ngày và giờ để đặt sân">
+                                <button type="button" class="btn btn-secondary w-50 fw-bold btn-sm py-2"
+                                        onclick="nhacNhoChonGio()" title="Vui lòng chọn ngày và giờ để đặt sân">
                                     Chọn giờ trước
                                 </button>
                                 {% endif %}
@@ -135,4 +131,22 @@
         </div>
     </div>
 </div>
+
+<script>
+    function nhacNhoChonGio() {
+        alert("Vui lòng chọn Ngày chơi và Giờ chơi ở bảng tìm kiếm phía trên trước khi đặt sân nhé!");
+
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+
+        const ngayInput = document.querySelector('input[name="ngay"]');
+        if (ngayInput) {
+            ngayInput.focus();
+            ngayInput.style.outline = "3px solid #ffc107";
+            setTimeout(() => { ngayInput.style.outline = ""; }, 2000);
+        }
+    }
+</script>
 {% endblock %}

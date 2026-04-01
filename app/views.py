@@ -94,4 +94,50 @@ def book_san():
 
 
 
+@main_bp.route('/checkout/<int:san_id>')
+@login_required
+def checkout_view(san_id):
+    ngay = request.args.get('ngay')
+    gio_bd = request.args.get('gio_bd')
+    gio_kt = request.args.get('gio_kt')
 
+    if not ngay or not gio_bd or not gio_kt:
+        return redirect(url_for('main_bp.booking_view'))
+
+    san = dao.get_san_by_id(san_id)
+    if not san:
+        return redirect(url_for('main_bp.booking_view'))
+
+    fmt = '%H:%M'
+    t1 = datetime.strptime(gio_bd, fmt)
+    t2 = datetime.strptime(gio_kt, fmt)
+    tong_gio = (t2 - t1).total_seconds() / 3600
+    tong_tien = tong_gio * san.gia_san_theo_gio
+
+    return render_template('checkout.html',
+                           san=san, ngay=ngay, gio_bd=gio_bd,
+                           gio_kt=gio_kt, tong_gio=tong_gio, tong_tien=tong_tien)
+
+
+@main_bp.route('/process-payment', methods=['POST'])
+@login_required
+def process_payment():
+    san_id = request.form.get('san_id')
+    ngay = request.form.get('ngay')
+    gio_bd = request.form.get('gio_bd')
+    gio_kt = request.form.get('gio_kt')
+    tong_tien = request.form.get('tong_tien')
+
+    thanh_cong = dao.luu_dat_san(
+        ma_nd=current_user.id,
+        ma_san=san_id,
+        ngay_choi=ngay,
+        gio_bd=gio_bd,
+        gio_kt=gio_kt,
+        tong_tien=tong_tien
+    )
+
+    if thanh_cong:
+         return "<h2 style='color:green; text-align:center;'>Thanh toán thành công! Sân đã được đặt.</h2><div style='text-align:center;'><a href='/'>Trở về trang chủ</a></div>"
+    else:
+        return "<h2 style='color:red; text-align:center;'>Có lỗi xảy ra, vui lòng thử lại!</h2>"
