@@ -105,20 +105,20 @@ class HoaDon(BaseModel):
 
 if __name__ == '__main__':
     with app.app_context():
-        db.drop_all()
+        # db.drop_all()
         db.create_all()
 
         pwd = str(hashlib.md5('123456'.encode('utf-8')).hexdigest())
 
         admin = NguoiDung(ho_ten='Admin Hệ Thống', ten_nd='admin', mat_khau=pwd, vai_tro=VaiTro.QUAN_LY)
-        user1 = NguoiDung(ho_ten='Nguyễn Công Phượng', ten_nd='user1', mat_khau=pwd, vai_tro=VaiTro.NGUOI_DUNG)
+        user1 = NguoiDung(ho_ten='Nguyễn Công Phượng', ten_nd='user1', mat_khau=pwd, vai_tro=VaiTro.NHAN_VIEN)
         user2 = NguoiDung(ho_ten='Lý Hoàng Nam', ten_nd='user2', mat_khau=pwd, vai_tro=VaiTro.NGUOI_DUNG)
         user3 = NguoiDung(ho_ten='Trần Văn Tèo', ten_nd='user3', mat_khau=pwd, vai_tro=VaiTro.NGUOI_DUNG)
         user4 = NguoiDung(ho_ten='Lê Thị Nở', ten_nd='user4', mat_khau=pwd, vai_tro=VaiTro.NGUOI_DUNG)
         user5 = NguoiDung(ho_ten='Trần Văn Tí', ten_nd='user5', mat_khau=pwd, vai_tro=VaiTro.NGUOI_DUNG)
         user6 = NguoiDung(ho_ten='Lê Thị Ninh', ten_nd='user6', mat_khau=pwd, vai_tro=VaiTro.NGUOI_DUNG)
 
-        db.session.add_all([admin, user1, user2])
+        db.session.add_all([admin, user1, user2,user3, user4, user5, user6])
         db.session.commit()
 
         data_set = [
