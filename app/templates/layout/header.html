@@ -31,15 +31,6 @@
 
                 {% if current_user.is_authenticated %}
 
-                <li style="margin-right: 10px;">
-                    <a href="/cart" class="position-relative d-flex align-items-center">
-                        <i class="bi bi-bag-check fs-5 me-1"></i> Giỏ hàng
-                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark cart-counter" style="font-size: 0.7rem; margin-top: 5px; margin-left: -5px;">
-                            {{ cart_stats.total_quantity if cart_stats else 0 }}
-                        </span>
-                    </a>
-                </li>
-
                 <li class="dropdown">
                     <a href="#" class="d-flex align-items-center">
                         <img src="{{ current_user.avatar }}"

@@ -41,7 +41,9 @@
                     <select name="gio_bd" class="form-select-custom" required>
                         <option value="" selected disabled>Từ giờ</option>
                         {% for hour in range(5, 22) %}
-                        <option value="{{ '%02d' % hour }}:00">{{ '%02d' % hour }}:00</option>
+                        {% for minute in ['00', '30'] %}
+                        <option value="{{ '%02d' % hour }}:{{ minute }}">{{ '%02d' % hour }}:{{ minute }}</option>
+                        {% endfor %}
                         {% endfor %}
                     </select>
                 </div>
@@ -51,7 +53,9 @@
                     <select name="gio_kt" class="form-select-custom" required>
                         <option value="" selected disabled>Đến giờ</option>
                         {% for hour in range(6, 23) %}
-                        <option value="{{ '%02d' % hour }}:00">{{ '%02d' % hour }}:00</option>
+                        {% for minute in ['00', '30'] %}
+                        <option value="{{ '%02d' % hour }}:{{ minute }}">{{ '%02d' % hour }}:{{ minute }}</option>
+                        {% endfor %}
                         {% endfor %}
                     </select>
                 </div>

@@ -13,33 +13,39 @@
                 <select name="loai_san" class="form-select border-0 shadow-sm py-2">
                     <option value="">Tất cả loại sân</option>
                     {% for l in LoaiSan %}
-                    <option value="{{ l.name }}" {% if request.args.get('loai_san') == l.name %}selected{% endif %}>{{ l.value }}</option>
+                    <option value="{{ l.name }}" {% if request.args.get(
+                    'loai_san') == l.name %}selected{% endif %}>{{ l.value }}</option>
                     {% endfor %}
                 </select>
             </div>
             <div class="col-md-3">
                 <label class="small fw-bold text-secondary mb-1">Ngày chơi (*)</label>
-                <input type="date" name="ngay" value="{{ request.args.get('ngay', '') }}" class="form-control border-0 shadow-sm py-2" required>
+                <input type="date" name="ngay" value="{{ request.args.get('ngay', '') }}"
+                       class="form-control border-0 shadow-sm py-2" required>
             </div>
             <div class="search-box-item border-left-line">
-                    <i class="bi bi-clock ms-3 text-primary"></i>
-                    <select name="gio_bd" class="form-select-custom" required>
-                        <option value="" selected disabled>Từ giờ</option>
-                        {% for hour in range(5, 22) %}
-                        <option value="{{ '%02d' % hour }}:00">{{ '%02d' % hour }}:00</option>
-                        {% endfor %}
-                    </select>
-                </div>
+                <i class="bi bi-clock ms-3 text-primary"></i>
+                <select name="gio_bd" class="form-select-custom" required>
+                    <option value="" selected disabled>Từ giờ</option>
+                    {% for hour in range(5, 22) %}
+                    {% for minute in ['00', '30'] %}
+                    <option value="{{ '%02d' % hour }}:{{ minute }}">{{ '%02d' % hour }}:{{ minute }}</option>
+                    {% endfor %}
+                    {% endfor %}
+                </select>
+            </div>
 
-                <div class="search-box-item border-left-line">
-                    <i class="bi bi-clock-history ms-3 text-primary"></i>
-                    <select name="gio_kt" class="form-select-custom" required>
-                        <option value="" selected disabled>Đến giờ</option>
-                        {% for hour in range(6, 23) %}
-                        <option value="{{ '%02d' % hour }}:00">{{ '%02d' % hour }}:00</option>
-                        {% endfor %}
-                    </select>
-                </div>
+            <div class="search-box-item border-left-line">
+                <i class="bi bi-clock-history ms-3 text-primary"></i>
+                <select name="gio_kt" class="form-select-custom" required>
+                    <option value="" selected disabled>Đến giờ</option>
+                    {% for hour in range(6, 23) %}
+                    {% for minute in ['00', '30'] %}
+                    <option value="{{ '%02d' % hour }}:{{ minute }}">{{ '%02d' % hour }}:{{ minute }}</option>
+                    {% endfor %}
+                    {% endfor %}
+                </select>
+            </div>
 
             <div class="col-md-2">
                 <button type="submit" class="btn btn-warning w-100 fw-bold text-dark shadow-sm py-2">
@@ -68,10 +74,13 @@
                 {% for s in danh_sach_san %}
                 <div class="col-md-4">
                     <div class="card san-card h-100 border-0 shadow-sm rounded-3 overflow-hidden">
-                        <img src="{{ s.hinh_anh }}" class="card-img-top" style="height: 180px; object-fit: cover;" alt="{{ s.ten_san }}">
+                        <img src="{{ s.hinh_anh }}" class="card-img-top" style="height: 180px; object-fit: cover;"
+                             alt="{{ s.ten_san }}">
                         <div class="card-body text-center d-flex flex-column">
-                            <h5 class="fw-bold mb-2">{{ s.ten_san }} <i class="bi bi-check-circle-fill text-success fs-6"></i></h5>
-                            <p class="text-muted small mb-3">Giá: <span class="text-danger fw-bold fs-5">{{ "{:,.0f}".format(s.gia_san_theo_gio) }}đ</span>/h</p>
+                            <h5 class="fw-bold mb-2">{{ s.ten_san }} <i
+                                    class="bi bi-check-circle-fill text-success fs-6"></i></h5>
+                            <p class="text-muted small mb-3">Giá: <span class="text-danger fw-bold fs-5">{{ "{:,.0f}".format(s.gia_san_theo_gio) }}đ</span>/h
+                            </p>
 
                             <div class="mt-auto d-flex gap-2">
                                 <a href="/san/{{ s.id }}" class="btn btn-outline-primary w-50 fw-bold btn-sm py-2">
@@ -80,11 +89,12 @@
 
                                 {% if current_user.is_authenticated %}
                                 <button type="button" class="btn btn-success w-50 fw-bold btn-sm py-2"
-                                        onclick="addToCart('{{ s.id }}', '{{ s.ten_san }}', {{ s.gia_san_theo_gio }})">
-                                    Thêm vào giỏ
+                                        onclick="datSanNgay('{{ s.id }}', '{{ s.ten_san }}', '{{ ngay }}', '{{ gio_bd }}', '{{ gio_kt }}')">
+                                    Đặt ngay
                                 </button>
                                 {% else %}
-                                <a href="/login?next={{ request.full_path }}" class="btn btn-warning w-50 fw-bold btn-sm py-2">
+                                <a href="/login?next={{ request.full_path }}"
+                                   class="btn btn-warning w-50 fw-bold btn-sm py-2">
                                     Đăng nhập
                                 </a>
                                 {% endif %}
