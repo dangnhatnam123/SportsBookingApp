@@ -134,16 +134,13 @@
 
 <script>
     function nhacNhoChonGio() {
-        // Hiện thông báo
         alert("Vui lòng chọn Ngày chơi và Giờ chơi ở bảng tìm kiếm phía trên trước khi đặt sân nhé!");
 
-        // Cuộn màn hình lên đầu trang chỗ thanh tìm kiếm
         window.scrollTo({
             top: 0,
             behavior: 'smooth'
         });
 
-        // Highlight ô chọn ngày cho khách dễ thấy
         const ngayInput = document.querySelector('input[name="ngay"]');
         if (ngayInput) {
             ngayInput.focus();
