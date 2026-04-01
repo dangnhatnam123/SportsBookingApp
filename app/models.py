@@ -93,7 +93,7 @@ class DatLich(BaseModel):
 class HoaDon(BaseModel):
     __tablename__ = 'hoa_don'
     tong_tien = Column(Float, default=0)
-    ngay_tao = Column(DateTime, default=datetime.now())
+    ngay_tao = Column(DateTime, default=datetime.now)
     trang_thai = Column(Enum(TrangThaiHoaDon), default=TrangThaiHoaDon.CHUA_THANH_TOAN)
 
     ma_dat = Column(Integer, ForeignKey('dat_lich.id'), nullable=False)
@@ -118,7 +118,7 @@ if __name__ == '__main__':
         user5 = NguoiDung(ho_ten='Trần Văn Tí', ten_nd='user5', mat_khau=pwd, vai_tro=VaiTro.NGUOI_DUNG)
         user6 = NguoiDung(ho_ten='Lê Thị Ninh', ten_nd='user6', mat_khau=pwd, vai_tro=VaiTro.NGUOI_DUNG)
 
-        db.session.add_all([admin, user1, user2])
+        db.session.add_all([admin, user1, user2, user3, user4, user5, user6])
         db.session.commit()
 
         data_set = [
