@@ -19,10 +19,13 @@ def admin():
 def home():
     return render_template('main.html', LoaiSan=models.LoaiSan)
 
+@main_bp.route('/dieu-khoan')
+def about():
+    return render_template('dieu-khoan.html')
 
-@main_bp.route('/services')
-def services():
-    return "Danh sách các dịch vụ thể thao hiện có..."
+@main_bp.route('/gioi-thieu')
+def dieukhoan():
+    return render_template('gioi-thieu.html')
 
 
 @main_bp.route('/login', methods=['GET', 'POST'])
