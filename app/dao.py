@@ -1,4 +1,5 @@
 import hashlib
+import math
 from datetime import datetime
 
 from sqlalchemy import func
@@ -114,20 +115,11 @@ def luu_dat_san(ma_nd, ma_san, ngay_choi, gio_bd, gio_kt, tong_tien):
         db.session.rollback()
         return False
 
-
-def get_history_by_user(user_id):
-    return DatLich.query.filter(DatLich.ma_nd == user_id) \
-        .order_by(DatLich.thoi_gian_dat.desc()).all()
-
-
 def huy_dat_san(ma_dat_san):
     try:
         dat_lich = DatLich.query.get(ma_dat_san)
         if dat_lich:
-            if dat_lich.hoa_don:
-                db.session.delete(dat_lich.hoa_don)
-
-            db.session.delete(dat_lich)
+            dat_lich.trang_thai = TrangThaiDL.DA_HUY
             db.session.commit()
             return True
 
@@ -135,3 +127,18 @@ def huy_dat_san(ma_dat_san):
         print(f"Lỗi khi hủy: {ex}")
         db.session.rollback()
         return False
+
+
+def get_history_by_user(user_id, page=1):
+    page_size = 10
+    start = (page - 1) * page_size
+
+    query = DatLich.query.filter(DatLich.ma_nd == user_id) \
+        .order_by(DatLich.thoi_gian_dat.desc())
+
+    total_count = query.count()
+    total_pages = math.ceil(total_count / page_size)
+
+    history_items = query.offset(start).limit(page_size).all()
+
+    return history_items, total_pages

@@ -4,6 +4,16 @@
 
 {% block content %}
 <div class="container mt-5 mb-5">
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    <div class="alert alert-{{ category }} alert-auto-close fade show mb-4" role="alert">
+        {{ message }}
+    </div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
     <div class="card shadow border-0 rounded-3">
         <div class="card-header bg-dark text-white p-3">
             <h4 class="mb-0"><i class="bi bi-clock-history me-2"></i>LỊCH SỬ ĐẶT SÂN</h4>
@@ -12,60 +22,98 @@
             <div class="table-responsive">
                 <table class="table table-hover mb-0">
                     <thead class="table-light">
-                        <tr>
-                            <th>Thông tin sân</th>
-                            <th>Ngày chơi</th>
-                            <th>Khung giờ</th>
-                            <th>Số tiền</th>
-                            <th>Trạng thái</th>
-                            <th>Thao tác</th>
-                        </tr>
+                    <tr>
+                        <th>Thông tin sân</th>
+                        <th>Ngày chơi</th>
+                        <th>Khung giờ</th>
+                        <th>Số tiền</th>
+                        <th>Trạng thái</th>
+                        <th>Thao tác</th>
+                    </tr>
                     </thead>
                     <tbody>
-                        {% for h in history %}
-                        <tr class="align-middle">
-                            <td>
-                                <div class="d-flex align-items-center">
-                                    <img src="{{ h.san.hinh_anh }}" style="width: 50px; height: 50px; object-fit: cover;" class="rounded me-2">
-                                    <span class="fw-bold">{{ h.san.ten_san }}</span>
-                                </div>
-                            </td>
-                            <td>{{ h.ngay_choi.strftime('%d/%m/%Y') }}</td>
-                            <td><span class="badge bg-info text-dark">{{ h.gio_bd.strftime('%H:%M') }} - {{ h.gio_kt.strftime('%H:%M') }}</span></td>
-                            <td class="text-danger fw-bold">{{ "{:,.0f}".format(h.hoa_don.tong_tien) if h.hoa_don else "0" }}đ</td>
-                            <td>
-                                {% if h.trang_thai.name == 'DA_HOAN_THANH' %}
-                                    <span class="badge bg-success">Đã hoàn thành</span>
+                    {% for h in history %}
+                    <tr class="align-middle">
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <img src="{{ h.san.hinh_anh }}" style="width: 50px; height: 50px; object-fit: cover;"
+                                     class="rounded me-2">
+                                <span class="fw-bold">{{ h.san.ten_san }}</span>
+                            </div>
+                        </td>
+                        <td>{{ h.ngay_choi.strftime('%d/%m/%Y') }}</td>
+                        <td><span class="badge bg-info text-dark">{{ h.gio_bd.strftime('%H:%M') }} - {{ h.gio_kt.strftime('%H:%M') }}</span>
+                        </td>
+
+                        <td>
+                            {% if h.trang_thai_hien_tai == 'Đã hủy' %}
+                                <del class="text-muted fw-bold">{{ "{:,.0f}".format(h.hoa_don.tong_tien) if h.hoa_don else "0" }}đ</del>
+                            {% else %}
+                                <span class="text-danger fw-bold">{{ "{:,.0f}".format(h.hoa_don.tong_tien) if h.hoa_don else "0" }}đ</span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {% set stt = h.trang_thai_hien_tai %}
+                            {% if stt == 'Chờ nhận sân' %}
+                            <span class="badge bg-warning text-dark">Chờ nhận sân</span>
+                            {% elif stt == 'Sân đang được sử dụng' %}
+                            <span class="badge bg-success">Sân đang được sử dụng</span>
+                            {% elif stt == 'Hết giờ nhận sân' %}
+                            <span class="badge bg-danger">Hết giờ nhận sân</span>
+                            {% elif stt == 'Hết giờ chơi' %}
+                            <span class="badge bg-secondary">Hết giờ chơi</span>
+                            {% elif stt == 'Đã hủy' %}
+                            <span class="badge bg-dark">Đã hủy</span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {% if h.trang_thai_hien_tai == 'Chờ nhận sân' %}
+                            <form action="{{ url_for('main_bp.process_huy_dat', ma_dat_san=h.id) }}" method="POST"
+                                  onsubmit="return confirm('Bạn có chắc chắn muốn hủy đặt sân này không?')">
+                                <button type="submit" class="btn btn-outline-danger btn-sm">
+                                    <i class="bi bi-trash"></i> Hủy đặt
+                                </button>
+                            </form>
+                            {% elif h.trang_thai_hien_tai == 'Đã hủy' %}
                                 {% else %}
-                                    <span class="badge bg-warning text-dark">Chờ nhận sân</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% set thoi_gian_choi = datetime.combine(h.ngay_choi, h.gio_bd) %}
-                                {% if now < thoi_gian_choi %}
-                                    <form action="{{ url_for('main_bp.process_huy_dat', ma_dat_san=h.id) }}" method="POST" 
-                                          onsubmit="return confirm('Bạn có chắc chắn muốn hủy đặt sân này không?')">
-                                        <button type="submit" class="btn btn-outline-danger btn-sm">
-                                            <i class="bi bi-trash"></i> Hủy đặt
-                                        </button>
-                                    </form>
-                                {% else %}
-                                    <small class="text-muted italic">Không thể hủy</small>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        {% else %}
-                        <tr>
-                            <td colspan="6" class="text-center py-5 text-muted">
-                                <i class="bi bi-calendar-x fs-1 d-block mb-2"></i>
-                                Bạn chưa có lịch sử đặt sân nào.
-                            </td>
-                        </tr>
-                        {% endfor %}
+                            <small class="text-muted fst-italic">Không thể hủy</small>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center py-5 text-muted">
+                            <i class="bi bi-calendar-x fs-1 d-block mb-2"></i>
+                            Bạn chưa có lịch sử đặt sân nào. Hãy đặt sân ngay nhé!
+                        </td>
+                    </tr>
+                    {% endfor %}
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            {# Nút Trước #}
+            <li class="page-item {{ 'disabled' if current_page == 1 }}">
+                <a class="page-link" href="{{ url_for('main_bp.history_view', page=current_page-1) }}">Trước</a>
+            </li>
+
+            {# Danh sách các số trang 1, 2, 3... #}
+            {% for p in range(1, pages + 1) %}
+            <li class="page-item {{ 'active' if p == current_page }}">
+                <a class="page-link" href="{{ url_for('main_bp.history_view', page=p) }}">{{ p }}</a>
+            </li>
+            {% endfor %}
+
+            {# Nút Sau #}
+            <li class="page-item {{ 'disabled' if current_page == pages }}">
+                <a class="page-link" href="{{ url_for('main_bp.history_view', page=current_page+1) }}">Sau</a>
+            </li>
+        </ul>
+    </nav>
 </div>
 {% endblock %}

@@ -89,6 +89,25 @@ class DatLich(BaseModel):
     san = relationship('San', back_populates='dat_lichs')
     hoa_don = relationship('HoaDon', back_populates='dat_lich', uselist=False)
 
+    @property
+    def trang_thai_hien_tai(self):
+        if self.trang_thai == TrangThaiDL.DA_HUY:
+            return "Đã hủy"
+        now = datetime.now()
+        start_dt = datetime.combine(self.ngay_choi, self.gio_bd)
+        end_dt = datetime.combine(self.ngay_choi, self.gio_kt)
+        if now < start_dt:
+            return "Chờ nhận sân"
+
+        if self.trang_thai == TrangThaiDL.DA_HOAN_THANH:
+            if now > end_dt:
+                return "Hết giờ chơi"
+
+            return "Sân đang được sử dụng"
+
+        if now > end_dt:
+            return "Hết giờ nhận sân"
+        return "Chờ nhận sân"
 
 class HoaDon(BaseModel):
     __tablename__ = 'hoa_don'

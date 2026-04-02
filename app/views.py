@@ -1,6 +1,6 @@
 import math
-from datetime import datetime, date
-from flask import Blueprint, current_app
+from datetime import datetime, date, timedelta
+from flask import Blueprint, current_app, flash
 from flask import render_template, request, redirect, url_for
 from app import app, dao, login, models, db
 from flask_login import login_user, logout_user, login_required, current_user
@@ -184,16 +184,47 @@ def process_payment():
 @main_bp.route('/orders')
 @login_required
 def history_view():
-    history = dao.get_history_by_user(user_id=current_user.id)
+    # Lấy trang hiện tại từ URL, mặc định là trang 1
+    page = request.args.get('page', 1, type=int)
+
+    # Gọi hàm dao lấy danh sách sân của trang đó và tổng số trang
+    history_list, total_pages = dao.get_history_by_user(current_user.id, page=page)
 
     now = datetime.now()
 
-    return render_template('history.html', history=history, now=now, datetime=datetime)
+    return render_template('history.html',
+                           history=history_list,
+                           pages=total_pages,
+                           current_page=page,
+                           now=now,
+                           datetime=datetime)
 
 
 @main_bp.route('/huy-dat-san/<int:ma_dat_san>', methods=['POST'])
 @login_required
 def process_huy_dat(ma_dat_san):
-    if dao.huy_dat_san(ma_dat_san):
+    dat_lich = DatLich.query.get_or_404(ma_dat_san)
+
+    # Ràng buộc 2.1
+    if dat_lich.ma_nd != current_user.id:
+        flash('Lỗi: Bạn không có quyền hủy lịch đặt sân của người khác!', 'danger')
         return redirect(url_for('main_bp.history_view'))
-    return "Có lỗi xảy ra khi hủy đặt sân!"
+
+    # Ràng buộc 2.2
+    now = datetime.now()
+    thoi_gian_bat_dau = datetime.combine(dat_lich.ngay_choi, dat_lich.gio_bd)
+    if now >= thoi_gian_bat_dau:
+        flash('Lỗi: Đã tới hoặc qua giờ nhận sân, bạn không thể hủy đơn này!', 'danger')
+        return redirect(url_for('main_bp.history_view'))
+
+    thoi_gian_con_lai = thoi_gian_bat_dau - now
+    if thoi_gian_con_lai < timedelta(hours=2):
+        flash('Lỗi: Bạn chỉ được phép hủy sân trước giờ chơi ít nhất 2 tiếng!', 'danger')
+        return redirect(url_for('main_bp.history_view'))
+
+    if dao.huy_dat_san(ma_dat_san):
+        flash('Hủy đặt sân thành công!', 'success')
+        return redirect(url_for('main_bp.history_view'))
+
+    flash('Có lỗi xảy ra khi hủy đặt sân!', 'danger')
+    return redirect(url_for('main_bp.history_view'))
