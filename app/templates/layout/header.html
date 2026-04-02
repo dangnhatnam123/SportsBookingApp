@@ -11,34 +11,53 @@
     <div class="header-bottom">
         <div class="container-custom nav-wrapper">
             <ul class="main-menu">
-                <li><a href="/" class="home-icon"><i class="bi bi-house-door-fill"></i></a></li>
-                <li><a href="/">Trang chủ</a></li>
+                <li class="nav-item">
+                    <a href="/"
+                       class="nav-link fw-bold px-3 {% if request.path == '/' %} text-warning {% else %} text-white {% endif %}">
+                        <i class="bi bi-house-door-fill"></i>
+                    </a>
+                </li>
+
+                <li class="nav-item border-start border-secondary">
+                    <a href="/"
+                       class="nav-link fw-bold px-3 {% if request.path == '/' %} text-warning {% else %} text-white {% endif %}">
+                        Trang chủ
+                    </a>
+                </li>
                 <li class="dropdown">
-                    <a href="/search">Danh sách sân bãi</a>
+                    <a href="/search" class="nav-link fw-bold px-3 {% if request.path == '/search' %} text-warning {% else %} text-white {% endif %}">Danh sách sân bãi</a>
                     <ul class="submenu">
                         <li><a href="/search?loai_san=BONG_DA">Bóng đá</a></li>
                         <li><a href="/search?loai_san=TENNIS">Tennis</a></li>
                         <li><a href="/search?loai_san=CAU_LONG">Cầu lông</a></li>
                     </ul>
                 </li>
-<!--                <li><a href="#">Dịch vụ</a></li>-->
-                <li><a href="#">Chính sách</a></li>
-                <li><a href="#">Điều khoản</a></li>
-                <li><a href="#">Liên hệ</a></li>
+                <!--                <li><a href="#">Dịch vụ</a></li>-->
+                <li class="nav-item">
+                    <a href="/gioi-thieu"
+                       class="nav-link fw-bold px-3 {% if request.path == '/gioi-thieu' %} text-warning {% else %} text-white {% endif %}">
+                        Giới thiệu
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a href="/chinh-sach"
+                       class="nav-link fw-bold px-3 {% if request.path == '/chinh-sach' %} text-warning {% else %} text-white {% endif %}">
+                        Chính sách
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a href="/dieu-khoan"
+                       class="nav-link fw-bold px-3 {% if request.path == '/dieu-khoan' %} text-warning {% else %} text-white {% endif %}">
+                        Điều khoản
+                    </a>
+                </li>
             </ul>
 
             <ul class="right-menu">
 
                 {% if current_user.is_authenticated %}
-
-                <li style="margin-right: 10px;">
-                    <a href="/cart" class="position-relative d-flex align-items-center">
-                        <i class="bi bi-bag-check fs-5 me-1"></i> Giỏ hàng
-                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark cart-counter" style="font-size: 0.7rem; margin-top: 5px; margin-left: -5px;">
-                            {{ cart_stats.total_quantity if cart_stats else 0 }}
-                        </span>
-                    </a>
-                </li>
 
                 <li class="dropdown">
                     <a href="#" class="d-flex align-items-center">

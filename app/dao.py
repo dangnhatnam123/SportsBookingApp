@@ -57,7 +57,7 @@ def load_san_trong(kw=None, loai_san_val=None, ngay=None, gio_bd=None, gio_kt=No
         )
         query = query.filter(~San.id.in_(da_dat))
 
-    page_size = app.config.get('PAGE_SIZE', 9)
+    page_size = app.config.get('PAGE_SIZE', 6)
     start = (page - 1) * page_size
     return query.slice(start, start + page_size).all()
 
@@ -96,7 +96,7 @@ def luu_dat_san(ma_nd, ma_san, ngay_choi, gio_bd, gio_kt, tong_tien):
             trang_thai=TrangThaiDL.CHUA_HOAN_THANH
         )
         db.session.add(dat_lich)
-        db.session.flush()  # Đẩy tạm vào DB để lấy được dat_lich.id (mã đặt)
+        db.session.flush()
 
         hoa_don = HoaDon(
             tong_tien=float(tong_tien),
