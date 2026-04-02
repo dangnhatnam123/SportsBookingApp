@@ -13,33 +13,53 @@
                 <select name="loai_san" class="form-select border-0 shadow-sm py-2">
                     <option value="">Tất cả loại sân</option>
                     {% for l in LoaiSan %}
-                    <option value="{{ l.name }}" {% if request.args.get('loai_san') == l.name %}selected{% endif %}>{{ l.value }}</option>
+                    <option value="{{ l.name }}" {% if request.args.get(
+                    'loai_san') == l.name %}selected{% endif %}>{{ l.value }}</option>
                     {% endfor %}
                 </select>
             </div>
             <div class="col-md-3">
                 <label class="small fw-bold text-secondary mb-1">Ngày chơi (*)</label>
-                <input type="date" name="ngay" value="{{ request.args.get('ngay', '') }}" class="form-control border-0 shadow-sm py-2" required>
+                <input type="date" name="ngay" value="{{ request.args.get('ngay', '') }}"
+                       class="form-control border-0 shadow-sm py-2" required>
             </div>
             <div class="search-box-item border-left-line">
-                    <i class="bi bi-clock ms-3 text-primary"></i>
-                    <select name="gio_bd" class="form-select-custom" required>
-                        <option value="" selected disabled>Từ giờ</option>
-                        {% for hour in range(5, 22) %}
-                        <option value="{{ '%02d' % hour }}:00">{{ '%02d' % hour }}:00</option>
-                        {% endfor %}
-                    </select>
-                </div>
+                <i class="bi bi-clock ms-3 text-primary"></i>
+                <select name="gio_bd" class="form-select-custom" required>
+                    <option value="" {% if not gio_bd %}selected{% endif %} disabled>Từ giờ</option>
 
-                <div class="search-box-item border-left-line">
-                    <i class="bi bi-clock-history ms-3 text-primary"></i>
-                    <select name="gio_kt" class="form-select-custom" required>
-                        <option value="" selected disabled>Đến giờ</option>
-                        {% for hour in range(6, 23) %}
-                        <option value="{{ '%02d' % hour }}:00">{{ '%02d' % hour }}:00</option>
-                        {% endfor %}
-                    </select>
-                </div>
+                    {% for hour in range(5, 22) %}
+                    <option value="{{ '%02d:00' % hour }}" {% if gio_bd== (
+                    '%02d:00' % hour) %} selected {% endif %}>
+                    {{ '%02d:00' % hour }}
+                    </option>
+
+                    <option value="{{ '%02d:30' % hour }}" {% if gio_bd== (
+                    '%02d:30' % hour) %} selected {% endif %}>
+                    {{ '%02d:30' % hour }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="search-box-item border-left-line">
+                <i class="bi bi-clock-history ms-3 text-primary"></i>
+                <select name="gio_kt" class="form-select-custom" required>
+                    <option value="" {% if not gio_kt %}selected{% endif %} disabled>Đến giờ</option>
+
+                    {% for hour in range(6, 23) %}
+                    <option value="{{ '%02d:00' % hour }}" {% if gio_kt== (
+                    '%02d:00' % hour) %} selected {% endif %}>
+                    {{ '%02d:00' % hour }}
+                    </option>
+
+                    <option value="{{ '%02d:30' % hour }}" {% if gio_kt== (
+                    '%02d:30' % hour) %} selected {% endif %}>
+                    {{ '%02d:30' % hour }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
 
             <div class="col-md-2">
                 <button type="submit" class="btn btn-warning w-100 fw-bold text-dark shadow-sm py-2">
@@ -50,6 +70,8 @@
     </div>
 
     <div class="row">
+
+        {% if not loai_san %}
         <div class="col-md-3 d-none d-md-block">
             <div class="category-sidebar bg-white p-3 rounded shadow-sm">
                 <h6 class="fw-bold border-bottom pb-2 mb-3">DANH MỤC SÂN</h6>
@@ -62,16 +84,38 @@
                 {% endfor %}
             </div>
         </div>
+        {% endif %}
 
-        <div class="col-md-9">
+        <div class="{% if not loai_san %}col-md-9{% else %}col-12{% endif %}">
+
+            {% if loai_san %}
+            <div class="d-flex justify-content-between align-items-center bg-white p-3 rounded shadow-sm mb-4 border-start border-4 border-primary">
+                <h5 class="mb-0 fw-bold text-secondary">
+                    <i class="bi bi-funnel-fill text-primary me-2"></i>
+                    Kết quả tìm kiếm cho:
+                    <span class="text-primary">
+                    {% for l in LoaiSan %}
+                        {% if l.name == loai_san %}{{ l.value }}{% endif %}
+                    {% endfor %}
+                </span>
+                </h5>
+                <a href="/search" class="btn btn-outline-danger btn-sm fw-bold">
+                    <i class="bi bi-x-circle me-1"></i> Bỏ lọc
+                </a>
+            </div>
+            {% endif %}
+
             <div class="row g-4">
                 {% for s in danh_sach_san %}
                 <div class="col-md-4">
                     <div class="card san-card h-100 border-0 shadow-sm rounded-3 overflow-hidden">
-                        <img src="{{ s.hinh_anh }}" class="card-img-top" style="height: 180px; object-fit: cover;" alt="{{ s.ten_san }}">
+                        <img src="{{ s.hinh_anh }}" class="card-img-top" style="height: 180px; object-fit: cover;"
+                             alt="{{ s.ten_san }}">
                         <div class="card-body text-center d-flex flex-column">
-                            <h5 class="fw-bold mb-2">{{ s.ten_san }} <i class="bi bi-check-circle-fill text-success fs-6"></i></h5>
-                            <p class="text-muted small mb-3">Giá: <span class="text-danger fw-bold fs-5">{{ "{:,.0f}".format(s.gia_san_theo_gio) }}đ</span>/h</p>
+                            <h5 class="fw-bold mb-2">{{ s.ten_san }} <i
+                                    class="bi bi-check-circle-fill text-success fs-6"></i></h5>
+                            <p class="text-muted small mb-3">Giá: <span class="text-danger fw-bold fs-5">{{ "{:,.0f}".format(s.gia_san_theo_gio) }}đ</span>/h
+                            </p>
 
                             <div class="mt-auto d-flex gap-2">
                                 <a href="/san/{{ s.id }}" class="btn btn-outline-primary w-50 fw-bold btn-sm py-2">
@@ -79,12 +123,20 @@
                                 </a>
 
                                 {% if current_user.is_authenticated %}
-                                <button type="button" class="btn btn-success w-50 fw-bold btn-sm py-2"
-                                        onclick="addToCart('{{ s.id }}', '{{ s.ten_san }}', {{ s.gia_san_theo_gio }})">
-                                    Thêm vào giỏ
-                                </button>
+                                {% if ngay and gio_bd and gio_kt %}
+                                <a href="{{ url_for('main_bp.checkout_view', san_id=s.id, ngay=ngay, gio_bd=gio_bd, gio_kt=gio_kt) }}"
+                                   class="btn btn-success w-50 fw-bold btn-sm py-2">
+                                    Thanh toán
+                                </a>
                                 {% else %}
-                                <a href="/login?next={{ request.full_path }}" class="btn btn-warning w-50 fw-bold btn-sm py-2">
+                                <button type="button" onclick="nhacNhoChonGio()"
+                                        class="btn btn-success w-50 fw-bold btn-sm py-2">
+                                    Thanh toán
+                                </button>
+                                {% endif %}
+                                {% else %}
+                                <a href="/login?next={{ request.full_path }}"
+                                   class="btn btn-warning w-50 fw-bold btn-sm py-2">
                                     Đăng nhập
                                 </a>
                                 {% endif %}
@@ -94,7 +146,7 @@
                 </div>
                 {% else %}
                 <div class="col-12 text-center py-5">
-                    <h4 class="text-secondary">Không tìm thấy sân phù hợp</h4>
+                    <h4 class="text-secondary">Không tìm thấy sân phù hợp với yêu cầu của bạn!</h4>
                 </div>
                 {% endfor %}
             </div>
@@ -115,7 +167,19 @@
                     sau</a>
                 {% endif %}
             </div>
+
+            {% if err_msg %}
+            <div class="row mt-3 mb-4 justify-content-center">
+                <div class="col-md-8">
+                    <div class="alert alert-danger text-center fw-bold shadow-sm" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill fs-5 me-2"></i>
+                        {{ err_msg }}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
         </div>
     </div>
 </div>
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
 {% endblock %}

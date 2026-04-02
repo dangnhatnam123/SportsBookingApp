@@ -42,6 +42,7 @@
                         <option value="" selected disabled>Từ giờ</option>
                         {% for hour in range(5, 22) %}
                         <option value="{{ '%02d' % hour }}:00">{{ '%02d' % hour }}:00</option>
+                        <option value="{{ '%02d' % hour }}:30">{{ '%02d' % hour }}:30</option>
                         {% endfor %}
                     </select>
                 </div>
@@ -52,9 +53,11 @@
                         <option value="" selected disabled>Đến giờ</option>
                         {% for hour in range(6, 23) %}
                         <option value="{{ '%02d' % hour }}:00">{{ '%02d' % hour }}:00</option>
+                        <option value="{{ '%02d' % hour }}:30">{{ '%02d' % hour }}:30</option>
                         {% endfor %}
                     </select>
                 </div>
+
 
                 <button type="submit" class="btn-search-yellow">Tìm sân trống</button>
             </form>
