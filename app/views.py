@@ -146,6 +146,14 @@ def checkout_view(san_id):
     if not san:
         return redirect(url_for('main_bp.booking_view'))
 
+    soluongsandat = dao.count_dat_san_trong_ngay(current_user.id,ngay)
+    if soluongsandat >= 3:
+        return render_template('error_book_san.html', ngay = ngay)
+
+    san = dao.get_san_by_id(san_id)
+    if not san:
+        return redirect(url_for('main_bp.booking_view'))
+
     fmt = '%H:%M'
     t1 = datetime.strptime(gio_bd, fmt)
     t2 = datetime.strptime(gio_kt, fmt)

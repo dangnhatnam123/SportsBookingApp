@@ -135,3 +135,12 @@ def huy_dat_san(ma_dat_san):
         print(f"Lỗi khi hủy: {ex}")
         db.session.rollback()
         return False
+
+def count_dat_san_trong_ngay(ma_nd, ngay_choi):
+    ngay = datetime.strptime(ngay_choi, '%Y-%m-%d').date()
+
+    count = DatLich.query.filter(DatLich.ma_nd == ma_nd,
+                                 DatLich.ngay_choi == ngay,
+                                 DatLich.trang_thai != TrangThaiDL.DA_HUY).count()
+
+    return count
