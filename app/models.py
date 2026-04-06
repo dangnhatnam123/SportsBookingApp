@@ -1,7 +1,7 @@
 import random
 from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, Float, Enum, DateTime, Time, Date
 from sqlalchemy.orm import relationship
-from app import db, app
+from app import db,app
 from flask_login import UserMixin
 from enum import Enum as UserEnum
 from datetime import datetime, time, date, timedelta
@@ -127,7 +127,7 @@ if __name__ == '__main__':
         db.drop_all()
         db.create_all()
 
-        pwd = str(hashlib.md5('123456'.encode('utf-8')).hexdigest())
+        pwd = str(hashlib.md5('Password123'.encode('utf-8')).hexdigest())
 
         admin = NguoiDung(ho_ten='Admin Hệ Thống', ten_nd='admin', mat_khau=pwd, vai_tro=VaiTro.QUAN_LY)
         user1 = NguoiDung(ho_ten='Nguyễn Công Phượng', ten_nd='user1', mat_khau=pwd, vai_tro=VaiTro.NHAN_VIEN)

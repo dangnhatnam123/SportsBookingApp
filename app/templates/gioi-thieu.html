@@ -1,0 +1,63 @@
+{% extends 'layout/base.html' %}
+
+{% block title %}Về Chúng Tôi - Đánh Thức Đam Mê{% endblock %}
+
+{% block content %}
+<div class="hero-section" style="min-height: 45vh; background: url('https://images.unsplash.com/photo-1541252260730-0412e8e2108e?q=80&w=2000') center/cover;">
+    <div class="hero-overlay" style="background: rgba(0,0,0,0.7);"></div>
+    <div class="hero-container">
+        <div class="hero-header text-center text-white">
+            <h1 class="display-4 fw-bold mb-3">KẾT NỐI ĐAM MÊ THỂ THAO</h1>
+            <div class="blue-line-divider" style="width: 80px; height: 4px; background: #ffc107; margin: 0 auto 20px;"></div>
+            <p class="lead px-4">Mang đến giải pháp đặt sân hiện đại, minh bạch và nhanh chóng cho mọi vận động viên.</p>
+        </div>
+    </div>
+</div>
+
+<div class="container py-5" style="font-family: 'Inter', 'Segoe UI', sans-serif;">
+    <div class="row align-items-center mb-5">
+        <div class="col-lg-6">
+            <h2 class="fw-bold text-primary mb-4">Sứ mệnh của chúng tôi</h2>
+            <p class="text-secondary mb-4" style="line-height: 1.8; text-align: justify;">
+                Chúng tôi tin rằng việc rèn luyện thể thao không nên bị cản trở bởi những thủ tục đặt sân rườm rà hay tình trạng "hết sân" bất ngờ. Hệ thống ra đời để trở thành cầu nối số giữa bạn và những trận cầu đỉnh cao.
+            </p>
+            <p class="text-secondary mb-4" style="line-height: 1.8; text-align: justify;">
+                Dù bạn là một cầu thủ bóng đá nhiệt huyết, một tay vợt cầu lông bền bỉ hay một tín đồ của bộ môn Tennis sang trọng, chúng tôi luôn sẵn sàng cung cấp những khung giờ đẹp nhất với thông tin minh bạch 100%.
+            </p>
+        </div>
+        <div class="col-lg-6">
+            <div class="row g-3">
+                <div class="col-6">
+                    <div class="p-4 text-center shadow-sm rounded-4 bg-white border-bottom border-primary border-4">
+                        <i class="bi bi-lightning-fill text-warning fs-1"></i>
+                        <h5 class="fw-bold mt-2">Tức thì</h5>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="p-4 text-center shadow-sm rounded-4 bg-white border-bottom border-success border-4">
+                        <i class="bi bi-shield-check text-success fs-1"></i>
+                        <h5 class="fw-bold mt-2">Tin cậy</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-primary text-white p-5 rounded-5 shadow-lg">
+        <div class="row text-center">
+            <div class="col-md-4 border-end border-white-50">
+                <h2 class="fw-bold">Bóng Đá</h2>
+                <p class="mb-0 opacity-75">Sân cỏ nhân tạo chuẩn quốc tế</p>
+            </div>
+            <div class="col-md-4 border-end border-white-50">
+                <h2 class="fw-bold">Cầu Lông</h2>
+                <p class="mb-0 opacity-75">Thảm thi đấu chống trơn trượt</p>
+            </div>
+            <div class="col-md-4">
+                <h2 class="fw-bold">Tennis</h2>
+                <p class="mb-0 opacity-75">Không gian chuyên nghiệp</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

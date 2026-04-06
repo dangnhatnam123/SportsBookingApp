@@ -1,6 +1,10 @@
 from app import app
-from app.views import main_bp
-app.register_blueprint(main_bp)
+from app.auth.views import auth_bp
+from app.courts.views import courts_bp
+from app.booking.views import booking_bp
 
+app.register_blueprint(auth_bp)
+app.register_blueprint(courts_bp)
+app.register_blueprint(booking_bp)
 if __name__ == '__main__':
     app.run(debug=True)

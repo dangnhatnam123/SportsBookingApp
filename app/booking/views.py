@@ -1,85 +1,15 @@
 import math
-from datetime import datetime, date, timedelta
-from flask import Blueprint, current_app, flash
-from flask import render_template, request, redirect, url_for
-from app import app, dao, login, models, db
-from flask_login import login_user, logout_user, login_required, current_user
+from datetime import date, datetime, timedelta
 
+from flask import request, render_template, current_app, redirect, url_for, flash
+from flask_login import login_required, current_user
+
+from app import models
+from app.booking import booking_bp, dao
 from app.models import DatLich
 
-main_bp = Blueprint('main_bp', __name__, template_folder='templates')
 
-
-@main_bp.route('/admin')
-def admin():
-    return render_template('admin/admin.html')
-
-
-@main_bp.route('/')
-def home():
-    return render_template('main.html', LoaiSan=models.LoaiSan)
-
-
-@main_bp.route('/services')
-def services():
-    return "Danh sách các dịch vụ thể thao hiện có..."
-
-
-@main_bp.route('/login', methods=['GET', 'POST'])
-def login_view():
-    err_msg = ''
-    if request.method == 'POST':
-        username = request.form.get('username')
-        password = request.form.get('password')
-
-        user = dao.auth_user(username=username, password=password)
-        if user:
-            login_user(user=user)
-            next_page = request.args.get('next')
-            return redirect(next_page if next_page else '/')
-        else:
-            err_msg = 'Tên đăng nhập hoặc mật khẩu không chính xác!'
-
-    return render_template('login.html', err_msg=err_msg)
-
-
-@main_bp.route('/register', methods=['GET', 'POST'])
-def register_view():
-    err_msg = ''
-    if request.method == 'POST':
-        data = request.form
-        password = data.get('password')
-        confirm = data.get('confirm')
-
-        if password != confirm:
-            err_msg = 'Mật khẩu xác nhận không khớp!'
-        else:
-            try:
-                avatar_file = request.files.get('avatar')
-
-                dao.add_user(name=data.get('name'),
-                             username=data.get('username'),
-                             password=password,
-                             avatar=avatar_file)
-                return redirect('/login')
-            except Exception as ex:
-                err_msg = str(ex)
-
-    return render_template('register.html', err_msg=err_msg)
-
-
-@main_bp.route('/logout')
-def logout_process():
-    logout_user()
-    return redirect('/login')
-
-
-@login.user_loader
-def load_user(user_id):
-    return dao.get_user_by_id(user_id)
-
-
-@main_bp.route('/search')
+@booking_bp.route('/search')
 def booking_view():
     kw = request.args.get('kw')
     loai = request.args.get('loai_san')
@@ -132,7 +62,7 @@ def booking_view():
 
 
 
-@main_bp.route('/checkout/<int:san_id>')
+@booking_bp.route('/checkout/<int:san_id>')
 @login_required
 def checkout_view(san_id):
     ngay = request.args.get('ngay')
@@ -140,11 +70,19 @@ def checkout_view(san_id):
     gio_kt = request.args.get('gio_kt')
 
     if not ngay or not gio_bd or not gio_kt:
-        return redirect(url_for('main_bp.booking_view'))
+        return redirect(url_for('booking_bp.booking_view'))
 
     san = dao.get_san_by_id(san_id)
     if not san:
-        return redirect(url_for('main_bp.booking_view'))
+        return redirect(url_for('booking_bp.booking_view'))
+
+    soluongsandat = dao.count_dat_san_trong_ngay(current_user.id,ngay)
+    if soluongsandat >= 3:
+        return render_template('error_book_san.html', ngay = ngay)
+
+    san = dao.get_san_by_id(san_id)
+    if not san:
+        return redirect(url_for('booking_bp.booking_view'))
 
     fmt = '%H:%M'
     t1 = datetime.strptime(gio_bd, fmt)
@@ -157,7 +95,7 @@ def checkout_view(san_id):
                            gio_kt=gio_kt, tong_gio=tong_gio, tong_tien=tong_tien)
 
 
-@main_bp.route('/process-payment', methods=['POST'])
+@booking_bp.route('/process-payment', methods=['POST'])
 @login_required
 def process_payment():
     san_id = request.form.get('san_id')
@@ -181,7 +119,7 @@ def process_payment():
         return "<h2 style='color:red; text-align:center;'>Có lỗi xảy ra, vui lòng thử lại!</h2>"
 
 
-@main_bp.route('/orders')
+@booking_bp.route('/orders')
 @login_required
 def history_view():
     page = request.args.get('page', 1, type=int)
@@ -198,7 +136,7 @@ def history_view():
                            datetime=datetime)
 
 
-@main_bp.route('/huy-dat-san/<int:ma_dat_san>', methods=['POST'])
+@booking_bp.route('/huy-dat-san/<int:ma_dat_san>', methods=['POST'])
 @login_required
 def process_huy_dat(ma_dat_san):
     dat_lich = DatLich.query.get_or_404(ma_dat_san)
@@ -231,3 +169,5 @@ def process_huy_dat(ma_dat_san):
 
     flash('Có lỗi xảy ra khi hủy đặt sân!', 'danger')
     return redirect(url_for('main_bp.history_view'))
+
+
