@@ -184,10 +184,8 @@ def process_payment():
 @main_bp.route('/orders')
 @login_required
 def history_view():
-    # Lấy trang hiện tại từ URL, mặc định là trang 1
     page = request.args.get('page', 1, type=int)
 
-    # Gọi hàm dao lấy danh sách sân của trang đó và tổng số trang
     history_list, total_pages = dao.get_history_by_user(current_user.id, page=page)
 
     now = datetime.now()
