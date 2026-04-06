@@ -1,7 +1,7 @@
 import random
 from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, Float, Enum, DateTime, Time, Date
 from sqlalchemy.orm import relationship
-from app import db
+from app import db,app
 from flask_login import UserMixin
 from enum import Enum as UserEnum
 from datetime import datetime, time, date, timedelta
