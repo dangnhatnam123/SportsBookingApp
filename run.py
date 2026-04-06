@@ -1,6 +1,6 @@
-from app import app
-from app.views import main_bp
-app.register_blueprint(main_bp)
+from app import create_app
+
+app = create_app()
 
 if __name__ == '__main__':
     app.run(debug=True)

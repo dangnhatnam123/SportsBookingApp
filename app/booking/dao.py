@@ -1,55 +1,9 @@
-import hashlib
-import re
 from datetime import datetime
-
 from sqlalchemy import func
+from app import db
+from app.models import DatLich, TrangThaiDL, TrangThaiHoaDon, HoaDon, San
+from flask import current_app
 
-from app import db, app
-from sqlalchemy.exc import IntegrityError
-from app.models import NguoiDung, VaiTro, San, DatLich, TrangThaiDL, TrangThaiHoaDon, HoaDon
-import cloudinary.uploader
-
-
-def get_user_by_id(user_id):
-    return NguoiDung.query.get(user_id)
-
-
-def auth_user(username, password):
-    password_hashed = str(hashlib.md5(password.strip().encode('utf-8')).hexdigest())
-
-    return NguoiDung.query.filter(NguoiDung.ten_nd == username.strip(),
-                                  NguoiDung.mat_khau == password_hashed).first()
-
-
-def add_user(name, username, password, avatar=None):
-    if len(username) < 5:
-        raise ValueError('Tên đăng nhập phải có ít nhất 5 ký tự!')
-    if len(password) < 8:
-        raise ValueError('Mật khẩu phải có ít nhất 8 ký tự!')
-    if not re.search(r'[0-9]', password):
-        raise ValueError('Mật khẩu quá yếu, phải chứa ít nhất 1 chữ số!')
-    if not re.search(r'[a-zA-Z]', password):
-        raise ValueError('Mật khẩu quá yếu, phải chứa ít nhất 1 chữ cái!')
-
-    password_hashed = str(hashlib.md5(password.strip().encode('utf-8')).hexdigest())
-
-    u = NguoiDung(
-        ho_ten=name.strip(),
-        ten_nd=username.strip(),
-        mat_khau=password_hashed,
-        vai_tro=VaiTro.NGUOI_DUNG
-    )
-
-    if avatar:
-        res = cloudinary.uploader.upload(avatar)
-        u.avatar = res.get("secure_url")
-
-    db.session.add(u)
-    try:
-        db.session.commit()
-    except IntegrityError:
-        db.session.rollback()
-        raise Exception('Tên đăng nhập đã tồn tại!')
 
 
 def load_san_trong(kw=None, loai_san_val=None, ngay=None, gio_bd=None, gio_kt=None, page=1):
@@ -67,7 +21,7 @@ def load_san_trong(kw=None, loai_san_val=None, ngay=None, gio_bd=None, gio_kt=No
         )
         query = query.filter(~San.id.in_(da_dat))
 
-    page_size = app.config.get('PAGE_SIZE', 6)
+    page_size = current_app.config.get('PAGE_SIZE', 6)
     start = (page - 1) * page_size
     return query.slice(start, start + page_size).all()
 

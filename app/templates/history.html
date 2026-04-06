@@ -43,7 +43,7 @@
                             <td>
                                 {% set thoi_gian_choi = datetime.combine(h.ngay_choi, h.gio_bd) %}
                                 {% if now < thoi_gian_choi %}
-                                    <form action="{{ url_for('main_bp.process_huy_dat', ma_dat_san=h.id) }}" method="POST" 
+                                    <form action="{{ url_for('booking_bp.process_huy_dat', ma_dat_san=h.id) }}" method="POST"
                                           onsubmit="return confirm('Bạn có chắc chắn muốn hủy đặt sân này không?')">
                                         <button type="submit" class="btn btn-outline-danger btn-sm">
                                             <i class="bi bi-trash"></i> Hủy đặt
