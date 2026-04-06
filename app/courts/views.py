@@ -40,6 +40,7 @@ def add_san():
 
 @courts_bp.route('/admin/delete-san/<int:san_id>', methods=['POST'])
 def delete_san(san_id):
+    print(dao.kiem_tra_lich_dat(san_id))
     if dao.kiem_tra_lich_dat(san_id):
         flash("Sân đã có lịch đặt trong tương lai. Không thể xóa!", "danger")
     else:

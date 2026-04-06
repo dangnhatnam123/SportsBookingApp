@@ -14,8 +14,8 @@ def add_san_moi(ten, loai, gia_thue):
 
 def kiem_tra_lich_dat(san_id):
     return DatLich.query.filter(
-        DatLich.san_id == san_id,
-        DatLich.ngay_dat >= datetime.now()
+    DatLich.ma_san == san_id,
+        DatLich.ngay_choi >= datetime.now().date()
     ).first() is not None
 
 def xoa_san(san_id):
