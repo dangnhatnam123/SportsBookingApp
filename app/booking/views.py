@@ -136,38 +136,6 @@ def history_view():
                            datetime=datetime)
 
 
-@booking_bp.route('/huy-dat-san/<int:ma_dat_san>', methods=['POST'])
-@login_required
-def process_huy_dat(ma_dat_san):
-    dat_lich = DatLich.query.get_or_404(ma_dat_san)
 
-    # Ràng buộc 2.1
-    if dat_lich.ma_nd != current_user.id:
-        flash('Lỗi: Bạn không có quyền hủy lịch đặt sân của người khác!', 'danger')
-        return redirect(url_for('main_bp.history_view'))
-
-    #Ràng buộc 2.3
-    if dat_lich.trang_thai_hien_tai == 'Sân đang được sử dụng':
-        flash('Lỗi: Sân đang có người chơi, không thể hủy!', 'danger')
-        return redirect(url_for('main_bp.history_view'))
-
-    # Ràng buộc 2.2
-    now = datetime.now()
-    thoi_gian_bat_dau = datetime.combine(dat_lich.ngay_choi, dat_lich.gio_bd)
-    if now >= thoi_gian_bat_dau:
-        flash('Lỗi: Đã tới hoặc qua giờ nhận sân, bạn không thể hủy đơn này!', 'danger')
-        return redirect(url_for('main_bp.history_view'))
-
-    thoi_gian_con_lai = thoi_gian_bat_dau - now
-    if thoi_gian_con_lai < timedelta(hours=2):
-        flash('Lỗi: Bạn chỉ được phép hủy sân trước giờ chơi ít nhất 2 tiếng!', 'danger')
-        return redirect(url_for('main_bp.history_view'))
-
-    if dao.huy_dat_san(ma_dat_san):
-        flash('Hủy đặt sân thành công!', 'success')
-        return redirect(url_for('main_bp.history_view'))
-
-    flash('Có lỗi xảy ra khi hủy đặt sân!', 'danger')
-    return redirect(url_for('main_bp.history_view'))
 
 
