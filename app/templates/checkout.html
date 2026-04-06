@@ -1,0 +1,65 @@
+{% extends 'layout/base.html' %}
+
+{% block title %}Xác nhận thanh toán{% endblock %}
+
+{% block content %}
+<div class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-7">
+            <div class="card shadow border-0 rounded-4 p-4">
+                <h2 class="text-center text-primary fw-bold mb-4">HÓA ĐƠN ĐẶT SÂN</h2>
+                
+                <form action="/process-payment" method="POST">
+                    <input type="hidden" name="san_id" value="{{ san.id }}">
+                    <input type="hidden" name="ngay" value="{{ ngay }}">
+                    <input type="hidden" name="gio_bd" value="{{ gio_bd }}">
+                    <input type="hidden" name="gio_kt" value="{{ gio_kt }}">
+                    <input type="hidden" name="tong_tien" value="{{ tong_tien }}">
+
+                    <h4 class="text-success text-center mb-4 border-bottom pb-3">{{ san.ten_san }}</h4>
+                    
+                    <div class="row fs-5 mb-3">
+                        <div class="col-5 text-secondary">Ngày chơi:</div>
+                        <div class="col-7 text-end fw-bold">{{ ngay }}</div>
+                    </div>
+                    
+                    <div class="row fs-5 mb-3">
+                        <div class="col-5 text-secondary">Khung giờ:</div>
+                        <div class="col-7 text-end fw-bold text-primary">{{ gio_bd }} - {{ gio_kt }}</div>
+                    </div>
+                    
+                    <div class="row fs-5 mb-3">
+                        <div class="col-5 text-secondary">Thời lượng:</div>
+                        <div class="col-7 text-end fw-bold">{{ tong_gio }} giờ</div>
+                    </div>
+
+                    <div class="row fs-5 mb-4">
+                        <div class="col-5 text-secondary">Đơn giá:</div>
+                        <div class="col-7 text-end fw-bold">{{ "{:,.0f}".format(san.gia_san_theo_gio) }}đ/h</div>
+                    </div>
+
+                    <div class="alert alert-warning text-center rounded-3 py-3 mt-3">
+                        <h5 class="mb-1 text-dark">TỔNG THANH TOÁN</h5>
+                        <h2 class="mb-0 text-danger fw-bold">{{ "{:,.0f}".format(tong_tien) }} VNĐ</h2>
+                    </div>
+
+                    <h5 class="fw-bold mt-4 mb-3">Phương thức thanh toán</h5>
+                    <div class="form-check mb-2 bg-light p-3 rounded border">
+                        <input class="form-check-input ms-1 mt-2" type="radio" name="payment_method" value="vnpay" checked>
+                        <label class="form-check-label ms-2 fw-bold">Thanh toán qua VNPay</label>
+                    </div>
+                    <div class="form-check mb-4 bg-light p-3 rounded border">
+                        <input class="form-check-input ms-1 mt-2" type="radio" name="payment_method" value="momo">
+                        <label class="form-check-label ms-2 fw-bold">Ví điện tử MoMo</label>
+                    </div>
+
+                    <div class="d-flex gap-3 mt-4">
+                        <a href="javascript:history.back()" class="btn btn-outline-secondary w-50 py-3 fw-bold">Quay lại</a>
+                        <button type="submit" class="btn btn-success w-50 py-3 fw-bold fs-5 shadow">XÁC NHẬN</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

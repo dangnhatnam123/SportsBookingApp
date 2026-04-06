@@ -1,7 +1,7 @@
 import random
 from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, Float, Enum, DateTime, Time, Date
 from sqlalchemy.orm import relationship
-from app import db, app
+from app import db
 from flask_login import UserMixin
 from enum import Enum as UserEnum
 from datetime import datetime, time, date, timedelta
@@ -108,7 +108,7 @@ if __name__ == '__main__':
         db.drop_all()
         db.create_all()
 
-        pwd = str(hashlib.md5('123456'.encode('utf-8')).hexdigest())
+        pwd = str(hashlib.md5('Password123'.encode('utf-8')).hexdigest())
 
         admin = NguoiDung(ho_ten='Admin Hệ Thống', ten_nd='admin', mat_khau=pwd, vai_tro=VaiTro.QUAN_LY)
         user1 = NguoiDung(ho_ten='Nguyễn Công Phượng', ten_nd='user1', mat_khau=pwd, vai_tro=VaiTro.NHAN_VIEN)
@@ -180,18 +180,23 @@ if __name__ == '__main__':
             user_date_key = (u_id, ngay_pick)
             if user_daily_counts.get(user_date_key, 0) >= 3:
                 continue
-            gio_b = random.randint(6, 20)
-            gio_k = gio_b + 1
+            gio_b = random.randint(6, 19)
+            phut_b = random.choice([0, 30])
+            gio_k = gio_b + random.randint(1, 3)
+            phut_k = random.choice([0, 30])
+            if (gio_k - gio_b == 1) and (phut_b == 30) and (phut_k == 0):
+                phut_k = 30
             slot_key = (ngay_pick, san_chon.id, gio_b)
             if slot_key in used_slots:
                 continue
             used_slots.add(slot_key)
             user_daily_counts[user_date_key] = user_daily_counts.get(user_date_key, 0) + 1
             trang_thai_rand = random.choice([TrangThaiDL.CHUA_HOAN_THANH, TrangThaiDL.DA_HOAN_THANH])
+
             lich = DatLich(
                 ngay_choi=ngay_pick,
-                gio_bd=time(gio_b, 0),
-                gio_kt=time(gio_k, 0),
+                gio_bd=time(gio_b, phut_b),
+                gio_kt=time(gio_k, phut_k),
                 ma_nd=u_id,
                 ma_san=san_chon.id,
                 trang_thai=trang_thai_rand
