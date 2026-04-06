@@ -30,13 +30,13 @@ def get_san(san_id):
 def update_san(san_id, ten, loai, gia_san_theo_gio):
     san = San.query.get(san_id)
     if san:
-        san.ten = ten
-        san.loai = loai
+        san.ten_san = ten
+        san.loai_san = loai
         san.gia_san_theo_gio = gia_san_theo_gio
         db.session.commit()
 
 def check_ten_san(ten, exclude_id = None):
-    query = San.query.filter(San.ten == ten)
+    query = San.query.filter(San.ten_san == ten)
     if exclude_id:
         query = query.filter(San.id != exclude_id)
     return query.first() is not None

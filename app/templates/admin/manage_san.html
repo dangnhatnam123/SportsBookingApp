@@ -24,10 +24,55 @@
         <td>{{ s.loai_san.value }}</td>
         <td>{{ s.gia_san_theo_gio }} VNĐ</td>
         <td>
-            <button class="btn btn-warning btn-sm">Sửa</button>
-            <button class="btn btn-danger btn-sm">Xoá</button>
+            <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#modalEdit{{ s.id }}">
+                Sửa
+            </button>
+            <form action="{{ url_for('courts_bp.delete_san', san_id=s.id) }}" method="POST" style="display:inline;"
+                  onsubmit="return confirm('Bạn chắc chắn muốn xóa sân này? Hành động này không thể hoàn tác!');">
+                <button type="submit" class="btn btn-danger btn-sm">Xoá</button>
+            </form>
         </td>
     </tr>
+    <div class="modal fade" id="modalEdit{{ s.id }}" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Sửa Thông Tin: {{ s.ten_san }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <form action="{{ url_for('courts_bp.edit_san', san_id=s.id) }}" method="POST">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Tên sân mới:</label>
+                            <input type="text" name="ten_san" class="form-control" value="{{ s.ten_san }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Loại sân:</label>
+                            <select name="loai_san" class="form-select">
+                                <option value="BONG_DA" {% if s.loai_san.name==
+                                'BONG_DA' %}selected{% endif %}>Bóng đá</option>
+                                <option value="CAU_LONG" {% if s.loai_san.name==
+                                'CAU_LONG' %}selected{% endif %}>Cầu lông</option>
+                                <option value="TENNIS" {% if s.loai_san.name==
+                                'TENNIS' %}selected{% endif %}>Tennis</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Giá thuê mới (VNĐ/giờ):</label>
+                            <input type="number" name="gia" class="form-control" value="{{ s.gia_san_theo_gio }}"
+                                   required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                        <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
     {% endfor %}
     </tbody>
 </table>
