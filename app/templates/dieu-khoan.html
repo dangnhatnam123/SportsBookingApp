@@ -1,0 +1,81 @@
+{% extends 'layout/base.html' %}
+
+{% block title %}Quy Định & Điều Khoản Đặt Sân{% endblock %}
+
+{% block content %}
+<div class="hero-section" style="min-height: 35vh; background-color: #0f172a;">
+    <div class="hero-overlay"></div>
+    <div class="hero-container">
+        <div class="hero-header text-center text-white">
+            <h1 class="fw-bold">QUY ĐỊNH SỬ DỤNG</h1>
+            <div class="blue-line-divider" style="width: 60px; height: 3px; background: #ffc107; margin: 15px auto;"></div>
+            <p class="opacity-75">Hướng dẫn chi tiết để bạn có trải nghiệm đặt lịch tốt nhất</p>
+        </div>
+    </div>
+</div>
+
+<div class="container py-5" style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 900px;">
+
+    <div class="mb-5">
+        <div class="d-flex align-items-center mb-4">
+            <span class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px; font-weight: bold;">01</span>
+            <h3 class="fw-bold text-dark mb-0">Hướng Dẫn Đặt Sân Trực Tuyến</h3>
+        </div>
+
+        <div class="ps-md-5">
+            <div class="card border-0 shadow-sm p-4 bg-light rounded-4">
+                <p class="mb-3"><i class="bi bi-person-check-fill text-primary me-2"></i> <strong>Yêu cầu định danh:</strong> Để bảo vệ quyền lợi cá nhân và xác nhận lịch chơi, quý khách vui lòng <b>đăng nhập</b> trước khi thực hiện các thao tác đặt lịch.</p>
+
+                <p class="mb-3"><i class="bi bi-clock-history text-primary me-2"></i> <strong>Thời gian đặt:</strong> Hệ thống chỉ ghi nhận các yêu cầu cho thời điểm hiện tại trở về sau. Chúng tôi không hỗ trợ đặt sân trong <b>quá khứ</b>.</p>
+
+                <p class="mb-3"><i class="bi bi-hourglass-split text-primary me-2"></i> <strong>Thời lượng tối thiểu:</strong> Mỗi suất đặt sân cần đảm bảo ít nhất <b>01 giờ (60 phút)</b> để đảm bảo chất lượng tập luyện.</p>
+
+                <p class="mb-3"><i class="bi bi-calendar-event text-primary me-2"></i> <strong>Hạn mức trong ngày:</strong> Để chia sẻ cơ hội cho cộng đồng, mỗi tài khoản được đặt tối đa <b>03 lượt sân mỗi ngày</b>.</p>
+
+                <p class="mb-0 text-muted small"><i>* Lưu ý: Hệ thống sẽ tự động khóa các khung giờ đã có người đặt để tránh tình trạng trùng lịch.</i></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="mb-5">
+        <div class="d-flex align-items-center mb-4">
+            <span class="bg-danger text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px; font-weight: bold;">02</span>
+            <h3 class="fw-bold text-dark mb-0">Quy Định Thay Đổi & Hủy Lịch</h3>
+        </div>
+
+        <div class="ps-md-5">
+            <div class="card border-0 shadow-sm p-4 bg-white border-start border-danger border-4 rounded-4">
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <h6 class="fw-bold text-danger">Chính chủ thao tác</h6>
+                        <p class="small text-secondary">Chỉ có tài khoản đã thực hiện đặt sân mới có quyền gửi yêu cầu hủy lịch trên hệ thống cá nhân.</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="fw-bold text-danger">Thời gian giới hạn</h6>
+                        <p class="small text-secondary">Yêu cầu hủy chỉ được chấp nhận nếu thực hiện <b>trước ít nhất 02 giờ</b> so với giờ bóng lăn/giờ bắt đầu.</p>
+                    </div>
+                    <div class="col-12 mt-0">
+                        <div class="alert alert-warning py-2 mb-0 d-flex align-items-center">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                            <span class="small">Tuyệt đối không thể hủy sân khi khung giờ đó <b>đang diễn ra</b> hoặc sân <b>đang trong quá trình sử dụng</b>.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center mt-5">
+        <hr class="my-5 opacity-25">
+        <p class="text-muted italic mb-4">Cảm ơn quý khách đã tin tưởng và đồng hành cùng hệ thống!</p>
+        <a href="/" class="btn btn-outline-primary px-4 py-2 rounded-pill">Quay lại Trang Chủ</a>
+    </div>
+</div>
+
+<style>
+    body { font-family: 'Inter', sans-serif !important; }
+    b, strong { color: #000; }
+    .card { transition: transform 0.3s ease; }
+    .card:hover { transform: translateY(-5px); }
+</style>
+{% endblock %}
