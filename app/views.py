@@ -210,6 +210,11 @@ def process_huy_dat(ma_dat_san):
         flash('Lỗi: Bạn không có quyền hủy lịch đặt sân của người khác!', 'danger')
         return redirect(url_for('main_bp.history_view'))
 
+    #Ràng buộc 2.3
+    if dat_lich.trang_thai_hien_tai == 'Sân đang được sử dụng':
+        flash('Lỗi: Sân đang có người chơi, không thể hủy!', 'danger')
+        return redirect(url_for('main_bp.history_view'))
+
     # Ràng buộc 2.2
     now = datetime.now()
     thoi_gian_bat_dau = datetime.combine(dat_lich.ngay_choi, dat_lich.gio_bd)
