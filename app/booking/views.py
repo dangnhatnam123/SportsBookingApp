@@ -6,8 +6,16 @@ from flask_login import login_required, current_user
 
 from app import models
 from app.booking import booking_bp, dao
-from app.models import DatLich
+from app.models import DatLich, VaiTro
 
+
+@booking_bp.route('/san/<int:san_id>')
+def court_detail(san_id):
+    san = dao.get_san_by_id(san_id)
+    if not san:
+        return "Không tìm thấy sân này!", 404
+
+    return render_template('detail_san.html', san=san)
 
 @booking_bp.route('/search')
 def booking_view():
@@ -77,8 +85,9 @@ def checkout_view(san_id):
         return redirect(url_for('booking_bp.booking_view'))
 
     soluongsandat = dao.count_dat_san_trong_ngay(current_user.id,ngay)
-    if soluongsandat >= 3:
-        return render_template('error_book_san.html', ngay = ngay)
+    if current_user.vai_tro == VaiTro.NGUOI_DUNG:
+        if soluongsandat >= 3:
+            return render_template('error_book_san.html', ngay = ngay)
 
     san = dao.get_san_by_id(san_id)
     if not san:
@@ -104,17 +113,20 @@ def process_payment():
     gio_kt = request.form.get('gio_kt')
     tong_tien = request.form.get('tong_tien')
 
+    ma_nhan_vien = current_user.id if current_user.vai_tro != VaiTro.NGUOI_DUNG else None
+
     thanh_cong = dao.luu_dat_san(
         ma_nd=current_user.id,
         ma_san=san_id,
         ngay_choi=ngay,
         gio_bd=gio_bd,
         gio_kt=gio_kt,
-        tong_tien=tong_tien
+        tong_tien=tong_tien,
+        ma_nv = ma_nhan_vien
     )
 
     if thanh_cong:
-        return "<h2 style='color:green; text-align:center;'>Thanh toán thành công! Sân đã được đặt.</h2><div style='text-align:center;'><a href='/'>Trở về trang chủ</a></div>"
+        return "<h2 style='color:green; text-align:center;'>Thanh toán thành công! Sân đã được đặt.</h2><div style='text-align:center;'><a href='/staff/my-history'>Xem đặt sân</a></div>"
     else:
         return "<h2 style='color:red; text-align:center;'>Có lỗi xảy ra, vui lòng thử lại!</h2>"
 

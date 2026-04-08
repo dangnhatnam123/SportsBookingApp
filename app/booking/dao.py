@@ -45,7 +45,7 @@ def get_san_by_id(san_id):
     return San.query.get(san_id)
 
 
-def luu_dat_san(ma_nd, ma_san, ngay_choi, gio_bd, gio_kt, tong_tien):
+def luu_dat_san(ma_nd, ma_san, ngay_choi, gio_bd, gio_kt, tong_tien, ma_nv=None):
     try:
         ngay_obj = datetime.strptime(ngay_choi, '%Y-%m-%d').date()
         gio_bd_obj = datetime.strptime(gio_bd, '%H:%M').time()
@@ -66,7 +66,8 @@ def luu_dat_san(ma_nd, ma_san, ngay_choi, gio_bd, gio_kt, tong_tien):
             tong_tien=float(tong_tien),
             ngay_tao=datetime.now(),
             trang_thai=TrangThaiHoaDon.DA_THANH_TOAN,
-            ma_dat=dat_lich.id
+            ma_dat=dat_lich.id,
+            ma_nv = ma_nv
         )
         db.session.add(hoa_don)
 

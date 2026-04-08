@@ -1,4 +1,4 @@
-{% extends 'layout/base.html' %}
+{% extends 'staff/staff_base.html' if current_user.is_authenticated and current_user.vai_tro.name == 'NHAN_VIEN' else 'layout/base.html' %}
 
 {% block title %}Tìm kiếm{% endblock %}
 
@@ -118,7 +118,7 @@
                             </p>
 
                             <div class="mt-auto d-flex gap-2">
-                                <a href="/san/{{ s.id }}" class="btn btn-outline-primary w-50 fw-bold btn-sm py-2">
+                                <a href="{{ url_for('booking_bp.court_detail', san_id=s.id) }}" class="btn btn-outline-primary w-50 fw-bold btn-sm py-2">
                                     Chi tiết
                                 </a>
 
