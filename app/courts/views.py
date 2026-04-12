@@ -1,8 +1,11 @@
 from datetime import datetime
 
 from flask import render_template, request, flash, redirect, url_for
+from flask_login import login_required
+
 from app import models
 from app.courts import courts_bp, dao
+from app.utils import admin_required
 
 
 @courts_bp.route('/')
@@ -18,7 +21,10 @@ def dieukhoan():
     return render_template('gioi-thieu.html')
 
 @courts_bp.route('/admin/manage_san')
+@login_required
+@admin_required
 def manage_san():
+
     try:
         danh_sach = dao.load_all_san()
     except Exception as e:
@@ -76,13 +82,18 @@ def edit_san(san_id):
     return redirect(url_for('courts_bp.manage_san'))
 
 @courts_bp.route('/admin/truc-san')
+@login_required
+@admin_required
 def admin_truc_san():
+
     ngay_chon = request.args.get('ngay', datetime.now().strftime('%Y-%m-%d'))
     # Gọi hàm lấy lịch từ dao.py
     ds_lich = dao.get_lich_theo_ngay(ngay_chon)
     return render_template('admin/dashboard.html', ds_lich=ds_lich, ngay_chon=ngay_chon)
 
 @courts_bp.route('/admin/lich-su-giao-dich')
+@login_required
+@admin_required
 def admin_history():
     # Gọi hàm lấy lịch sử từ dao.py
     history = dao.get_lich_su_giao_dich()

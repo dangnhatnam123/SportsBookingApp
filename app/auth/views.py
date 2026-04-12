@@ -26,7 +26,7 @@ def login_view():
                 return redirect('/staff/dashboard')
 
             else :
-                return render_template('/')
+                return redirect('/')
 
 
         else:
