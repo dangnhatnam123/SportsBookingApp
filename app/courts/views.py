@@ -1,6 +1,8 @@
-from flask import render_template
+from datetime import datetime
+
+from flask import render_template, request, flash, redirect, url_for
 from app import models
-from app.courts import courts_bp
+from app.courts import courts_bp, dao
 
 
 @courts_bp.route('/')
@@ -29,6 +31,10 @@ def add_san():
     ten = request.form.get('ten_san')
     loai = request.form.get('loai_san')
     gia = request.form.get('gia')
+
+    if dao.check_ten_san(ten):
+        flash(f"Tên sân '{ten}' đã tồn tại trong hệ thống!", "warning")
+        return redirect(url_for('courts_bp.manage_san'))
 
     try:
         dao.add_san_moi(ten,loai,gia)
@@ -68,3 +74,16 @@ def edit_san(san_id):
             flash(f"Lỗi cập nhật: {e}", "danger")
 
     return redirect(url_for('courts_bp.manage_san'))
+
+@courts_bp.route('/admin/truc-san')
+def admin_truc_san():
+    ngay_chon = request.args.get('ngay', datetime.now().strftime('%Y-%m-%d'))
+    # Gọi hàm lấy lịch từ dao.py
+    ds_lich = dao.get_lich_theo_ngay(ngay_chon)
+    return render_template('admin/dashboard.html', ds_lich=ds_lich, ngay_chon=ngay_chon)
+
+@courts_bp.route('/admin/lich-su-giao-dich')
+def admin_history():
+    # Gọi hàm lấy lịch sử từ dao.py
+    history = dao.get_lich_su_giao_dich()
+    return render_template('admin/my_history.html', history=history)
