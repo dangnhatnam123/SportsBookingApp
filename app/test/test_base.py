@@ -1,14 +1,19 @@
 import pytest
+import os
 from flask import Flask
 from app import db, login_manager
-# from app.admin import admin_bp
-from app.auth import auth_bp
-from app.booking import booking_bp
-from app.courts import courts_bp
+from app.admin.views import admin_bp
+from app.auth.views import auth_bp
+from app.booking.views import booking_bp
+from app.courts.views import courts_bp
 
 
 def create_app():
-    app = Flask(__name__)
+    base_dir = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
+    template_dir = os.path.join(base_dir, 'templates')
+    static_dir = os.path.join(base_dir, 'static')
+
+    app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
     app.config.update({
         "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
         "PAGE_SIZE": 2,
@@ -20,12 +25,10 @@ def create_app():
     db.init_app(app)
     login_manager.init_app(app)
 
-    # app.register_blueprint(admin_bp)
+    app.register_blueprint(admin_bp)
     app.register_blueprint(auth_bp)
     app.register_blueprint(booking_bp)
     app.register_blueprint(courts_bp)
-
-    login_manager.init_app(app)
 
     return app
 
@@ -36,7 +39,9 @@ def test_app():
     with app.app_context():
         db.create_all()
         yield app
+        db.session.remove()
         db.drop_all()
+        db.engine.dispose()
 
 
 @pytest.fixture
@@ -47,6 +52,10 @@ def test_client(test_app):
 @pytest.fixture
 def test_session(test_app):
     with test_app.app_context():
+        db.session.remove()
+        for table in reversed(db.metadata.sorted_tables):
+            db.session.execute(table.delete())
+        db.session.commit()
         yield db.session
         db.session.rollback()
         db.session.remove()

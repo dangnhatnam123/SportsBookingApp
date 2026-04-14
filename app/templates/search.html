@@ -1,5 +1,4 @@
 {% extends 'layout/base.html' %}
-
 {% block title %}Tìm kiếm{% endblock %}
 
 {% block content %}
@@ -118,7 +117,7 @@
                             </p>
 
                             <div class="mt-auto d-flex gap-2">
-                                <a href="/san/{{ s.id }}" class="btn btn-outline-primary w-50 fw-bold btn-sm py-2">
+                                <a href="{{ url_for('booking_bp.court_detail', san_id=s.id) }}" class="btn btn-outline-primary w-50 fw-bold btn-sm py-2">
                                     Chi tiết
                                 </a>
 

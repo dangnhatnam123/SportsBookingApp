@@ -3,5 +3,28 @@
 {% block title %}Chi tiết về sân{% endblock %}
 
 {% block content %}
-hihihihi
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-7">
+            <img src="{{ san.hinh_anh }}" class="img-fluid rounded shadow" alt="{{ san.ten_san }}">
+        </div>
+
+        <div class="col-md-5">
+            <h1 class="display-5">{{ san.ten_san }}</h1>
+            <p class="badge bg-success fs-6">{{ san.loai_san.value }}</p>
+            <hr>
+            <h3 class="text-danger">{{ "{:,.0f}".format(san.gia_san_theo_gio) }} VNĐ / Giờ</h3>
+
+            <div class="card mt-4">
+                <div class="card-body">
+                    <h5>Đặt sân ngay</h5>
+                    <p class="text-muted small">Vui lòng chọn thời gian để kiểm tra sân trống.</p>
+                    <a href="{{ url_for('booking_bp.booking_view') }}" class="btn btn-outline-primary w-100">
+                        Quay lại tìm kiếm
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

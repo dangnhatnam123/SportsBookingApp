@@ -1,5 +1,4 @@
 {% extends 'layout/base.html' %}
-
 {% block title %}Xác nhận thanh toán{% endblock %}
 
 {% block content %}
@@ -8,7 +7,7 @@
         <div class="col-md-7">
             <div class="card shadow border-0 rounded-4 p-4">
                 <h2 class="text-center text-primary fw-bold mb-4">HÓA ĐƠN ĐẶT SÂN</h2>
-                
+
                 <form action="/process-payment" method="POST">
                     <input type="hidden" name="san_id" value="{{ san.id }}">
                     <input type="hidden" name="ngay" value="{{ ngay }}">
@@ -17,17 +16,17 @@
                     <input type="hidden" name="tong_tien" value="{{ tong_tien }}">
 
                     <h4 class="text-success text-center mb-4 border-bottom pb-3">{{ san.ten_san }}</h4>
-                    
+
                     <div class="row fs-5 mb-3">
                         <div class="col-5 text-secondary">Ngày chơi:</div>
                         <div class="col-7 text-end fw-bold">{{ ngay }}</div>
                     </div>
-                    
+
                     <div class="row fs-5 mb-3">
                         <div class="col-5 text-secondary">Khung giờ:</div>
                         <div class="col-7 text-end fw-bold text-primary">{{ gio_bd }} - {{ gio_kt }}</div>
                     </div>
-                    
+
                     <div class="row fs-5 mb-3">
                         <div class="col-5 text-secondary">Thời lượng:</div>
                         <div class="col-7 text-end fw-bold">{{ tong_gio }} giờ</div>
@@ -45,13 +44,21 @@
 
                     <h5 class="fw-bold mt-4 mb-3">Phương thức thanh toán</h5>
                     <div class="form-check mb-2 bg-light p-3 rounded border">
-                        <input class="form-check-input ms-1 mt-2" type="radio" name="payment_method" value="vnpay" checked>
+                        <input class="form-check-input ms-1 mt-2" type="radio" name="payment_method" value="vnpay"
+                               checked>
                         <label class="form-check-label ms-2 fw-bold">Thanh toán qua VNPay</label>
                     </div>
                     <div class="form-check mb-4 bg-light p-3 rounded border">
                         <input class="form-check-input ms-1 mt-2" type="radio" name="payment_method" value="momo">
                         <label class="form-check-label ms-2 fw-bold">Ví điện tử MoMo</label>
                     </div>
+
+                    {% if current_user.vai_tro.name == 'NHAN_VIEN' %}
+                    <div class="form-check mb-4 bg-light p-3 rounded border">
+                        <input class="form-check-input ms-1 mt-2" type="radio" name="payment_method" value="momo">
+                        <label class="form-check-label ms-2 fw-bold">Tiền mặt (Thu tại quầy)</label>
+                    </div>
+                    {% endif %}
 
                     <div class="d-flex gap-3 mt-4">
                         <a href="javascript:history.back()" class="btn btn-outline-secondary w-50 py-3 fw-bold">Quay lại</a>
@@ -62,4 +69,5 @@
         </div>
     </div>
 </div>
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
 {% endblock %}

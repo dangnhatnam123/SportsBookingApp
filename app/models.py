@@ -40,7 +40,7 @@ class TrangThaiDL(UserEnum):
 class TrangThaiHoaDon(UserEnum):
     DA_THANH_TOAN = "Đã Thanh Toán"
     CHUA_THANH_TOAN = "Chưa Thanh Toán"
-    DA_HUY =  "Đã Hủy"
+    DA_HUY = "Đã Hủy"
 
 
 class NguoiDung(BaseModel, UserMixin):
@@ -128,7 +128,7 @@ if __name__ == '__main__':
         db.drop_all()
         db.create_all()
 
-        pwd = str(hashlib.md5('Password123'.encode('utf-8')).hexdigest())
+        pwd = str(hashlib.md5('12345678'.encode('utf-8')).hexdigest())
 
         admin = NguoiDung(ho_ten='Admin Hệ Thống', ten_nd='admin', mat_khau=pwd, vai_tro=VaiTro.QUAN_LY)
         user1 = NguoiDung(ho_ten='Nguyễn Công Phượng', ten_nd='user1', mat_khau=pwd, vai_tro=VaiTro.NHAN_VIEN)
