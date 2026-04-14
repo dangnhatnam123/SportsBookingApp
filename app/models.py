@@ -40,6 +40,7 @@ class TrangThaiDL(UserEnum):
 class TrangThaiHoaDon(UserEnum):
     DA_THANH_TOAN = "Đã Thanh Toán"
     CHUA_THANH_TOAN = "Chưa Thanh Toán"
+    DA_HUY =  "Đã Hủy"
 
 
 class NguoiDung(BaseModel, UserMixin):

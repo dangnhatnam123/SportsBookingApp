@@ -4,7 +4,7 @@ from app.models import DatLich, HoaDon, TrangThaiDL, TrangThaiHoaDon
 from datetime import date, time, datetime, timedelta
 import pytest
 
-# tét hủy sân thành công
+
 def test_success(test_session,test_app):
     ngay_mai = datetime.now() + timedelta(days=1)
     dl = DatLich(
@@ -35,21 +35,19 @@ def test_success(test_session,test_app):
     hd_after = HoaDon.query.filter(HoaDon.id.__eq__(ma_hd)).first()
 
     assert result is True
-    assert dl_after is None
-    assert hd_after is None
+    assert dl_after is not None
+    assert dl_after.trang_thai == TrangThaiDL.DA_HUY
+    assert hd_after is not None
+    assert hd_after.trang_thai == TrangThaiHoaDon.DA_HUY
 
-
-
-#tét ID không ồn tại
 @pytest.mark.parametrize('invalid_id', [
     0, -1, 999999
 ])
 def test_invalid_id(test_session, invalid_id, test_app):
     result = huy_dat_san(ma_dat_san=invalid_id)
 
-    assert result is None
+    assert result is False
 
-#test hủy sân khi đã đá xong
 def test_cancel_completed_booking(test_session, test_app):
     ngay_mai = datetime.now() + timedelta(days=1)
     dl = DatLich(
@@ -67,7 +65,7 @@ def test_cancel_completed_booking(test_session, test_app):
 
     assert str(error_info.value) == "Sân đã đá xong, không thể hủy!"
 
-#test hủy đơn hàng chính chủ
+
 def test_cancel_wrong_user(test_session, test_app):
     ngay_mai = datetime.now() + timedelta(days=1)
     dl = DatLich(
@@ -86,8 +84,8 @@ def test_cancel_wrong_user(test_session, test_app):
 
     assert "không có quyền" in str(error_info.value)
 
-#tét lỗi đặt khi còn ít hơn 2 tineegs
-def test_cancel_too_close_to_time(test_session, test_app):
+
+def test_cancel_close_to_time(test_session, test_app):
     now = datetime.now()
     thoi_gian_da = now + timedelta(hours=1)
 
@@ -106,3 +104,41 @@ def test_cancel_too_close_to_time(test_session, test_app):
         huy_dat_san(ma_dat_san=dl.id, user_id=1)
 
     assert "ít nhất 2 tiếng" in str(error_info.value)
+
+
+def test_cancel_playing_booking(test_session, test_app):
+    now = datetime.now()
+    dl = DatLich(
+        ngay_choi=now.date(),
+        gio_bd=(now - timedelta(minutes=30)).time(),  # Đã bắt đầu 30p
+        gio_kt=(now + timedelta(minutes=30)).time(),
+        ma_nd=1,
+        ma_san=1,
+        trang_thai=TrangThaiDL.CHUA_HOAN_THANH
+    )
+    test_session.add(dl)
+    test_session.commit()
+
+    with pytest.raises(ValueError) as error_info:
+        huy_dat_san(ma_dat_san=dl.id, user_id=1)
+
+    assert "Đã tới hoặc qua giờ nhận sân" in str(error_info.value)
+
+
+def test_cancel_past_booking(test_session, test_app):
+    hom_qua = datetime.now() - timedelta(days=1)
+    dl = DatLich(
+        ngay_choi=hom_qua.date(),
+        gio_bd=time(10, 0),
+        gio_kt=time(11, 0),
+        ma_nd=1,
+        ma_san=1,
+        trang_thai=TrangThaiDL.CHUA_HOAN_THANH
+    )
+    test_session.add(dl)
+    test_session.commit()
+
+    with pytest.raises(ValueError) as error_info:
+        huy_dat_san(ma_dat_san=dl.id, user_id=1)
+
+    assert "Đã tới hoặc qua giờ nhận sân" in str(error_info.value)

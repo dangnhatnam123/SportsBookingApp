@@ -5,6 +5,7 @@ from app.models import DatLich, TrangThaiDL, TrangThaiHoaDon, HoaDon, San
 from flask import current_app
 
 
+
 def load_san_trong(kw=None, loai_san_val=None, ngay=None, gio_bd=None, gio_kt=None, page=1):
     query = San.query.filter(San.active == True)
 
@@ -65,7 +66,7 @@ def luu_dat_san(ma_nd, ma_san, ngay_choi, gio_bd, gio_kt, tong_tien):
             tong_tien=float(tong_tien),
             ngay_tao=datetime.now(),
             trang_thai=TrangThaiHoaDon.DA_THANH_TOAN,
-            ma_dat=dat_lich.id
+            ma_dat=dat_lich.id,
         )
         db.session.add(hoa_don)
 
@@ -78,17 +79,21 @@ def luu_dat_san(ma_nd, ma_san, ngay_choi, gio_bd, gio_kt, tong_tien):
         return False
 
 
-def get_history_by_user(user_id):
-    return DatLich.query.filter(DatLich.ma_nd == user_id) \
-        .order_by(DatLich.thoi_gian_dat.desc()).all()
+def get_history_by_user(user_id, page=None):
 
+    query = DatLich.query.filter(DatLich.ma_nd == user_id).order_by(DatLich.thoi_gian_dat.desc())
+
+    if page:
+        page_size = current_app.config.get('PAGE_SIZE', 6)
+        pagination = query.paginate(page=page, per_page=page_size, error_out=False)
+        return pagination.items, pagination.pages
+    return query.all()
 
 def huy_dat_san(ma_dat_san, user_id=None):
-    try:
         dat_lich = DatLich.query.get(ma_dat_san)
 
         if not dat_lich:
-            return None
+            return False
 
         if user_id and dat_lich.ma_nd != user_id:
             raise ValueError("Lỗi: Bạn không có quyền hủy lịch đặt sân của người khác!")
@@ -105,22 +110,19 @@ def huy_dat_san(ma_dat_san, user_id=None):
         thoi_gian_con_lai = thoi_gian_bat_dau - now
         if thoi_gian_con_lai < timedelta(hours=2):
             raise ValueError("Lỗi: Bạn chỉ được phép hủy sân trước giờ chơi ít nhất 2 tiếng!")
+        try:
+            dat_lich.trang_thai = TrangThaiDL.DA_HUY
 
-        if dat_lich.hoa_don:
-            db.session.delete(dat_lich.hoa_don)
+            if dat_lich.hoa_don:
+                dat_lich.hoa_don.trang_thai = TrangThaiHoaDon.DA_HUY
 
-        db.session.delete(dat_lich)
-        db.session.commit()
-        return True
+            db.session.commit()
+            return True
 
-    except ValueError as ve:
-        raise ve
-
-    except Exception as ex:
-        print(f"Lỗi khi hủy: {ex}")
-        db.session.rollback()
-        return False
-
+        except Exception as ex:
+            print(f"Lỗi khi hủy: {ex}")
+            db.session.rollback()
+            return False
 
 def count_dat_san_trong_ngay(ma_nd, ngay_choi):
     ngay = datetime.strptime(ngay_choi, '%Y-%m-%d').date()
