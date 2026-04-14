@@ -81,20 +81,4 @@ def edit_san(san_id):
 
     return redirect(url_for('courts_bp.manage_san'))
 
-@courts_bp.route('/admin/truc-san')
-@login_required
-@admin_required
-def admin_truc_san():
 
-    ngay_chon = request.args.get('ngay', datetime.now().strftime('%Y-%m-%d'))
-    # Gọi hàm lấy lịch từ dao.py
-    ds_lich = dao.get_lich_theo_ngay(ngay_chon)
-    return render_template('admin/dashboard.html', ds_lich=ds_lich, ngay_chon=ngay_chon)
-
-@courts_bp.route('/admin/lich-su-giao-dich')
-@login_required
-@admin_required
-def admin_history():
-    # Gọi hàm lấy lịch sử từ dao.py
-    history = dao.get_lich_su_giao_dich()
-    return render_template('admin/my_history.html', history=history)

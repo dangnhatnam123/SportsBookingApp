@@ -15,7 +15,6 @@ def admin_required(f):
             flash("Bạn không có quyền truy cập vào khu vực Quản trị!", "danger")
             return redirect('/')
 
-        # 3. Hợp lệ thì cho đi tiếp
         return f(*args, **kwargs)
 
     return decorated_function

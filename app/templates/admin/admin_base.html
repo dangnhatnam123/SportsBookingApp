@@ -38,7 +38,7 @@
         <div class="row g-0">
             <div class="col-md-2 admin-sidebar sticky-top">
                 <div class="text-center mb-4 px-3">
-                    <a href="/" class="text-decoration-none fs-4 fw-bold text-white d-block">
+                    <a href="/admin/manage_san" class="text-decoration-none fs-4 fw-bold text-white d-block">
                         SPORTS<span style="color: #38bdf8;">ADMIN</span>
                     </a>
                 </div>
@@ -49,17 +49,6 @@
                 </div>
 
                 <hr class="border-2 mx-3 opacity-25" style="border-color: #f8fafc;">
-
-                <p class="small px-3 mt-4 mb-1 fw-bold group-title">NGHIỆP VỤ NHÂN VIÊN</p>
-                <a href="{{ url_for('courts_bp.admin_truc_san') }}" class="nav-item">
-                    <i class="bi bi-calendar-check me-2"></i> Trực Sân (Duyệt)
-                </a>
-                <a href="/search" class="nav-item">
-                    <i class="bi bi-shop me-2"></i> POS Đặt Sân Hộ
-                </a>
-                <a href="{{ url_for('courts_bp.admin_history') }}" class="nav-item">
-                    <i class="bi bi-receipt me-2"></i> Lịch Sử Hóa Đơn
-                </a>
 
                 <p class="small px-3 mt-4 mb-1 fw-bold group-title">QUẢN TRỊ HỆ THỐNG</p>
                 <a href="{{ url_for('courts_bp.manage_san') }}" class="nav-item active">
