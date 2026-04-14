@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from app import db
-from app.models import San, DatLich
+from app.models import San, DatLich, HoaDon
 
 
 def load_all_san():
@@ -40,4 +40,10 @@ def check_ten_san(ten, exclude_id = None):
     if exclude_id:
         query = query.filter(San.id != exclude_id)
     return query.first() is not None
+
+def get_lich_theo_ngay(ngay):
+    return DatLich.query.filter(db.func.date(DatLich.ngay_choi) == ngay).all()
+
+def get_lich_su_giao_dich():
+    return HoaDon.query.order_by(HoaDon.id.desc()).all()
 
