@@ -1,9 +1,8 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from sqlalchemy import func
 from app import db
 from app.models import DatLich, TrangThaiDL, TrangThaiHoaDon, HoaDon, San
 from flask import current_app
-
 
 
 def load_san_trong(kw=None, loai_san_val=None, ngay=None, gio_bd=None, gio_kt=None, page=1):
@@ -84,21 +83,44 @@ def get_history_by_user(user_id):
         .order_by(DatLich.thoi_gian_dat.desc()).all()
 
 
-def huy_dat_san(ma_dat_san):
+def huy_dat_san(ma_dat_san, user_id=None):
     try:
         dat_lich = DatLich.query.get(ma_dat_san)
-        if dat_lich:
-            if dat_lich.hoa_don:
-                db.session.delete(dat_lich.hoa_don)
 
-            db.session.delete(dat_lich)
-            db.session.commit()
-            return True
+        if not dat_lich:
+            return None
+
+        if user_id and dat_lich.ma_nd != user_id:
+            raise ValueError("Lỗi: Bạn không có quyền hủy lịch đặt sân của người khác!")
+
+        if dat_lich.trang_thai == TrangThaiDL.DA_HOAN_THANH:
+            raise ValueError("Sân đã đá xong, không thể hủy!")
+
+        now = datetime.now()
+        thoi_gian_bat_dau = datetime.combine(dat_lich.ngay_choi, dat_lich.gio_bd)
+
+        if now >= thoi_gian_bat_dau:
+            raise ValueError("Lỗi: Đã tới hoặc qua giờ nhận sân, bạn không thể hủy đơn này!")
+
+        thoi_gian_con_lai = thoi_gian_bat_dau - now
+        if thoi_gian_con_lai < timedelta(hours=2):
+            raise ValueError("Lỗi: Bạn chỉ được phép hủy sân trước giờ chơi ít nhất 2 tiếng!")
+
+        if dat_lich.hoa_don:
+            db.session.delete(dat_lich.hoa_don)
+
+        db.session.delete(dat_lich)
+        db.session.commit()
+        return True
+
+    except ValueError as ve:
+        raise ve
 
     except Exception as ex:
         print(f"Lỗi khi hủy: {ex}")
         db.session.rollback()
         return False
+
 
 def count_dat_san_trong_ngay(ma_nd, ngay_choi):
     ngay = datetime.strptime(ngay_choi, '%Y-%m-%d').date()
