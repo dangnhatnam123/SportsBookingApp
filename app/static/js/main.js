@@ -12,4 +12,19 @@ function nhacNhoChonGio() {
     }
 }
 
+document.addEventListener("DOMContentLoaded", function() {
+        const qrArea = document.getElementById('momo-qr-area');
+        const radios = document.querySelectorAll('.payment-method-radio');
+
+        radios.forEach(radio => {
+            radio.addEventListener('change', function() {
+                if (this.value === 'cash') {
+                    qrArea.style.display = 'none';
+                } else {
+                    qrArea.style.display = 'block';
+                }
+            });
+        });
+    });
+
 

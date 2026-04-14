@@ -24,6 +24,22 @@
 {% include 'layout/footer.html' %}
 {% endblock %}
 
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const alerts = document.querySelectorAll('.alert-auto-close');
+        alerts.forEach(function(alert) {
+            setTimeout(function() {
+                alert.classList.remove('show');
+                alert.classList.add('fade');
+
+                setTimeout(function() {
+                    alert.remove();
+                }, 150);
+            }, 3000);
+        });
+    });
+</script>
+
 <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>

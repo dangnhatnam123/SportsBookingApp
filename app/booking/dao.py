@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from sqlalchemy import func
 from app import db
 from app.models import DatLich, TrangThaiDL, TrangThaiHoaDon, HoaDon, San
@@ -66,7 +66,7 @@ def luu_dat_san(ma_nd, ma_san, ngay_choi, gio_bd, gio_kt, tong_tien):
             tong_tien=float(tong_tien),
             ngay_tao=datetime.now(),
             trang_thai=TrangThaiHoaDon.DA_THANH_TOAN,
-            ma_dat=dat_lich.id
+            ma_dat=dat_lich.id,
         )
         db.session.add(hoa_don)
 
@@ -79,21 +79,47 @@ def luu_dat_san(ma_nd, ma_san, ngay_choi, gio_bd, gio_kt, tong_tien):
         return False
 
 
-def get_history_by_user(user_id):
-    return DatLich.query.filter(DatLich.ma_nd == user_id) \
-        .order_by(DatLich.thoi_gian_dat.desc()).all()
+def get_history_by_user(user_id, page=None):
+
+    query = DatLich.query.filter(DatLich.ma_nd == user_id).order_by(DatLich.thoi_gian_dat.desc())
+
+    if page:
+        page_size = current_app.config.get('PAGE_SIZE', 6)
+        pagination = query.paginate(page=page, per_page=page_size, error_out=False)
+        return pagination.items, pagination.pages
+
+    return query.all()
 
 
-def huy_dat_san(ma_dat_san):
+def huy_dat_san(ma_dat_san, user_id=None):
+    dat_lich = DatLich.query.get(ma_dat_san)
+
+    if not dat_lich:
+        return False
+
+    if user_id and dat_lich.ma_nd != user_id:
+        raise ValueError("Lỗi: Bạn không có quyền hủy lịch đặt sân của người khác!")
+
+    if dat_lich.trang_thai == TrangThaiDL.DA_HOAN_THANH:
+        raise ValueError("Sân đã đá xong, không thể hủy!")
+
+    now = datetime.now()
+    thoi_gian_bat_dau = datetime.combine(dat_lich.ngay_choi, dat_lich.gio_bd)
+
+    if now >= thoi_gian_bat_dau:
+        raise ValueError("Lỗi: Đã tới hoặc qua giờ nhận sân, bạn không thể hủy đơn này!")
+
+    thoi_gian_con_lai = thoi_gian_bat_dau - now
+    if thoi_gian_con_lai < timedelta(hours=2):
+        raise ValueError("Lỗi: Bạn chỉ được phép hủy sân trước giờ chơi ít nhất 2 tiếng!")
     try:
-        dat_lich = DatLich.query.get(ma_dat_san)
-        if dat_lich:
-            if dat_lich.hoa_don:
-                db.session.delete(dat_lich.hoa_don)
+        dat_lich.trang_thai = TrangThaiDL.DA_HUY
 
-            db.session.delete(dat_lich)
-            db.session.commit()
-            return True
+        if dat_lich.hoa_don:
+            dat_lich.hoa_don.trang_thai = TrangThaiHoaDon.DA_HUY
+
+        db.session.commit()
+        return True
 
     except Exception as ex:
         print(f"Lỗi khi hủy: {ex}")

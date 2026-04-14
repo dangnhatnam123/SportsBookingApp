@@ -1,10 +1,9 @@
 from app import login_manager
-from flask import request, redirect, render_template
+from flask import request, redirect, render_template, url_for
 from flask_login import login_user, logout_user
-
 from app.auth import dao
 from app.auth import auth_bp
-
+from app.models import VaiTro
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login_view():
@@ -17,7 +16,16 @@ def login_view():
         if user:
             login_user(user=user)
             next_page = request.args.get('next')
-            return redirect(next_page if next_page else '/')
+            if next_page:
+                return redirect(next_page)
+
+            if user.vai_tro == VaiTro.QUAN_LY:
+                return redirect('/admin/manage_san')
+
+            else :
+                return redirect('/')
+
+
         else:
             err_msg = 'Tên đăng nhập hoặc mật khẩu không chính xác!'
 

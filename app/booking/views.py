@@ -6,8 +6,16 @@ from flask_login import login_required, current_user
 
 from app import models
 from app.booking import booking_bp, dao
-from app.models import DatLich
+from app.models import DatLich, VaiTro
 
+
+@booking_bp.route('/san/<int:san_id>')
+def court_detail(san_id):
+    san = dao.get_san_by_id(san_id)
+    if not san:
+        return "Không tìm thấy sân này!", 404
+
+    return render_template('detail_san.html', san=san)
 
 @booking_bp.route('/search')
 def booking_view():
@@ -77,8 +85,9 @@ def checkout_view(san_id):
         return redirect(url_for('booking_bp.booking_view'))
 
     soluongsandat = dao.count_dat_san_trong_ngay(current_user.id,ngay)
-    if soluongsandat >= 3:
-        return render_template('error_book_san.html', ngay = ngay)
+    if current_user.vai_tro == VaiTro.NGUOI_DUNG:
+        if soluongsandat >= 3:
+            return render_template('error_book_san.html', ngay = ngay)
 
     san = dao.get_san_by_id(san_id)
     if not san:
@@ -110,11 +119,15 @@ def process_payment():
         ngay_choi=ngay,
         gio_bd=gio_bd,
         gio_kt=gio_kt,
-        tong_tien=tong_tien
+        tong_tien=tong_tien,
+
     )
 
     if thanh_cong:
-        return "<h2 style='color:green; text-align:center;'>Thanh toán thành công! Sân đã được đặt.</h2><div style='text-align:center;'><a href='/'>Trở về trang chủ</a></div>"
+        if current_user.is_authenticated and current_user.vai_tro.name == 'NHAN_VIEN':
+            return "<h2 style='color:green; text-align:center;'>Thanh toán thành công! Sân đã được đặt.</h2><div style='text-align:center;'><a href='/staff/my-history'>Xem đặt sân</a></div>"
+        elif current_user.vai_tro == VaiTro.NGUOI_DUNG:
+            return "<h2 style='color:green; text-align:center;'>Thanh toán thành công! Sân đã được đặt.</h2><div style='text-align:center;'><a href='/'>Về trang chủ</a></div>"
     else:
         return "<h2 style='color:red; text-align:center;'>Có lỗi xảy ra, vui lòng thử lại!</h2>"
 
@@ -144,30 +157,30 @@ def process_huy_dat(ma_dat_san):
     # Ràng buộc 2.1
     if dat_lich.ma_nd != current_user.id:
         flash('Lỗi: Bạn không có quyền hủy lịch đặt sân của người khác!', 'danger')
-        return redirect(url_for('main_bp.history_view'))
+        return redirect(url_for('booking_bp.history_view'))
 
     #Ràng buộc 2.3
     if dat_lich.trang_thai_hien_tai == 'Sân đang được sử dụng':
         flash('Lỗi: Sân đang có người chơi, không thể hủy!', 'danger')
-        return redirect(url_for('main_bp.history_view'))
+        return redirect(url_for('booking_bp.history_view'))
 
     # Ràng buộc 2.2
     now = datetime.now()
     thoi_gian_bat_dau = datetime.combine(dat_lich.ngay_choi, dat_lich.gio_bd)
     if now >= thoi_gian_bat_dau:
         flash('Lỗi: Đã tới hoặc qua giờ nhận sân, bạn không thể hủy đơn này!', 'danger')
-        return redirect(url_for('main_bp.history_view'))
+        return redirect(url_for('booking_bp.history_view'))
 
     thoi_gian_con_lai = thoi_gian_bat_dau - now
     if thoi_gian_con_lai < timedelta(hours=2):
         flash('Lỗi: Bạn chỉ được phép hủy sân trước giờ chơi ít nhất 2 tiếng!', 'danger')
-        return redirect(url_for('main_bp.history_view'))
+        return redirect(url_for('booking_bp.history_view'))
 
     if dao.huy_dat_san(ma_dat_san):
         flash('Hủy đặt sân thành công!', 'success')
-        return redirect(url_for('main_bp.history_view'))
+        return redirect(url_for('booking_bp.history_view'))
 
     flash('Có lỗi xảy ra khi hủy đặt sân!', 'danger')
-    return redirect(url_for('main_bp.history_view'))
+    return redirect(url_for('booking_bp.history_view'))
 
 
