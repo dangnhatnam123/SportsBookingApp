@@ -35,8 +35,10 @@ def test_success(test_session,test_app):
     hd_after = HoaDon.query.filter(HoaDon.id.__eq__(ma_hd)).first()
 
     assert result is True
-    assert dl_after is None
-    assert hd_after is None
+    assert dl_after is not None
+    assert dl_after.trang_thai == TrangThaiDL.DA_HUY
+    assert hd_after is not None
+    assert hd_after.trang_thai == TrangThaiHoaDon.DA_HUY
 
 
 
@@ -47,7 +49,7 @@ def test_success(test_session,test_app):
 def test_invalid_id(test_session, invalid_id, test_app):
     result = huy_dat_san(ma_dat_san=invalid_id)
 
-    assert result is None
+    assert result is False
 
 #test hủy sân khi đã đá xong
 def test_cancel_completed_booking(test_session, test_app):

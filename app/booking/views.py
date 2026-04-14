@@ -113,8 +113,6 @@ def process_payment():
     gio_kt = request.form.get('gio_kt')
     tong_tien = request.form.get('tong_tien')
 
-    ma_nhan_vien = current_user.id if current_user.vai_tro != VaiTro.NGUOI_DUNG else None
-
     thanh_cong = dao.luu_dat_san(
         ma_nd=current_user.id,
         ma_san=san_id,
@@ -122,7 +120,7 @@ def process_payment():
         gio_bd=gio_bd,
         gio_kt=gio_kt,
         tong_tien=tong_tien,
-        ma_nv = ma_nhan_vien
+
     )
 
     if thanh_cong:

@@ -1,6 +1,6 @@
 import pytest
 from app.auth import dao
-from app.auth.test.test_base import test_client,test_session,test_app ,mock_cloudinary
+from app.test.test_base import test_client,test_session,test_app ,mock_cloudinary
 from app.auth.views import load_user
 from app.models import NguoiDung, VaiTro
 
@@ -115,3 +115,9 @@ def test_load_user(test_session):
     u = NguoiDung.query.filter_by(ten_nd="nem").first()
 
     assert load_user(u.id) is not None
+
+
+def test_truy_cap_dat_san_khi_chua_login(test_client):
+    res = test_client.get('/checkout/1?ngay=2026-05-01&gio_bd=10:00&gio_kt=11:00')
+    assert res.status_code == 302
+    assert '/login' in res.headers['Location']

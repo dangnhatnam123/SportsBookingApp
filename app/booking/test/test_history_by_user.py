@@ -1,5 +1,4 @@
 from datetime import date, time
-
 import pytest
 from app.booking import dao
 from app.models import DatLich, San, LoaiSan

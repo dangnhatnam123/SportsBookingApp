@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from sqlalchemy import func
 from app import db
 from app.models import DatLich, TrangThaiDL, TrangThaiHoaDon, HoaDon, San
@@ -45,7 +45,7 @@ def get_san_by_id(san_id):
     return San.query.get(san_id)
 
 
-def luu_dat_san(ma_nd, ma_san, ngay_choi, gio_bd, gio_kt, tong_tien, ma_nv=None):
+def luu_dat_san(ma_nd, ma_san, ngay_choi, gio_bd, gio_kt, tong_tien):
     try:
         ngay_obj = datetime.strptime(ngay_choi, '%Y-%m-%d').date()
         gio_bd_obj = datetime.strptime(gio_bd, '%H:%M').time()
@@ -67,7 +67,6 @@ def luu_dat_san(ma_nd, ma_san, ngay_choi, gio_bd, gio_kt, tong_tien, ma_nv=None)
             ngay_tao=datetime.now(),
             trang_thai=TrangThaiHoaDon.DA_THANH_TOAN,
             ma_dat=dat_lich.id,
-            ma_nv = ma_nv
         )
         db.session.add(hoa_don)
 
@@ -80,27 +79,47 @@ def luu_dat_san(ma_nd, ma_san, ngay_choi, gio_bd, gio_kt, tong_tien, ma_nv=None)
         return False
 
 
-def get_history_by_user(user_id, page=1):
-    page_size = current_app.config.get('PAGE_SIZE', 6)
+def get_history_by_user(user_id, page=None):
 
     query = DatLich.query.filter(DatLich.ma_nd == user_id).order_by(DatLich.thoi_gian_dat.desc())
 
-    pagination = query.paginate(page=page, per_page=page_size, error_out=False)
+    if page:
+        page_size = current_app.config.get('PAGE_SIZE', 6)
+        pagination = query.paginate(page=page, per_page=page_size, error_out=False)
+        return pagination.items, pagination.pages
 
-    return pagination.items, pagination.pages
+    return query.all()
 
 
-def huy_dat_san(ma_dat_san):
+def huy_dat_san(ma_dat_san, user_id=None):
+    dat_lich = DatLich.query.get(ma_dat_san)
+
+    if not dat_lich:
+        return False
+
+    if user_id and dat_lich.ma_nd != user_id:
+        raise ValueError("Lỗi: Bạn không có quyền hủy lịch đặt sân của người khác!")
+
+    if dat_lich.trang_thai == TrangThaiDL.DA_HOAN_THANH:
+        raise ValueError("Sân đã đá xong, không thể hủy!")
+
+    now = datetime.now()
+    thoi_gian_bat_dau = datetime.combine(dat_lich.ngay_choi, dat_lich.gio_bd)
+
+    if now >= thoi_gian_bat_dau:
+        raise ValueError("Lỗi: Đã tới hoặc qua giờ nhận sân, bạn không thể hủy đơn này!")
+
+    thoi_gian_con_lai = thoi_gian_bat_dau - now
+    if thoi_gian_con_lai < timedelta(hours=2):
+        raise ValueError("Lỗi: Bạn chỉ được phép hủy sân trước giờ chơi ít nhất 2 tiếng!")
     try:
-        dat_lich = DatLich.query.get(ma_dat_san)
-        if dat_lich:
-            dat_lich.trang_thai = TrangThaiDL.DA_HUY
+        dat_lich.trang_thai = TrangThaiDL.DA_HUY
 
-            if dat_lich.hoa_don:
-                dat_lich.hoa_don.trang_thai = TrangThaiHoaDon.DA_HUY
+        if dat_lich.hoa_don:
+            dat_lich.hoa_don.trang_thai = TrangThaiHoaDon.DA_HUY
 
-            db.session.commit()
-            return True
+        db.session.commit()
+        return True
 
     except Exception as ex:
         print(f"Lỗi khi hủy: {ex}")
