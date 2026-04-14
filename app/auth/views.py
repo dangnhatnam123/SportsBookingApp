@@ -1,5 +1,5 @@
 from app import login_manager
-from flask import request, redirect, render_template
+from flask import request, redirect, render_template, url_for
 from flask_login import login_user, logout_user
 from app.auth import dao
 from app.auth import auth_bp
@@ -20,13 +20,10 @@ def login_view():
                 return redirect(next_page)
 
             if user.vai_tro == VaiTro.QUAN_LY:
-                return redirect('/admin')
-
-            elif user.vai_tro == VaiTro.NHAN_VIEN:
-                return redirect('/staff/dashboard')
+                return redirect('/admin/manage_san')
 
             else :
-                return render_template('/')
+                return redirect('/')
 
 
         else:

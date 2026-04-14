@@ -80,19 +80,25 @@ def luu_dat_san(ma_nd, ma_san, ngay_choi, gio_bd, gio_kt, tong_tien, ma_nv=None)
         return False
 
 
-def get_history_by_user(user_id):
-    return DatLich.query.filter(DatLich.ma_nd == user_id) \
-        .order_by(DatLich.thoi_gian_dat.desc()).all()
+def get_history_by_user(user_id, page=1):
+    page_size = current_app.config.get('PAGE_SIZE', 6)
+
+    query = DatLich.query.filter(DatLich.ma_nd == user_id).order_by(DatLich.thoi_gian_dat.desc())
+
+    pagination = query.paginate(page=page, per_page=page_size, error_out=False)
+
+    return pagination.items, pagination.pages
 
 
 def huy_dat_san(ma_dat_san):
     try:
         dat_lich = DatLich.query.get(ma_dat_san)
         if dat_lich:
-            if dat_lich.hoa_don:
-                db.session.delete(dat_lich.hoa_don)
+            dat_lich.trang_thai = TrangThaiDL.DA_HUY
 
-            db.session.delete(dat_lich)
+            if dat_lich.hoa_don:
+                dat_lich.hoa_don.trang_thai = TrangThaiHoaDon.DA_HUY
+
             db.session.commit()
             return True
 

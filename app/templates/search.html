@@ -1,5 +1,4 @@
-{% extends 'staff/staff_base.html' if current_user.is_authenticated and current_user.vai_tro.name == 'NHAN_VIEN' else 'layout/base.html' %}
-
+{% extends 'layout/base.html' %}
 {% block title %}Tìm kiếm{% endblock %}
 
 {% block content %}
