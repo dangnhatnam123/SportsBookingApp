@@ -19,7 +19,6 @@ def court_detail(san_id):
 
 @booking_bp.route('/search')
 def booking_view():
-    kw = request.args.get('kw')
     loai = request.args.get('loai_san')
     ngay_chon = request.args.get('ngay')
     gio_bd = request.args.get('gio_bd')
@@ -36,36 +35,33 @@ def booking_view():
     t2 = None
 
     if ngay_chon and gio_bd and gio_kt:
-        try:
-            ngay = datetime.strptime(ngay_chon, '%Y-%m-%d').date()
-            t1 = datetime.strptime(gio_bd, '%H:%M').time()
-            t2 = datetime.strptime(gio_kt, '%H:%M').time()
+        ngay = datetime.strptime(ngay_chon, '%Y-%m-%d').date()
+        t1 = datetime.strptime(gio_bd, '%H:%M').time()
+        t2 = datetime.strptime(gio_kt, '%H:%M').time()
 
-            tong_phut_bd = t1.hour * 60 + t1.minute
-            tong_phut_kt = t2.hour * 60 + t2.minute
-            so_phut_choi = tong_phut_kt - tong_phut_bd
+        tong_phut_bd = t1.hour * 60 + t1.minute
+        tong_phut_kt = t2.hour * 60 + t2.minute
+        so_phut_choi = tong_phut_kt - tong_phut_bd
 
-            if ngay < today:
-                err_msg = "Lỗi: Không thể tìm sân trong quá khứ!"
-            elif ngay == today and t1 < datetime.now().time():
-                err_msg = "Lỗi: Vui lòng chọn giờ khác, không được chọn giờ tỏng quá khứ!"
-            elif so_phut_choi <= 0:
-                err_msg = "Lỗi: Giờ kết thúc phải lớn hơn giờ bắt đầu!"
-            elif so_phut_choi < 60:
-                err_msg = "Lỗi: Thời gian thuê tối thiểu phải là 1 tiếng!"
+        if ngay < today:
+            err_msg = "Lỗi: Không thể tìm sân trong quá khứ!"
+        elif ngay == today and t1 < datetime.now().time():
+            err_msg = "Lỗi: Vui lòng chọn giờ khác, không được chọn giờ tỏng quá khứ!"
+        elif so_phut_choi <= 0:
+            err_msg = "Lỗi: Giờ kết thúc phải lớn hơn giờ bắt đầu!"
+        elif so_phut_choi < 60:
+            err_msg = "Lỗi: Thời gian thuê tối thiểu phải là 1 tiếng!"
 
-        except ValueError:
-            err_msg = "Lỗi: Định dạng ngày giờ không hợp lệ!"
 
     if not err_msg:
-        DS = dao.load_san_trong(kw=kw, loai_san_val=loai, ngay=ngay, gio_bd=t1, gio_kt=t2, page=page)
-        total = dao.count_san_trong(kw=kw, loai_san_val=loai, ngay=ngay, gio_bd=t1, gio_kt=t2)
+        DS = dao.load_san_trong(loai_san_val=loai, ngay=ngay, gio_bd=t1, gio_kt=t2, page=page)
+        total = dao.count_san_trong(loai_san_val=loai, ngay=ngay, gio_bd=t1, gio_kt=t2)
 
         if total > 0:
             pages = math.ceil(total / current_app.config.get('PAGE_SIZE', 6))
 
     return render_template('search.html',danh_sach_san=DS,pages=pages,
-                           current_page=page,kw=kw, loai_san=loai, ngay=ngay_chon, gio_bd=gio_bd, gio_kt=gio_kt,
+                           current_page=page, loai_san=loai, ngay=ngay_chon, gio_bd=gio_bd, gio_kt=gio_kt,
                            LoaiSan=models.LoaiSan,stats=dao.count_san_by_type(),today=today,err_msg=err_msg)
 
 
@@ -87,7 +83,7 @@ def checkout_view(san_id):
     soluongsandat = dao.count_dat_san_trong_ngay(current_user.id,ngay)
     if current_user.vai_tro == VaiTro.NGUOI_DUNG:
         if soluongsandat >= 3:
-            return render_template('error_book_san.html', ngay = ngay)
+            return render_template('error_book_san.html', ngay=ngay)
 
     san = dao.get_san_by_id(san_id)
     if not san:
@@ -124,10 +120,7 @@ def process_payment():
     )
 
     if thanh_cong:
-        if current_user.is_authenticated and current_user.vai_tro.name == 'NHAN_VIEN':
-            return "<h2 style='color:green; text-align:center;'>Thanh toán thành công! Sân đã được đặt.</h2><div style='text-align:center;'><a href='/staff/my-history'>Xem đặt sân</a></div>"
-        elif current_user.vai_tro == VaiTro.NGUOI_DUNG:
-            return "<h2 style='color:green; text-align:center;'>Thanh toán thành công! Sân đã được đặt.</h2><div style='text-align:center;'><a href='/'>Về trang chủ</a></div>"
+        return "<h2 style='color:green; text-align:center;'>Thanh toán thành công! Sân đã được đặt.</h2><div style='text-align:center;'><a href='/'>Về trang chủ</a></div>"
     else:
         return "<h2 style='color:red; text-align:center;'>Có lỗi xảy ra, vui lòng thử lại!</h2>"
 

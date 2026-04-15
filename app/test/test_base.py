@@ -2,18 +2,13 @@ import pytest
 import os
 from flask import Flask
 from app import db, login_manager
-from app.admin.views import admin_bp
 from app.auth.views import auth_bp
 from app.booking.views import booking_bp
 from app.courts.views import courts_bp
 
 
 def create_app():
-    base_dir = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
-    template_dir = os.path.join(base_dir, 'templates')
-    static_dir = os.path.join(base_dir, 'static')
-
-    app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
+    app = Flask(__name__, template_folder='../templates', static_folder='../static')
     app.config.update({
         "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
         "PAGE_SIZE": 2,
@@ -25,7 +20,6 @@ def create_app():
     db.init_app(app)
     login_manager.init_app(app)
 
-    app.register_blueprint(admin_bp)
     app.register_blueprint(auth_bp)
     app.register_blueprint(booking_bp)
     app.register_blueprint(courts_bp)
