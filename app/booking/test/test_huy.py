@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 from app.booking.dao import huy_dat_san
 from app.test.test_base import test_session, test_app
 from app.models import DatLich, HoaDon, TrangThaiDL, TrangThaiHoaDon
@@ -110,7 +112,7 @@ def test_cancel_playing_booking(test_session, test_app):
     now = datetime.now()
     dl = DatLich(
         ngay_choi=now.date(),
-        gio_bd=(now - timedelta(minutes=30)).time(),  # Đã bắt đầu 30p
+        gio_bd=(now - timedelta(minutes=30)).time(),
         gio_kt=(now + timedelta(minutes=30)).time(),
         ma_nd=1,
         ma_san=1,
@@ -142,3 +144,23 @@ def test_cancel_past_booking(test_session, test_app):
         huy_dat_san(ma_dat_san=dl.id, user_id=1)
 
     assert "Đã tới hoặc qua giờ nhận sân" in str(error_info.value)
+
+def test_huy_dat_san_exception(test_session, test_app):
+    ngay_mai = datetime.now() + timedelta(days=2)
+    dl = DatLich(
+        ngay_choi=ngay_mai.date(),
+        gio_bd=time(18, 0),
+        gio_kt=time(19, 0),
+        ma_nd=1,
+        ma_san=1,
+        trang_thai=TrangThaiDL.CHUA_HOAN_THANH
+    )
+    test_session.add(dl)
+    test_session.commit()
+
+    with patch('app.db.session.commit') as mock_commit:
+        mock_commit.side_effect = Exception("Giả lập lỗi sập Database rớt mạng!")
+
+        result = huy_dat_san(ma_dat_san=dl.id)
+
+    assert result is False

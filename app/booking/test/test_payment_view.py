@@ -20,7 +20,6 @@ def test_process_payment_success(test_app):
             })
 
             assert response.status_code == 200
-            # Giải mã binary sang string để check tiếng Việt
             assert "Thanh toán thành công!" in response.data.decode('utf-8')
 
 def test_process_payment_fail(test_app):

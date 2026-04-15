@@ -34,8 +34,7 @@ def test_luu_dat_san_success(test_session, test_app):
     assert hd.trang_thai == TrangThaiHoaDon.DA_THANH_TOAN
 
 
-def test_luu_dat_san_fail_format(mock_luu,test_session, test_app):
-    mock_luu.return_value = False
+def test_luu_dat_san_fail_format(test_session, test_app):
 
     result = dao.luu_dat_san(
         ma_nd=1,
@@ -47,5 +46,6 @@ def test_luu_dat_san_fail_format(mock_luu,test_session, test_app):
     )
 
     assert result is False
+
     from app.models import DatLich
     assert DatLich.query.count() == 0
