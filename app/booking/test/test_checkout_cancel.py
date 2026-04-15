@@ -28,7 +28,7 @@ def test_checkout_hop_le_tinh_tien(mock_user, test_session, test_app):
         response = client.get(f'/checkout/{s.id}?ngay=2026-10-10&gio_bd=17:00&gio_kt=19:00')
         assert response.status_code == 200
 
-def test_checkout_khong_tim_thay_san_dong_90(test_app):
+def test_checkout_khong_tim_thay_san(test_app):
     client = test_app.test_client()
     with patch('flask_login.utils._get_user') as mock_user:
         mock_user.return_value = MagicMock(id=1, is_authenticated=True)
