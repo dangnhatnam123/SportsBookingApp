@@ -6,11 +6,9 @@ from flask import current_app
 
 
 
-def load_san_trong(kw=None, loai_san_val=None, ngay=None, gio_bd=None, gio_kt=None, page=1):
+def load_san_trong( loai_san_val=None, ngay=None, gio_bd=None, gio_kt=None, page=1):
     query = San.query.filter(San.active == True)
 
-    if kw:
-        query = query.filter(San.ten_san.contains(kw))
     if loai_san_val:
         query = query.filter(San.loai_san == loai_san_val)
 
@@ -26,9 +24,8 @@ def load_san_trong(kw=None, loai_san_val=None, ngay=None, gio_bd=None, gio_kt=No
     return query.slice(start, start + page_size).all()
 
 
-def count_san_trong(kw=None, loai_san_val=None, ngay=None, gio_bd=None, gio_kt=None):
+def count_san_trong(loai_san_val=None, ngay=None, gio_bd=None, gio_kt=None):
     query = San.query.filter(San.active == True)
-    if kw: query = query.filter(San.ten_san.contains(kw))
     if loai_san_val: query = query.filter(San.loai_san == loai_san_val)
     if ngay and gio_bd and gio_kt:
         da_dat = db.session.query(DatLich.ma_san).filter(DatLich.ngay_choi == ngay,

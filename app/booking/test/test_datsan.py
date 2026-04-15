@@ -71,3 +71,44 @@ def test_khong_hien_thi_san_da_co_nguoi_dat(test_client, setup_booking_data):
 
     assert setup_booking_data['san1'].ten_san not in res.data.decode('utf-8')
 
+def test_get_history_co_page(test_session, setup_booking_data):
+    res, pages = dao.get_history_by_user(setup_booking_data['user'].id, page=1)
+    assert isinstance(res, list)
+
+def test_load_san_loai_san(test_session):
+    res = dao.load_san_trong(loai_san_val="Bóng đá")
+    assert isinstance(res, list)
+
+def test_view_san_khong_ton_tai(test_client):
+    res = test_client.get('/san/311')
+    assert res.status_code == 404
+    assert 'Không tìm thấy sân này!' in res.data.decode('utf-8')
+
+
+def test_view_search_loi_thoi_gian(test_client):
+    res = test_client.get('/search?ngay=2026-12-12&gio_bd=10:00&gio_kt=09:00')
+    assert 'Lỗi: Giờ kết thúc phải lớn hơn giờ bắt đầu!' in res.data.decode('utf-8')
+
+def test_view_search_thanh_cong(test_client,setup_booking_data):
+    san_id = setup_booking_data['san1'].id
+    res = test_client.get(f'/san/{san_id}')
+    assert res.status_code == 200
+    html_content = res.data.decode('utf-8')
+    assert setup_booking_data['san1'].ten_san in html_content
+
+def test_view_checkout_san_id_sai(test_client, setup_booking_data):
+    test_client.post('/login', data={'username': 'khach', 'password': '123456'})
+    res = test_client.get('/checkout/999?ngay=2026-12-12&gio_bd=10:00&gio_kt=11:00')
+    assert res.status_code == 302
+
+def test_search_gio_qua_khu_trong_ngay(test_client):
+    now = datetime.now()
+    hom_nay_str = now.strftime('%Y-%m-%d')
+    gio_bd_qua_khu = "00:00"
+    gio_kt = "01:00"
+
+    res = test_client.get(f'/search?ngay={hom_nay_str}&gio_bd={gio_bd_qua_khu}&gio_kt={gio_kt}')
+    assert res.status_code == 200
+    html = res.data.decode('utf-8')
+    assert 'không được chọn giờ tỏng quá khứ' in html
+
