@@ -53,13 +53,6 @@
                         <label class="form-check-label ms-2 fw-bold">Ví điện tử MoMo</label>
                     </div>
 
-                    {% if current_user.vai_tro.name == 'NHAN_VIEN' %}
-                    <div class="form-check mb-4 bg-light p-3 rounded border">
-                        <input class="form-check-input ms-1 mt-2" type="radio" name="payment_method" value="momo">
-                        <label class="form-check-label ms-2 fw-bold">Tiền mặt (Thu tại quầy)</label>
-                    </div>
-                    {% endif %}
-
                     <div class="d-flex gap-3 mt-4">
                         <a href="javascript:history.back()" class="btn btn-outline-secondary w-50 py-3 fw-bold">Quay lại</a>
                         <button type="submit" class="btn btn-success w-50 py-3 fw-bold fs-5 shadow">XÁC NHẬN</button>
