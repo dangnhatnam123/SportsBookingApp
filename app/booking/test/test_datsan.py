@@ -100,6 +100,7 @@ def test_view_checkout_san_id_sai(test_client, setup_booking_data):
     test_client.post('/login', data={'username': 'khach', 'password': '123456'})
     res = test_client.get('/checkout/999?ngay=2026-12-12&gio_bd=10:00&gio_kt=11:00')
     assert res.status_code == 302
+    assert res.headers['Location'].endswith('/search')
 
 def test_search_gio_qua_khu_trong_ngay(test_client):
     now = datetime.now()
@@ -111,4 +112,7 @@ def test_search_gio_qua_khu_trong_ngay(test_client):
     assert res.status_code == 200
     html = res.data.decode('utf-8')
     assert 'không được chọn giờ tỏng quá khứ' in html
+
+
+
 
