@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from sqlalchemy import func
-from app import db
+from app.extention import db
 from app.models import DatLich, TrangThaiDL, TrangThaiHoaDon, HoaDon, San
 from flask import current_app
 
@@ -143,3 +143,13 @@ def count_dat_san_trong_ngay(ma_nd, ngay_choi):
         DatLich.ngay_choi == ngay,
         DatLich.trang_thai != TrangThaiDL.DA_HUY
     ).count()
+
+def xoa_don_loi(ma_dat_san):
+    don_hang = DatLich.query.get(ma_dat_san)
+    if don_hang:
+        if don_hang.hoa_don:
+            db.session.delete(don_hang.hoa_don)
+        db.session.delete(don_hang)
+        db.session.commit()
+        return True
+    return False

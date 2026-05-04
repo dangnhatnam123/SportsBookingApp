@@ -1,7 +1,9 @@
 import random
 from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, Float, Enum, DateTime, Time, Date
 from sqlalchemy.orm import relationship
-from app import db, app
+
+from app.extention import db
+
 from flask_login import UserMixin
 from enum import Enum as UserEnum
 from datetime import datetime, time, date, timedelta
@@ -83,7 +85,6 @@ class DatLich(BaseModel):
     gio_kt = Column(Time, nullable=False)
     trang_thai = Column(Enum(TrangThaiDL), default=TrangThaiDL.CHUA_HOAN_THANH)
 
-    # Đã giữ lại 2 cột MoMo cho bà
     loai_thanh_toan = Column(String(20), default='truc_tiep')
     momo_trans_id = Column(String(100), nullable=True)
 
@@ -114,7 +115,6 @@ class DatLich(BaseModel):
             return "Hết giờ nhận sân"
         return "Chờ nhận sân"
 
-# Đã đưa HoaDon ra ngoài sát lề (ngang hàng với DatLich)
 class HoaDon(BaseModel):
     __tablename__ = 'hoa_don'
     tong_tien = Column(Float, default=0)
@@ -128,8 +128,8 @@ class HoaDon(BaseModel):
     nhan_vien = relationship('NguoiDung', back_populates='hoa_dons')
 
 
-# Đã đưa khối thực thi ra ngoài sát lề
 if __name__ == '__main__':
+    from app import app
     with app.app_context():
         db.drop_all()
         db.create_all()

@@ -1,8 +1,7 @@
 import hashlib
-import re
 import cloudinary.uploader
 from sqlalchemy.exc import IntegrityError
-from app import db
+from app.extention import db
 from app.models import NguoiDung, VaiTro
 
 
