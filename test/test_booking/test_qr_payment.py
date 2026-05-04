@@ -1,8 +1,9 @@
 import pytest
 from unittest.mock import MagicMock, patch
 from flask import Flask
-from app import db  # Import db từ project của bà
+from app import db
 from app.booking.views import booking_bp
+from test.test_base import test_app
 
 
 @pytest.fixture

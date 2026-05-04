@@ -1,7 +1,6 @@
 from datetime import date, time
-import pytest
 from unittest.mock import patch, MagicMock
-from app.test.test_base import test_app
+from test.test_base import test_app
 
 def test_history_view_success(test_app):
     client = test_app.test_client()

@@ -2,7 +2,7 @@
 # from datetime import datetime, timedelta, time
 # from app.courts import dao
 # from app.models import San, DatLich, NguoiDung, VaiTro, LoaiSan
-# from app.test.test_base import test_session, test_client,test_app
+# from app.test_courts.test_base import test_session, test_client,test_app
 # import hashlib
 #
 # @pytest.fixture()

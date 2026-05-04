@@ -218,7 +218,7 @@ def process_huy_dat(ma_dat_san):
         if trans_id:
             if trans_id.startswith("MOMO_TEST"):
                 if dao.huy_dat_san(ma_dat_san):
-                    flash('Đã hủy đơn test thành công!', 'success')
+                    flash('Đã hủy đơn test_courts thành công!', 'success')
                     return redirect(url_for('booking_bp.history_view'))
 
             order_id = f"REFUND_{ma_dat_san}_{str(uuid.uuid4())[:8]}"
