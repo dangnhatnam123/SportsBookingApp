@@ -1,6 +1,6 @@
 import pytest
 from app.auth import dao
-from app.test.test_base import test_client,test_session,test_app ,mock_cloudinary
+from test.test_base import test_client, test_session, mock_cloudinary, test_app
 from app.auth.views import load_user
 from app.models import NguoiDung, VaiTro
 
@@ -75,7 +75,7 @@ def test_login_role_admin(test_client, test_session):
 
 def test_dang_nhap_sai_pass(test_client, test_session):
     dao.add_user(name="Nam", username="nam", password="33333333")
-    res = test_client.post('/login', data={'username': 'nam', 'password': '12345678'})
+    res = test_client.post('/login', data={'username': 'nam', 'password': '12345678'}, follow_redirects=True)
     assert res.status_code == 200
     assert 'Tên đăng nhập hoặc mật khẩu không chính xác!' in res.data.decode('utf-8')
 

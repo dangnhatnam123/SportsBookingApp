@@ -1,7 +1,6 @@
-import pytest
 from unittest.mock import patch, MagicMock, PropertyMock
 from datetime import datetime, timedelta, time
-from app.test.test_base import test_app, test_session
+from test.test_base import test_app, test_session
 from app.models import San, LoaiSan, DatLich, TrangThaiDL, VaiTro
 
 

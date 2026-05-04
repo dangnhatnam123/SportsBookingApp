@@ -7,7 +7,7 @@ from app.courts.views import courts_bp
 
 
 def create_app():
-    app = Flask(__name__, template_folder='../templates', static_folder='../static')
+    app = Flask(__name__, template_folder='../app/templates', static_folder='../app/static')
     app.config.update({
         "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
         "PAGE_SIZE": 2,

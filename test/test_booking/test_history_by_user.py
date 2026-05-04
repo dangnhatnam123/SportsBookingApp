@@ -1,9 +1,8 @@
 import math
 from datetime import date, time
-import pytest
 from app.booking import dao
 from app.models import DatLich, San, LoaiSan
-from app.test.test_base import test_session, test_app
+from test.test_base import test_session, test_app
 
 
 def test_get_history_by_user_success(test_session, test_app):

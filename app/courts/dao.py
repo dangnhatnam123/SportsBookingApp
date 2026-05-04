@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from app import db
+from app.extention import db
 from app.models import San, DatLich, HoaDon
 
 

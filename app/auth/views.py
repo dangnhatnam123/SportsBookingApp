@@ -1,4 +1,4 @@
-from app import login_manager
+from app.extention import login_manager
 from flask import request, redirect, render_template, url_for
 from flask_login import login_user, logout_user
 from app.auth import dao
