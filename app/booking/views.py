@@ -8,6 +8,11 @@ from app import models
 from app.booking import booking_bp, dao
 from app.models import DatLich, VaiTro
 
+import json
+import uuid
+import hmac
+import hashlib
+import requests
 
 @booking_bp.route('/san/<int:san_id>')
 def court_detail(san_id):
@@ -108,43 +113,110 @@ def process_payment():
     gio_bd = request.form.get('gio_bd')
     gio_kt = request.form.get('gio_kt')
     tong_tien = request.form.get('tong_tien')
+    payment_method = request.form.get('payment_method')
 
-    thanh_cong = dao.luu_dat_san(
+    # --- BƯỚC MỚI: Lấy thông tin sân và tính số giờ để hiện lên MoMo ---
+    san_obj = dao.get_san_by_id(san_id)
+    ten_san = san_obj.ten_san if san_obj else f"Sân #{san_id}"
+
+    fmt = '%H:%M'
+    t1 = datetime.strptime(gio_bd, fmt)
+    t2 = datetime.strptime(gio_kt, fmt)
+    so_gio = (t2 - t1).total_seconds() / 3600
+    new_booking = dao.luu_dat_san(
         ma_nd=current_user.id,
         ma_san=san_id,
         ngay_choi=ngay,
         gio_bd=gio_bd,
         gio_kt=gio_kt,
         tong_tien=tong_tien,
-
+        loai_thanh_toan=payment_method
     )
 
-    if thanh_cong:
-        return "<h2 style='color:green; text-align:center;'>Thanh toán thành công! Sân đã được đặt.</h2><div style='text-align:center;'><a href='/'>Về trang chủ</a></div>"
-    else:
-        return "<h2 style='color:red; text-align:center;'>Có lỗi xảy ra, vui lòng thử lại!</h2>"
+    if new_booking:
+        if payment_method == 'momo':
+            endpoint = "https://test-payment.momo.vn/v2/gateway/api/create"
+            partnerCode = "MOMO"
+            accessKey = "F8BBA842ECF85"
+            secretKey = "K951B6PE1waDMi640xX08PD3vg6EkVlz"
 
+            orderId = f"BILL_{new_booking.id}_{str(uuid.uuid4())[:8]}"
+            requestId = str(uuid.uuid4())
+
+            # SỬA CHỖ NÀY: Nội dung hiển thị chi tiết cho người dùng kiểm tra
+            orderInfo = f"{ten_san} | {so_gio}h | {ngay}"
+
+            redirectUrl = url_for('booking_bp.history_view', _external=True)
+            ipnUrl = "https://webhook.site/b3088a6a-2d17-4f8d-a383-71389a6c600b"
+            requestType = "captureWallet"
+            extraData = ""
+
+            amount = str(int(float(tong_tien)))
+
+            rawSignature = f"accessKey={accessKey}&amount={amount}&extraData={extraData}&ipnUrl={ipnUrl}&orderId={orderId}&orderInfo={orderInfo}&partnerCode={partnerCode}&redirectUrl={redirectUrl}&requestId={requestId}&requestType={requestType}"
+
+            h = hmac.new(bytes(secretKey, 'utf-8'), bytes(rawSignature, 'utf-8'), hashlib.sha256)
+            signature = h.hexdigest()
+
+            data = {
+                'partnerCode': partnerCode,
+                'partnerName': "Sports Booking App",
+                'storeId': "MomoTestStore",
+                'requestId': requestId,
+                'amount': amount,
+                'orderId': orderId,
+                'orderInfo': orderInfo,
+                'redirectUrl': redirectUrl,
+                'ipnUrl': ipnUrl,
+                'lang': "vi",
+                'extraData': extraData,
+                'requestType': requestType,
+                'signature': signature
+            }
+
+            try:
+                response = requests.post(endpoint, data=json.dumps(data), headers={'Content-Type': 'application/json'})
+                res_json = response.json()
+                if 'payUrl' in res_json:
+                    return redirect(res_json['payUrl'])
+            except Exception as e:
+                print(f"Lỗi gọi MoMo: {e}")
+
+        flash('Đặt sân thành công!', 'success')
+        return redirect(url_for('booking_bp.history_view'))
+
+    else:
+        flash('Có lỗi xảy ra khi lưu đơn hàng, vui lòng thử lại!', 'danger')
+        return redirect(url_for('booking_bp.booking_view'))
 
 @booking_bp.route('/orders')
 @login_required
 def history_view():
+    momo_trans_id = request.args.get('transId')
+    order_id_full = request.args.get('orderId') # Có dạng BILL_ID_xxxx
+    result_code = request.args.get('resultCode')
+
+    if result_code == '0' and momo_trans_id and order_id_full:
+        try:
+            ma_dat_san = order_id_full.split('_')[1]
+            dao.update_momo_trans_id(ma_dat_san, momo_trans_id)
+        except Exception as e:
+            print(f"Lỗi cập nhật transId thật: {e}")
+
     page = request.args.get('page', 1, type=int)
-
     history_list, total_pages = dao.get_history_by_user(current_user.id, page=page)
-
     now = datetime.now()
 
-    return render_template('history.html',
-                           history=history_list,
-                           pages=total_pages,
-                           current_page=page,
-                           now=now,
-                           datetime=datetime)
-
-
+    return render_template('history.html', history=history_list, pages=total_pages,
+                           current_page=page, now=now, datetime=datetime)
 @booking_bp.route('/huy-dat-san/<int:ma_dat_san>', methods=['POST'])
 @login_required
 def process_huy_dat(ma_dat_san):
+    PARTNER_CODE = "MOMO"
+    ACCESS_KEY = "F8BBA842ECF85"
+    SECRET_KEY = "K951B6PE1waDMi640xX08PD3vg6EkVlz"
+    REFUND_ENDPOINT = "https://test-payment.momo.vn/v2/gateway/api/refund"
+
     dat_lich = DatLich.query.get_or_404(ma_dat_san)
 
     # Ràng buộc 2.1
@@ -152,7 +224,7 @@ def process_huy_dat(ma_dat_san):
         flash('Lỗi: Bạn không có quyền hủy lịch đặt sân của người khác!', 'danger')
         return redirect(url_for('booking_bp.history_view'))
 
-    #Ràng buộc 2.3
+    # Ràng buộc 2.3
     if dat_lich.trang_thai_hien_tai == 'Sân đang được sử dụng':
         flash('Lỗi: Sân đang có người chơi, không thể hủy!', 'danger')
         return redirect(url_for('booking_bp.history_view'))
@@ -169,11 +241,53 @@ def process_huy_dat(ma_dat_san):
         flash('Lỗi: Bạn chỉ được phép hủy sân trước giờ chơi ít nhất 2 tiếng!', 'danger')
         return redirect(url_for('booking_bp.history_view'))
 
+    if dat_lich.loai_thanh_toan == 'momo':
+        # Bà nhớ đảm bảo đã lưu transId vào cột momo_trans_id lúc thanh toán nhé
+        trans_id = getattr(dat_lich, 'momo_trans_id', None)
+
+        if trans_id:
+            if trans_id.startswith("MOMO_TEST"):
+                if dao.huy_dat_san(ma_dat_san):
+                    flash('Đã hủy đơn test thành công (Không gọi MoMo vì mã giả)!', 'success')
+                    return redirect(url_for('booking_bp.history_view'))
+            order_id = f"REFUND_{ma_dat_san}_{str(uuid.uuid4())[:8]}"
+            request_id = str(uuid.uuid4())
+            amount = str(int(float(dat_lich.hoa_don.tong_tien)))
+            description = f"Hoan tien san #{ma_dat_san}"
+
+            raw_sig = f"accessKey={ACCESS_KEY}&amount={amount}&description={description}&orderId={order_id}&partnerCode={PARTNER_CODE}&requestId={request_id}&transId={trans_id}"
+            h = hmac.new(bytes(SECRET_KEY, 'utf-8'), bytes(raw_sig, 'utf-8'), hashlib.sha256)
+            signature = h.hexdigest()
+
+            refund_data = {
+                'partnerCode': PARTNER_CODE,
+                'orderId': order_id,
+                'requestId': request_id,
+                'amount': amount,
+                'transId': trans_id,
+                'description': description,
+                'signature': signature,
+                'lang': 'vi'
+            }
+
+            try:
+                res = requests.post(REFUND_ENDPOINT, data=json.dumps(refund_data),
+                                    headers={'Content-Type': 'application/json'})
+                res_json = res.json()
+
+                if res_json.get('resultCode') != 0:
+                    flash(f"Lỗi hoàn tiền MoMo: {res_json.get('message')}", 'warning')
+                    return redirect(url_for('booking_bp.history_view'))
+            except Exception as e:
+                flash(f"Không thể kết nối MoMo để hoàn tiền: {e}", 'danger')
+                return redirect(url_for('booking_bp.history_view'))
+        else:
+            flash('Không tìm thấy mã giao dịch MoMo để hoàn tiền tự động!', 'warning')
+            return redirect(url_for('booking_bp.history_view'))
+
     if dao.huy_dat_san(ma_dat_san):
         flash('Hủy đặt sân thành công!', 'success')
-        return redirect(url_for('booking_bp.history_view'))
+    else:
+        flash('Có lỗi xảy ra khi hủy đặt sân trên hệ thống!', 'danger')
 
-    flash('Có lỗi xảy ra khi hủy đặt sân!', 'danger')
     return redirect(url_for('booking_bp.history_view'))
-
-

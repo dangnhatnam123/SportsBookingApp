@@ -1,7 +1,7 @@
 import random
 from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, Float, Enum, DateTime, Time, Date
 from sqlalchemy.orm import relationship
-from app import db,app
+from app import db, app
 from flask_login import UserMixin
 from enum import Enum as UserEnum
 from datetime import datetime, time, date, timedelta
@@ -83,6 +83,10 @@ class DatLich(BaseModel):
     gio_kt = Column(Time, nullable=False)
     trang_thai = Column(Enum(TrangThaiDL), default=TrangThaiDL.CHUA_HOAN_THANH)
 
+    # Đã giữ lại 2 cột MoMo cho bà
+    loai_thanh_toan = Column(String(20), default='truc_tiep')
+    momo_trans_id = Column(String(100), nullable=True)
+
     ma_nd = Column(Integer, ForeignKey('nguoi_dung.id'), nullable=False)
     ma_san = Column(Integer, ForeignKey('san.id'), nullable=False)
 
@@ -110,6 +114,7 @@ class DatLich(BaseModel):
             return "Hết giờ nhận sân"
         return "Chờ nhận sân"
 
+# Đã đưa HoaDon ra ngoài sát lề (ngang hàng với DatLich)
 class HoaDon(BaseModel):
     __tablename__ = 'hoa_don'
     tong_tien = Column(Float, default=0)
@@ -123,6 +128,7 @@ class HoaDon(BaseModel):
     nhan_vien = relationship('NguoiDung', back_populates='hoa_dons')
 
 
+# Đã đưa khối thực thi ra ngoài sát lề
 if __name__ == '__main__':
     with app.app_context():
         db.drop_all()
@@ -138,7 +144,7 @@ if __name__ == '__main__':
         user5 = NguoiDung(ho_ten='Trần Văn Tí', ten_nd='user5', mat_khau=pwd, vai_tro=VaiTro.NGUOI_DUNG)
         user6 = NguoiDung(ho_ten='Lê Thị Ninh', ten_nd='user6', mat_khau=pwd, vai_tro=VaiTro.NGUOI_DUNG)
 
-        db.session.add_all([admin, user1, user2,user3, user4, user5, user6])
+        db.session.add_all([admin, user1, user2, user3, user4, user5, user6])
         db.session.commit()
 
         data_set = [
@@ -171,7 +177,6 @@ if __name__ == '__main__':
         for item in data_set:
             for cum in item["cums"]:
                 for i in range(1, 5):
-
                     s = San(
                         ten_san=f"{item['prefix']} {cum} - Số {i}",
                         loai_san=item["loai"],
@@ -182,7 +187,6 @@ if __name__ == '__main__':
 
         db.session.add_all(danh_sach_san)
         db.session.commit()
-
 
         hom_nay = date.today()
         tat_ca_user = NguoiDung.query.filter(NguoiDung.vai_tro == VaiTro.NGUOI_DUNG).all()
