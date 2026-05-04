@@ -118,21 +118,43 @@ def update_momo_trans_id(ma_dat_san, trans_id):
         return True
     return False
 
-def huy_dat_san(ma_dat_san):
+
+def huy_dat_san(ma_dat_san, user_id=None):
     try:
-        dat_lich = DatLich.query.get(ma_dat_san)
-        if not dat_lich:
+        dl = DatLich.query.get(ma_dat_san)
+
+        if not dl:
             return False
 
-        dat_lich.trang_thai = TrangThaiDL.DA_HUY
-        if dat_lich.hoa_don:
-            dat_lich.hoa_don.trang_thai = TrangThaiHoaDon.DA_HUY
+        if user_id is not None and dl.ma_nd != user_id:
+            raise ValueError("Bạn không có quyền hủy lịch này!")
+
+        if dl.trang_thai == TrangThaiDL.DA_HOAN_THANH:
+            raise ValueError("Sân đã đá xong, không thể hủy!")
+
+        now = datetime.now()
+        thoi_gian_bat_dau = datetime.combine(dl.ngay_choi, dl.gio_bd)
+
+        if now >= thoi_gian_bat_dau:
+            raise ValueError("Đã tới hoặc qua giờ nhận sân, không thể hủy!")
+
+        if (thoi_gian_bat_dau - now) < timedelta(hours=2):
+            raise ValueError("Phải hủy trước giờ đá ít nhất 2 tiếng!")
+
+        dl.trang_thai = TrangThaiDL.DA_HUY
+
+        hd = HoaDon.query.filter_by(ma_dat=dl.id).first()
+        if hd:
+            hd.trang_thai = TrangThaiHoaDon.DA_HUY
 
         db.session.commit()
         return True
-    except Exception as ex:
-        print(f"Lỗi khi hủy trên DB: {ex}")
+
+    except ValueError as ve:
+        raise ve
+    except Exception as e:
         db.session.rollback()
+        print(f"Lỗi hệ thống: {e}")
         return False
 
 

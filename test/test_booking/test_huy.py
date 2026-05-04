@@ -50,100 +50,100 @@ def test_invalid_id(test_session, invalid_id, test_app):
 
     assert result is False
 
-# def test_cancel_completed_booking(test_session, test_app):
-#     ngay_mai = datetime.now() + timedelta(days=1)
-#     dl = DatLich(
-#         ngay_choi=ngay_mai.date(),
-#         gio_bd=time(18, 0),
-#         gio_kt=time(19, 0),
-#         ma_nd=1,
-#         ma_san=1,
-#         trang_thai=TrangThaiDL.DA_HOAN_THANH)
-#     test_session.add(dl)
-#     test_session.commit()
-#
-#     with pytest.raises(ValueError) as error_info:
-#         huy_dat_san(ma_dat_san=dl.id)
-#
-#     assert str(error_info.value) == "Sân đã đá xong, không thể hủy!"
+def test_cancel_completed_booking(test_session, test_app):
+    ngay_mai = datetime.now() + timedelta(days=1)
+    dl = DatLich(
+        ngay_choi=ngay_mai.date(),
+        gio_bd=time(18, 0),
+        gio_kt=time(19, 0),
+        ma_nd=1,
+        ma_san=1,
+        trang_thai=TrangThaiDL.DA_HOAN_THANH)
+    test_session.add(dl)
+    test_session.commit()
+
+    with pytest.raises(ValueError) as error_info:
+        huy_dat_san(ma_dat_san=dl.id)
+
+    assert str(error_info.value) == "Sân đã đá xong, không thể hủy!"
 
 
-# def test_cancel_wrong_user(test_session, test_app):
-#     ngay_mai = datetime.now() + timedelta(days=1)
-#     dl = DatLich(
-#         ngay_choi=ngay_mai.date(),
-#         gio_bd=time(10, 0),
-#         gio_kt=time(11, 0),
-#         ma_nd=1,
-#         ma_san=1,
-#         trang_thai=TrangThaiDL.CHUA_HOAN_THANH
-#     )
-#     test_session.add(dl)
-#     test_session.commit()
-#
-#     with pytest.raises(ValueError) as error_info:
-#         huy_dat_san(ma_dat_san=dl.id, user_id=99)
-#
-#     assert "không có quyền" in str(error_info.value)
-#
+def test_cancel_wrong_user(test_session, test_app):
+    ngay_mai = datetime.now() + timedelta(days=1)
+    dl = DatLich(
+        ngay_choi=ngay_mai.date(),
+        gio_bd=time(10, 0),
+        gio_kt=time(11, 0),
+        ma_nd=1,
+        ma_san=1,
+        trang_thai=TrangThaiDL.CHUA_HOAN_THANH
+    )
+    test_session.add(dl)
+    test_session.commit()
 
-# def test_cancel_close_to_time(test_session, test_app):
-#     now = datetime.now()
-#     thoi_gian_da = now + timedelta(hours=1)
-#
-#     dl = DatLich(
-#         ngay_choi=thoi_gian_da.date(),
-#         gio_bd=thoi_gian_da.time(),
-#         gio_kt=(thoi_gian_da + timedelta(hours=1)).time(),
-#         ma_nd=1,
-#         ma_san=1,
-#         trang_thai=TrangThaiDL.CHUA_HOAN_THANH
-#     )
-#     test_session.add(dl)
-#     test_session.commit()
-#
-#     with pytest.raises(ValueError) as error_info:
-#         huy_dat_san(ma_dat_san=dl.id, user_id=1)
-#
-#     assert "ít nhất 2 tiếng" in str(error_info.value)
+    with pytest.raises(ValueError) as error_info:
+        huy_dat_san(ma_dat_san=dl.id, user_id=99)
+
+    assert "không có quyền" in str(error_info.value)
 
 
-# def test_cancel_playing_booking(test_session, test_app):
-#     now = datetime.now()
-#     dl = DatLich(
-#         ngay_choi=now.date(),
-#         gio_bd=(now - timedelta(minutes=30)).time(),
-#         gio_kt=(now + timedelta(minutes=30)).time(),
-#         ma_nd=1,
-#         ma_san=1,
-#         trang_thai=TrangThaiDL.CHUA_HOAN_THANH
-#     )
-#     test_session.add(dl)
-#     test_session.commit()
-#
-#     with pytest.raises(ValueError) as error_info:
-#         huy_dat_san(ma_dat_san=dl.id, user_id=1)
-#
-#     assert "Đã tới hoặc qua giờ nhận sân" in str(error_info.value)
+def test_cancel_close_to_time(test_session, test_app):
+    now = datetime.now()
+    thoi_gian_da = now + timedelta(hours=1)
+
+    dl = DatLich(
+        ngay_choi=thoi_gian_da.date(),
+        gio_bd=thoi_gian_da.time(),
+        gio_kt=(thoi_gian_da + timedelta(hours=1)).time(),
+        ma_nd=1,
+        ma_san=1,
+        trang_thai=TrangThaiDL.CHUA_HOAN_THANH
+    )
+    test_session.add(dl)
+    test_session.commit()
+
+    with pytest.raises(ValueError) as error_info:
+        huy_dat_san(ma_dat_san=dl.id, user_id=1)
+
+    assert "ít nhất 2 tiếng" in str(error_info.value)
 
 
-# def test_cancel_past_booking(test_session, test_app):
-#     hom_qua = datetime.now() - timedelta(days=1)
-#     dl = DatLich(
-#         ngay_choi=hom_qua.date(),
-#         gio_bd=time(10, 0),
-#         gio_kt=time(11, 0),
-#         ma_nd=1,
-#         ma_san=1,
-#         trang_thai=TrangThaiDL.CHUA_HOAN_THANH
-#     )
-#     test_session.add(dl)
-#     test_session.commit()
-#
-#     with pytest.raises(ValueError) as error_info:
-#         huy_dat_san(ma_dat_san=dl.id, user_id=1)
-#
-#     assert "Đã tới hoặc qua giờ nhận sân" in str(error_info.value)
+def test_cancel_playing_booking(test_session, test_app):
+    now = datetime.now()
+    dl = DatLich(
+        ngay_choi=now.date(),
+        gio_bd=(now - timedelta(minutes=30)).time(),
+        gio_kt=(now + timedelta(minutes=30)).time(),
+        ma_nd=1,
+        ma_san=1,
+        trang_thai=TrangThaiDL.CHUA_HOAN_THANH
+    )
+    test_session.add(dl)
+    test_session.commit()
+
+    with pytest.raises(ValueError) as error_info:
+        huy_dat_san(ma_dat_san=dl.id, user_id=1)
+
+    assert "Đã tới hoặc qua giờ nhận sân" in str(error_info.value)
+
+
+def test_cancel_past_booking(test_session, test_app):
+    hom_qua = datetime.now() - timedelta(days=1)
+    dl = DatLich(
+        ngay_choi=hom_qua.date(),
+        gio_bd=time(10, 0),
+        gio_kt=time(11, 0),
+        ma_nd=1,
+        ma_san=1,
+        trang_thai=TrangThaiDL.CHUA_HOAN_THANH
+    )
+    test_session.add(dl)
+    test_session.commit()
+
+    with pytest.raises(ValueError) as error_info:
+        huy_dat_san(ma_dat_san=dl.id, user_id=1)
+
+    assert "Đã tới hoặc qua giờ nhận sân" in str(error_info.value)
 
 def test_huy_dat_san_exception(test_session, test_app):
     ngay_mai = datetime.now() + timedelta(days=2)
