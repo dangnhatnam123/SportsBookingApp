@@ -4,7 +4,7 @@ from app.models import San, DatLich, NguoiDung, VaiTro
 from app.courts import dao
 import hashlib
 from unittest.mock import patch
-from app.test.test_base import test_client,test_session,test_app ,mock_cloudinary
+from test.test_base import test_client,test_session,test_app ,mock_cloudinary
 
 
 def test_add_va_load_san(test_session, test_app):
