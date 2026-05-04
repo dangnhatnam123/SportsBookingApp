@@ -1,5 +1,4 @@
 import pytest
-import os
 from flask import Flask
 from app import db, login_manager
 from app.auth.views import auth_bp

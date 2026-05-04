@@ -1,116 +1,158 @@
 {% extends "admin/admin_base.html" %}
 {% block admin_content %}
-<h3 class="mb-4">Danh sách các sân thể thao</h3>
 
-<div class="mb-3">
-    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalThemSan">
-        <i class="fas fa-plus"></i> + Thêm Sân Mới
-    </button>
-</div>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
 
-<table class="table table-hover table-striped border">
-    <thead class="table-primary">
-    <tr>
-        <th>Tên Sân</th>
-        <th>Loại Sân</th>
-        <th>Giá thuê/h</th>
-        <th>Thao tác</th>
-    </tr>
-    </thead>
-    <tbody>
-    {% for s in danh_sach_san %}
-    <tr>
-        <td>{{ s.ten_san }}</td>
-        <td>{{ s.loai_san.value }}</td>
-        <td>{{ s.gia_san_theo_gio }} VNĐ</td>
-        <td>
-            <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#modalEdit{{ s.id }}">
-                Sửa
-            </button>
-            <form action="{{ url_for('courts_bp.delete_san', san_id=s.id) }}" method="POST" style="display:inline;"
-                  onsubmit="return confirm('Bạn chắc chắn muốn xóa sân này? Hành động này không thể hoàn tác!');">
-                <button type="submit" class="btn btn-danger btn-sm">Xoá</button>
-            </form>
-        </td>
-    </tr>
-    <div class="modal fade" id="modalEdit{{ s.id }}" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Sửa Thông Tin: {{ s.ten_san }}</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+
+<div class="container-fluid py-4 px-lg-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="admin-page-title mb-1">Quản lý Sân thể thao</h3>
+            <p class="text-muted mb-0" style="font-size: 0.9rem;">Danh sách và thiết lập giá thuê sân trên hệ thống</p>
+        </div>
+        <button type="button" class="btn btn-primary shadow-sm rounded-pill px-4 fw-bold" data-bs-toggle="modal"
+                data-bs-target="#modalThemSan">
+            <i class="fas fa-plus-circle me-2"></i> Thêm Sân Mới
+        </button>
+    </div>
+
+    <div class="card custom-card bg-white">
+        <div class="table-responsive">
+            <table class="table modern-table mb-0">
+                <thead>
+                <tr>
+                    <th class="ps-4">Tên Sân</th>
+                    <th>Loại Sân</th>
+                    <th>Giá thuê (VNĐ/h)</th>
+                    <th class="text-end pe-4">Thao tác</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for s in danh_sach_san %}
+                <tr>
+                    <td class="ps-4 fw-bold text-dark">
+                        <i class="fas fa-map-marker-alt text-primary me-2 opacity-50"></i> {{ s.ten_san }}
+                    </td>
+                    <td>
+                        {% if s.loai_san.name == 'BONG_DA' %}
+                        <span class="badge-soft badge-bongda"><i class="fas fa-futbol me-1"></i> Bóng đá</span>
+                        {% elif s.loai_san.name == 'CAU_LONG' %}
+                        <span class="badge-soft badge-caulong"><i class="fas fa-table-tennis me-1"></i> Cầu lông</span>
+                        {% else %}
+                        <span class="badge-soft badge-tennis"><i class="fas fa-baseball-ball me-1"></i> Tennis</span>
+                        {% endif %}
+                    </td>
+                    <td class="fw-bold text-danger">
+                        {{ "{:,.0f}".format(s.gia_san_theo_gio) }} <span class="text-muted fw-normal"
+                                                                         style="font-size: 0.8rem;">VNĐ</span>
+                    </td>
+                    <td class="text-end pe-4 align-middle" style="white-space: nowrap;">
+                        <div class="d-flex justify-content-end align-items-center gap-2">
+                            <button class="btn btn-outline-primary bg-white rounded-pill px-3 py-1"
+                                    style="font-size: 0.85rem; font-weight: 500;"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#modalEdit{{ s.id }}">
+                                Sửa
+                            </button>
+                            <form action="{{ url_for('courts_bp.delete_san', san_id=s.id) }}" method="POST" class="m-0"
+                                  onsubmit="return confirm('Bạn có chắc muốn xóa sân này? Dữ liệu không thể khôi phục!');">
+                                <button type="submit" class="btn btn-outline-danger bg-white rounded-pill px-3 py-1"
+                                        style="font-size: 0.85rem; font-weight: 500;">
+                                    Xóa
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+
+                <div class="modal fade" id="modalEdit{{ s.id }}" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content border-0 shadow-lg" style="border-radius: 12px;">
+                            <div class="modal-header border-bottom-0 pb-0 pt-4 px-4">
+                                <h5 class="modal-title fw-bold text-dark">Chỉnh sửa sân</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <form action="{{ url_for('courts_bp.edit_san', san_id=s.id) }}" method="POST">
+                                <div class="modal-body px-4 py-4">
+                                    <div class="mb-4">
+                                        <label class="form-label text-muted fw-bold" style="font-size: 0.85rem;">TÊN
+                                            SÂN</label>
+                                        <input type="text" name="ten_san"
+                                               class="form-control form-control-lg bg-light border-0"
+                                               value="{{ s.ten_san }}" required>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="form-label text-muted fw-bold" style="font-size: 0.85rem;">PHÂN
+                                            LOẠI</label>
+                                        <select name="loai_san" class="form-select form-select-lg bg-light border-0">
+                                            <option value="BONG_DA" {% if s.loai_san.name==
+                                            'BONG_DA' %}selected{% endif %}>Bóng đá</option>
+                                            <option value="CAU_LONG" {% if s.loai_san.name==
+                                            'CAU_LONG' %}selected{% endif %}>Cầu lông</option>
+                                            <option value="TENNIS" {% if s.loai_san.name==
+                                            'TENNIS' %}selected{% endif %}>Tennis</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-2">
+                                        <label class="form-label text-muted fw-bold" style="font-size: 0.85rem;">GIÁ
+                                            THUÊ (VNĐ/GIỜ)</label>
+                                        <input type="number" name="gia"
+                                               class="form-control form-control-lg bg-light border-0 text-danger fw-bold"
+                                               value="{{ s.gia_san_theo_gio }}" required>
+                                    </div>
+                                </div>
+                                <div class="modal-footer border-top-0 px-4 pb-4">
+                                    <button type="button" class="btn btn-light rounded-pill px-4 fw-bold"
+                                            data-bs-dismiss="modal">Hủy
+                                    </button>
+                                    <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm">
+                                        Cập nhật
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
                 </div>
-
-                <form action="{{ url_for('courts_bp.edit_san', san_id=s.id) }}" method="POST">
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label class="form-label">Tên sân mới:</label>
-                            <input type="text" name="ten_san" class="form-control" value="{{ s.ten_san }}" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Loại sân:</label>
-                            <select name="loai_san" class="form-select">
-                                <option value="BONG_DA" {% if s.loai_san.name==
-                                'BONG_DA' %}selected{% endif %}>Bóng đá</option>
-                                <option value="CAU_LONG" {% if s.loai_san.name==
-                                'CAU_LONG' %}selected{% endif %}>Cầu lông</option>
-                                <option value="TENNIS" {% if s.loai_san.name==
-                                'TENNIS' %}selected{% endif %}>Tennis</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Giá thuê mới (VNĐ/giờ):</label>
-                            <input type="number" name="gia" class="form-control" value="{{ s.gia_san_theo_gio }}"
-                                   required>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-                        <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
-                    </div>
-                </form>
-
-            </div>
+                {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
-    {% endfor %}
-    </tbody>
-</table>
+</div>
 
-<div class="modal fade" id="modalThemSan" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Thêm Sân Thể Thao Mới</h5>
+<div class="modal fade" id="modalThemSan" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content custom-modal-content">
+            <div class="modal-header border-bottom-0 pb-0 pt-4 px-4">
+                <h5 class="modal-title fw-bold text-dark fs-5">Thêm Sân Mới</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-
             <form action="{{ url_for('courts_bp.add_san') }}" method="POST">
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label">Tên sân:</label>
-                        <input type="text" name="ten_san" class="form-control" required
-                               placeholder="Ví dụ: Sân bóng Chảo Lửa 5">
+                <div class="modal-body px-4 py-3">
+                    <div class="mb-4">
+                        <label class="form-label custom-modal-label">TÊN SÂN</label>
+                        <input type="text" name="ten_san" class="form-control custom-modal-input" required
+                               placeholder="Nhập tên sân...">
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Loại sân:</label>
-                        <select name="loai_san" class="form-select">
+                    <div class="mb-4">
+                        <label class="form-label custom-modal-label">PHÂN LOẠI</label>
+                        <select name="loai_san" class="form-select custom-modal-input">
                             <option value="BONG_DA">Bóng đá</option>
                             <option value="CAU_LONG">Cầu lông</option>
                             <option value="TENNIS">Tennis</option>
                         </select>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Giá thuê (VNĐ/giờ):</label>
-                        <input type="number" name="gia" class="form-control" required placeholder="500000">
+                    <div class="mb-2">
+                        <label class="form-label custom-modal-label">GIÁ THUÊ (VNĐ/GIỜ)</label>
+                        <input type="number" name="gia" class="form-control custom-modal-input fw-bold text-dark"
+                               required placeholder="0">
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-                    <button type="submit" class="btn btn-primary">Lưu Sân</button>
+                <div class="modal-footer border-top-0 px-4 pb-4 modal-footer-custom">
+                    <button type="button" class="btn btn-modal-close" data-bs-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-modal-submit">Thêm ngay</button>
                 </div>
             </form>
-
         </div>
     </div>
 </div>
