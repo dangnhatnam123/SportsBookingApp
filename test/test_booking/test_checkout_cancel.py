@@ -3,13 +3,11 @@ from datetime import datetime, timedelta, time
 from test.test_base import test_app, test_session
 from app.models import San, LoaiSan, DatLich, TrangThaiDL, VaiTro
 
-
 def test_court_detail_khong_tim_thay(test_app):
     client = test_app.test_client()
     with patch('app.booking.dao.get_san_by_id', return_value=None):
         response = client.get('/san/999')
         assert response.status_code == 404
-
         assert "Không tìm thấy" in response.data.decode('utf-8')
 
 @patch('flask_login.utils._get_user')
@@ -35,7 +33,6 @@ def test_checkout_khong_tim_thay_san(test_app):
             response = client.get('/checkout/999?ngay=2026-10-10&gio_bd=17:00&gio_kt=18:00')
             assert response.status_code == 302
             assert '/search' in response.headers['Location']
-
 
 @patch('flask_login.utils._get_user')
 def test_view_huy_dat_san_cac_kich_ban_flash(mock_user, test_session, test_app):
