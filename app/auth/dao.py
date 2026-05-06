@@ -18,15 +18,6 @@ def auth_user(username, password):
 
 
 def add_user(name, username, password, avatar=None):
-    if len(username) < 5:
-        raise ValueError('Tên đăng nhập phải có ít nhất 5 ký tự!')
-    if len(password) < 8:
-        raise ValueError('Mật khẩu phải có ít nhất 8 ký tự!')
-    if not re.search(r'[0-9]', password):
-        raise ValueError('Mật khẩu quá yếu, phải chứa ít nhất 1 chữ số!')
-    if not re.search(r'[a-zA-Z]', password):
-        raise ValueError('Mật khẩu quá yếu, phải chứa ít nhất 1 chữ cái!')
-
     password_hashed = str(hashlib.md5(password.strip().encode('utf-8')).hexdigest())
 
     u = NguoiDung(

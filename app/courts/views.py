@@ -1,8 +1,4 @@
-from datetime import datetime
-
-from flask import render_template, request, flash, redirect, url_for
-from flask_login import login_required
-
+from flask import render_template
 from app import models
 from app.courts import courts_bp, dao
 from app.utils import admin_required
