@@ -5,15 +5,12 @@ from app import db
 from app.booking.views import booking_bp
 from test.test_base import test_app
 
-
 @pytest.fixture
 def client():
     test_app = Flask(__name__)
     test_app.config['TESTING'] = True
     test_app.config['WTF_CSRF_ENABLED'] = False
-
     test_app.config['SECRET_KEY'] = 'mot-cai-ma-bi-mat-nao-do'
-
     test_app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
     test_app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -28,18 +25,18 @@ def client():
 @patch('app.booking.dao.luu_dat_san')
 @patch('flask_login.utils._get_user')
 def test_payment_fail_db(mock_get_user, mock_luu_dat, mock_get_san, client):
-
     mock_user = MagicMock(id=1, is_authenticated=True)
     mock_get_user.return_value = mock_user
-
     mock_get_san.return_value = MagicMock(ten_san="Sân Test")
-
     mock_luu_dat.return_value = None
 
     payload = {
         'san_id': '1',
         'payment_method': 'momo',
-        'ngay': '2026-05-14', 'gio_bd': '14:00', 'gio_kt': '16:00', 'tong_tien': '200000'
+        'ngay': '2026-05-14',
+        'gio_bd': '14:00',
+        'gio_kt': '16:00',
+        'tong_tien': '200000'
     }
 
     response = client.post('/booking/process-payment', data=payload)
