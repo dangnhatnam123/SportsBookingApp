@@ -12,6 +12,22 @@ function nhacNhoChonGio() {
     }
 }
 
+
+function previewAvatar(input) {
+    const fileName = document.getElementById('file-name');
+    const previewImg = document.getElementById('preview-img');
+
+    if (input.files && input.files[0]) {
+        fileName.textContent = input.files[0].name;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            previewImg.src = e.target.result;
+        }
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+
 document.addEventListener("DOMContentLoaded", function() {
         const qrArea = document.getElementById('momo-qr-area');
         const radios = document.querySelectorAll('.payment-method-radio');

@@ -23,6 +23,7 @@
             <form action="/search" method="GET" class="search-bar-main">
                 <div class="search-box-item">
                     <i class="bi bi-trophy ms-3 text-primary"></i>
+                    <input type="text" name="ten_san" class="form-input-custom" placeholder="Nhập tên sân (không bắt buộc)..." style="border: none; outline: none; padding-left: 10px;">
                     <select name="loai_san" class="form-select-custom" required>
                         <option value="" selected disabled>Chọn loại sân</option>
                         {% for l in LoaiSan %}

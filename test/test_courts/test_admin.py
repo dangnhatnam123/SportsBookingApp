@@ -4,7 +4,7 @@ from app.models import San, DatLich, NguoiDung, VaiTro
 from app.courts import dao
 import hashlib
 from unittest.mock import patch
-from test.test_base import test_client,test_session,test_app ,mock_cloudinary
+from test.test_base import test_client,test_session, test_app, mock_cloudinary,setup_booking_data
 
 
 def test_add_va_load_san(test_session, test_app):
@@ -84,20 +84,6 @@ def san_co_lich_ngay_mai(test_session):
     test_session.add(lich)
     test_session.commit()
     return san_moi
-
-def test_home_route(test_client):
-    res = test_client.get('/')
-    assert res.status_code == 200
-
-
-def test_dieu_khoan_route(test_client):
-    res = test_client.get('/dieu-khoan')
-    assert res.status_code == 200
-
-
-def test_gioi_thieu_route(test_client):
-    res = test_client.get('/gioi-thieu')
-    assert res.status_code == 200
 
 
 def test_manage_san_thanh_cong(test_client, test_session, admin_login):

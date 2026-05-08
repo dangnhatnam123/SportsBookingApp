@@ -29,7 +29,7 @@ def booking_view():
     gio_bd = request.args.get('gio_bd')
     gio_kt = request.args.get('gio_kt')
     page = request.args.get('page', 1, type=int)
-
+    ten_san_kw = request.args.get('ten_san', '')
     today = date.today()
     err_msg = ""
     DS = []
@@ -58,13 +58,13 @@ def booking_view():
             err_msg = "Lỗi: Thời gian thuê tối thiểu phải là 1 tiếng!"
 
     if not err_msg:
-        DS = dao.load_san_trong(loai_san_val=loai, ngay=ngay, gio_bd=t1, gio_kt=t2, page=page)
-        total = dao.count_san_trong(loai_san_val=loai, ngay=ngay, gio_bd=t1, gio_kt=t2)
+        DS = dao.load_san_trong(loai_san_val=loai, ngay=ngay, gio_bd=t1, gio_kt=t2,ten_san_val=ten_san_kw, page=page)
+        total = dao.count_san_trong(loai_san_val=loai, ngay=ngay, gio_bd=t1, gio_kt=t2,ten_san_val=ten_san_kw)
         if total > 0:
             pages = math.ceil(total / current_app.config.get('PAGE_SIZE', 6))
 
     return render_template('search.html', danh_sach_san=DS, pages=pages,
-                           current_page=page, loai_san=loai, ngay=ngay_chon, gio_bd=gio_bd, gio_kt=gio_kt,
+                           current_page=page, loai_san=loai, ten_san=ten_san_kw, ngay=ngay_chon, gio_bd=gio_bd, gio_kt=gio_kt,
                            LoaiSan=models.LoaiSan, stats=dao.count_san_by_type(), today=today, err_msg=err_msg)
 
 
