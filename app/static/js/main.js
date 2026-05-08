@@ -44,3 +44,8 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
 
+function checkLogin(event) {
+    event.preventDefault();
+    alert("Vui lòng đăng nhập để thực hiện đặt sân!");
+    window.location.href = "/login";
+}
