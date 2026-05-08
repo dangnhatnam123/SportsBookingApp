@@ -1,8 +1,38 @@
 from datetime import datetime
+from sqlite3 import IntegrityError
 
-from app import db
-from app.models import San, DatLich
+import cloudinary
+from app.auth.dao import get_user_by_id
+from app.extention import db
+from app.models import San, DatLich, HoaDon, NguoiDung
 
+
+def update_profile(user_id, name, phone, email, avatar=None):
+    user = get_user_by_id(user_id)
+    if not user:
+        raise Exception("Người dùng không tồn tại!")
+
+    if email.strip() != user.email:
+        if NguoiDung.query.filter(NguoiDung.email == email.strip()).first():
+            raise Exception('Email này đã được sử dụng bởi tài khoản khác!')
+
+    if phone.strip() != user.so_dien_thoai:
+        if NguoiDung.query.filter(NguoiDung.so_dien_thoai == phone.strip()).first():
+            raise Exception('Số điện thoại này đã được sử dụng bởi tài khoản khác!')
+
+    user.ho_ten = name.strip()
+    user.email = email.strip()
+    user.so_dien_thoai = phone.strip()
+
+    if avatar:
+        res = cloudinary.uploader.upload(avatar)
+        user.avatar = res.get("secure_url")
+
+    try:
+        db.session.commit()
+    except IntegrityError:
+        db.session.rollback()
+        raise Exception('Có lỗi xảy ra khi lưu dữ liệu. Vui lòng thử lại!')
 
 def load_all_san():
     return San.query.all()

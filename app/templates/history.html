@@ -4,6 +4,19 @@
 
 {% block content %}
 <div class="container mt-5 mb-5">
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div id="flash-messages" style="position: fixed; top: 20px; right: 20px; z-index: 9999; min-width: 300px;">
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }} alert-dismissible fade show shadow-lg border-0" role="alert">
+                <strong>{{ message }}</strong>
+              </div>
+            {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
     <div class="card shadow border-0 rounded-3">
         <div class="card-header bg-dark text-white p-3">
             <h4 class="mb-0"><i class="bi bi-clock-history me-2"></i>LỊCH SỬ ĐẶT SÂN</h4>
@@ -32,25 +45,49 @@
                             </td>
                             <td>{{ h.ngay_choi.strftime('%d/%m/%Y') }}</td>
                             <td><span class="badge bg-info text-dark">{{ h.gio_bd.strftime('%H:%M') }} - {{ h.gio_kt.strftime('%H:%M') }}</span></td>
-                            <td class="text-danger fw-bold">{{ "{:,.0f}".format(h.hoa_don.tong_tien) if h.hoa_don else "0" }}đ</td>
-                            <td>
-                                {% if h.trang_thai.name == 'DA_HOAN_THANH' %}
-                                    <span class="badge bg-success">Đã hoàn thành</span>
+
+                            <td class="fw-bold">
+                                {% if h.trang_thai.name == 'DA_HUY' %}
+                                    <span class="text-muted text-decoration-line-through">
+                                        {{ "{:,.0f}".format(h.hoa_don.tong_tien) if h.hoa_don else "0" }}đ
+                                    </span>
                                 {% else %}
-                                    <span class="badge bg-warning text-dark">Chờ nhận sân</span>
+                                    <span class="text-danger">
+                                        {{ "{:,.0f}".format(h.hoa_don.tong_tien) if h.hoa_don else "0" }}đ
+                                    </span>
                                 {% endif %}
                             </td>
+
                             <td>
-                                {% set thoi_gian_choi = datetime.combine(h.ngay_choi, h.gio_bd) %}
-                                {% if now < thoi_gian_choi %}
-                                    <form action="{{ url_for('booking_bp.process_huy_dat', ma_dat_san=h.id) }}" method="POST"
-                                          onsubmit="return confirm('Bạn có chắc chắn muốn hủy đặt sân này không?')">
-                                        <button type="submit" class="btn btn-outline-danger btn-sm">
-                                            <i class="bi bi-trash"></i> Hủy đặt
-                                        </button>
-                                    </form>
+                                {% set status = h.trang_thai_hien_tai %}
+                                {% if h.trang_thai.name == 'DA_HUY' %}
+                                    <span class="badge bg-danger">Đã hủy</span>
+                                {% elif h.trang_thai.name == 'DA_HOAN_THANH' %}
+                                    <span class="badge bg-success">Đã hoàn thành</span>
+                                {% elif status == 'Chờ nhận sân' %}
+                                    <span class="badge bg-warning text-dark">Chờ nhận sân</span>
+                                {% elif status == 'Sân đang được sử dụng' %}
+                                    <span class="badge bg-primary">Đang sử dụng</span>
                                 {% else %}
-                                    <small class="text-muted italic">Không thể hủy</small>
+                                    <span class="badge bg-secondary">{{ status }}</span>
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                {% if h.trang_thai.name == 'CHUA_HOAN_THANH' %}
+                                    {% set thoi_gian_choi = datetime.combine(h.ngay_choi, h.gio_bd) %}
+                                    {% if now < thoi_gian_choi %}
+                                        <form action="{{ url_for('booking_bp.process_huy_dat', ma_dat_san=h.id) }}" method="POST"
+                                              onsubmit="return confirm('Bạn có chắc chắn muốn hủy đặt sân này không?')">
+                                            <button type="submit" class="btn btn-outline-danger btn-sm">
+                                                <i class="bi bi-trash"></i> Hủy đặt
+                                            </button>
+                                        </form>
+                                    {% else %}
+                                        <small class="text-muted italic">Hết hạn hủy</small>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="text-muted">-</span>
                                 {% endif %}
                             </td>
                         </tr>
@@ -68,4 +105,15 @@
         </div>
     </div>
 </div>
+
+<script>
+    setTimeout(function() {
+        let alerts = document.querySelectorAll('.alert');
+        alerts.forEach(function(alert) {
+            alert.style.transition = "opacity 0.6s ease";
+            alert.style.opacity = "0";
+            setTimeout(() => alert.remove(), 600);
+        });
+    }, 3000);
+</script>
 {% endblock %}

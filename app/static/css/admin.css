@@ -1,0 +1,114 @@
+.admin-page-title {
+    color: #2c3e50;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+}
+.custom-card {
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(0,0,0,0.05);
+    overflow: hidden;
+}
+.modern-table thead th {
+    background-color: #f8f9fa;
+    color: #6c757d;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 700;
+    border-bottom: 2px solid #edf2f9;
+    padding: 1rem;
+}
+.modern-table tbody td {
+    padding: 1.25rem 1rem;
+    vertical-align: middle;
+    color: #344050;
+    border-bottom: 1px solid #edf2f9;
+    transition: background-color 0.2s ease;
+}
+modern-table tbody tr {
+    transition: all 0.2s ease-in-out;
+}
+.modern-table tbody tr:hover {
+    background-color: #ffffff;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    transform: translateY(-2px);
+    position: relative;
+    z-index: 10;
+    border-radius: 8px;
+}
+/* Style cho loại sân */
+.badge-soft {
+    padding: 0.5em 0.85em;
+    font-weight: 600;
+    border-radius: 6px;
+}
+.badge-bongda { background-color: rgba(40, 167, 69, 0.15); color: #1e7e34; }
+.badge-caulong { background-color: rgba(23, 162, 184, 0.15); color: #117a8b; }
+.badge-tennis { background-color: rgba(253, 126, 20, 0.15); color: #d39e00; }
+
+.btn-action {
+    border-radius: 20px;
+    padding: 0.35rem 1rem;
+    font-weight: 600;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+}
+.btn-action:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.custom-modal-content {
+    border-radius: 16px;
+    border: none;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+}
+.custom-modal-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.4rem;
+}
+.custom-modal-input {
+    background-color: #f8f9fc !important;
+    border: 2px solid transparent !important;
+    border-radius: 10px !important;
+    font-size: 1rem !important;
+    padding: 0.65rem 1rem !important;
+    color: #333 !important;
+    box-shadow: none !important;
+    transition: all 0.2s ease;
+}
+
+.custom-modal-input:focus {
+    background-color: #ffffff !important;
+    border-color: #a5c8ff !important;
+    box-shadow: 0 0 0 4px rgba(45, 109, 236, 0.1) !important;
+}
+.modal-footer-custom {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    padding-top: 1rem;
+}
+.btn-modal-close {
+    background-color: #f8f9fa;
+    color: #000;
+    border-radius: 20px;
+    font-weight: 700;
+    padding: 0.4rem 1.5rem;
+    border: none;
+}
+.btn-modal-close:hover { background-color: #e9ecef; }
+.btn-modal-submit {
+    background-color: #2d6dec;
+    color: #fff;
+    border-radius: 20px;
+    font-weight: 700;
+    padding: 0.4rem 1.5rem;
+    border: none;
+}
+.btn-modal-submit:hover { background-color: #1e56cb; color: white;}

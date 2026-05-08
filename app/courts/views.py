@@ -1,6 +1,11 @@
+from datetime import datetime
+
 from flask import render_template, request, flash, redirect, url_for
+from flask_login import login_required, current_user
+
 from app import models
 from app.courts import courts_bp, dao
+from app.utils import admin_required
 
 
 @courts_bp.route('/')
@@ -15,8 +20,33 @@ def about():
 def dieukhoan():
     return render_template('gioi-thieu.html')
 
+@courts_bp.route('/profile', methods=['GET', 'POST'])
+@login_required
+def profile_view():
+    err_msg = ''
+    if request.method == 'POST':
+        name = request.form.get('name', '').strip()
+        phone = request.form.get('phone', '').strip()
+        email = request.form.get('email', '').strip()
+        avatar = request.files.get('avatar')
+
+        if not name or not phone or not email:
+            err_msg = "Vui lòng không để trống Họ tên, Email hoặc Số điện thoại!"
+        else:
+            try:
+                dao.update_profile(current_user.id, name, phone, email, avatar)
+                flash('Cập nhật thông tin cá nhân thành công!', 'success')
+                return redirect(url_for('courts_bp.profile_view'))
+            except Exception as ex:
+                err_msg = str(ex)
+
+    return render_template('profile.html', err_msg=err_msg)
+
 @courts_bp.route('/admin/manage_san')
+@login_required
+@admin_required
 def manage_san():
+
     try:
         danh_sach = dao.load_all_san()
     except Exception as e:
@@ -29,6 +59,10 @@ def add_san():
     ten = request.form.get('ten_san')
     loai = request.form.get('loai_san')
     gia = request.form.get('gia')
+
+    if dao.check_ten_san(ten):
+        flash(f"Tên sân '{ten}' đã tồn tại trong hệ thống!", "warning")
+        return redirect(url_for('courts_bp.manage_san'))
 
     try:
         dao.add_san_moi(ten,loai,gia)
@@ -68,3 +102,5 @@ def edit_san(san_id):
             flash(f"Lỗi cập nhật: {e}", "danger")
 
     return redirect(url_for('courts_bp.manage_san'))
+
+

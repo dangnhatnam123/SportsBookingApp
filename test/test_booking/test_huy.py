@@ -1,11 +1,11 @@
-from app.booking.dao import huy_dat_san
-from app.test.test_base import test_session, test_app
-from app.models import DatLich, HoaDon, TrangThaiDL, TrangThaiHoaDon
-from datetime import date, time, datetime, timedelta
 import pytest
+from unittest.mock import patch
+from datetime import time, datetime, timedelta
+from app.booking.dao import huy_dat_san
+from app.models import DatLich, HoaDon, TrangThaiDL, TrangThaiHoaDon
+from test.test_base import test_session, test_app
 
-# tét hủy sân thành công
-def test_success(test_session,test_app):
+def test_success(test_session, test_app):
     ngay_mai = datetime.now() + timedelta(days=1)
     dl = DatLich(
         ngay_choi=ngay_mai.date(),
@@ -40,18 +40,11 @@ def test_success(test_session,test_app):
     assert hd_after is not None
     assert hd_after.trang_thai == TrangThaiHoaDon.DA_HUY
 
-
-
-#tét ID không ồn tại
-@pytest.mark.parametrize('invalid_id', [
-    0, -1, 999999
-])
+@pytest.mark.parametrize('invalid_id', [0, -1, 999999])
 def test_invalid_id(test_session, invalid_id, test_app):
     result = huy_dat_san(ma_dat_san=invalid_id)
-
     assert result is False
 
-#test hủy sân khi đã đá xong
 def test_cancel_completed_booking(test_session, test_app):
     ngay_mai = datetime.now() + timedelta(days=1)
     dl = DatLich(
@@ -60,16 +53,15 @@ def test_cancel_completed_booking(test_session, test_app):
         gio_kt=time(19, 0),
         ma_nd=1,
         ma_san=1,
-        trang_thai=TrangThaiDL.DA_HOAN_THANH)
+        trang_thai=TrangThaiDL.DA_HOAN_THANH
+    )
     test_session.add(dl)
     test_session.commit()
 
     with pytest.raises(ValueError) as error_info:
         huy_dat_san(ma_dat_san=dl.id)
-
     assert str(error_info.value) == "Sân đã đá xong, không thể hủy!"
 
-#test hủy đơn hàng chính chủ
 def test_cancel_wrong_user(test_session, test_app):
     ngay_mai = datetime.now() + timedelta(days=1)
     dl = DatLich(
@@ -85,14 +77,11 @@ def test_cancel_wrong_user(test_session, test_app):
 
     with pytest.raises(ValueError) as error_info:
         huy_dat_san(ma_dat_san=dl.id, user_id=99)
-
     assert "không có quyền" in str(error_info.value)
 
-#tét lỗi đặt khi còn ít hơn 2 tineegs
-def test_cancel_too_close_to_time(test_session, test_app):
+def test_cancel_close_to_time(test_session, test_app):
     now = datetime.now()
     thoi_gian_da = now + timedelta(hours=1)
-
     dl = DatLich(
         ngay_choi=thoi_gian_da.date(),
         gio_bd=thoi_gian_da.time(),
@@ -106,5 +95,57 @@ def test_cancel_too_close_to_time(test_session, test_app):
 
     with pytest.raises(ValueError) as error_info:
         huy_dat_san(ma_dat_san=dl.id, user_id=1)
-
     assert "ít nhất 2 tiếng" in str(error_info.value)
+
+def test_cancel_playing_booking(test_session, test_app):
+    now = datetime.now()
+    dl = DatLich(
+        ngay_choi=now.date(),
+        gio_bd=(now - timedelta(minutes=30)).time(),
+        gio_kt=(now + timedelta(minutes=30)).time(),
+        ma_nd=1,
+        ma_san=1,
+        trang_thai=TrangThaiDL.CHUA_HOAN_THANH
+    )
+    test_session.add(dl)
+    test_session.commit()
+
+    with pytest.raises(ValueError) as error_info:
+        huy_dat_san(ma_dat_san=dl.id, user_id=1)
+    assert "Đã tới hoặc qua giờ nhận sân" in str(error_info.value)
+
+def test_cancel_past_booking(test_session, test_app):
+    hom_qua = datetime.now() - timedelta(days=1)
+    dl = DatLich(
+        ngay_choi=hom_qua.date(),
+        gio_bd=time(10, 0),
+        gio_kt=time(11, 0),
+        ma_nd=1,
+        ma_san=1,
+        trang_thai=TrangThaiDL.CHUA_HOAN_THANH
+    )
+    test_session.add(dl)
+    test_session.commit()
+
+    with pytest.raises(ValueError) as error_info:
+        huy_dat_san(ma_dat_san=dl.id, user_id=1)
+    assert "Đã tới hoặc qua giờ nhận sân" in str(error_info.value)
+
+def test_huy_dat_san_exception(test_session, test_app):
+    ngay_mai = datetime.now() + timedelta(days=2)
+    dl = DatLich(
+        ngay_choi=ngay_mai.date(),
+        gio_bd=time(18, 0),
+        gio_kt=time(19, 0),
+        ma_nd=1,
+        ma_san=1,
+        trang_thai=TrangThaiDL.CHUA_HOAN_THANH
+    )
+    test_session.add(dl)
+    test_session.commit()
+
+    with patch('app.db.session.commit') as mock_commit:
+        mock_commit.side_effect = Exception("Giả lập lỗi sập Database rớt mạng!")
+        result = huy_dat_san(ma_dat_san=dl.id)
+
+    assert result is False
