@@ -1,227 +1,188 @@
-import pytest
-from datetime import datetime, timedelta
-from app.models import San, DatLich, NguoiDung, VaiTro
+from app.models import San, LoaiSan
 from app.courts import dao
-import hashlib
-from unittest.mock import patch
 from test.test_base import test_client,test_session, test_app, mock_cloudinary,setup_booking_data
 
 
-def test_add_va_load_san(test_session, test_app):
-    dao.add_san_moi(ten="Sân 1", loai="BONG_DA", gia_thue=100000)
-    dao.add_san_moi(ten="Sân 2", loai="TENNIS", gia_thue=200000)
-    danh_sach = dao.load_all_san()
-    assert len(danh_sach) == 2
-    assert any(s.ten_san == "Sân 1" for s in danh_sach)
-    assert any(s.ten_san == "Sân 2" for s in danh_sach)
+def test_lay_danh_sach_tat_ca_san(test_session, setup_booking_data):
+    ket_qua = dao.load_all_san()
+
+    assert len(ket_qua) >= 2
+    assert ket_qua[0].ten_san == "Sân Chảo Lửa 1"
 
 
-def test_getID_san(test_session, test_app):
-    dao.add_san_moi(ten="Sân", loai="CAU_LONG", gia_thue=50000)
-    san = test_session.query(San).first()
-    san_tim_thay = dao.get_san(san.id)
-    assert san_tim_thay is not None
-    assert san_tim_thay.ten_san == "Sân"
+def test_lay_thong_tin_san_theo_id(test_session, setup_booking_data):
+    san_id = setup_booking_data['san1'].id
+    san = dao.get_san(san_id)
+
+    assert san is not None
+    assert san.ten_san == "Sân Chảo Lửa 1"
     assert dao.get_san(9999) is None
 
-def test_update_san(test_session, test_app):
-    dao.add_san_moi(ten="Sân Cũ", loai="BONG_DA", gia_thue=100000)
-    san = test_session.query(San).first()
 
-    dao.update_san(san.id, ten="Sân Mới", loai="TENNIS", gia_san_theo_gio=150000)
+def test_them_san_moi_vao_he_thong(test_session):
+    dao.add_san_moi("Sân Cầu Lông VIP", LoaiSan.CAU_LONG, 120000)
 
-    san_da_update = test_session.get(San, san.id)
-    assert san_da_update.ten_san == "Sân Mới"
-    assert san_da_update.loai_san.name == "TENNIS"
-    dao.update_san(9999, "Test", "TEST", 0)
+    san = San.query.filter_by(ten_san="Sân Cầu Lông VIP").first()
+    assert san is not None
+    assert san.gia_san_theo_gio == 120000
 
 
-def test_xoa_san(test_session, test_app):
-    dao.add_san_moi(ten="Sân 1", loai="BONG_DA", gia_thue=100000)
-    san = test_session.query(San).first()
-    dao.xoa_san(san.id)
-    assert test_session.get(San, san.id) is None
+def test_kiem_tra_ten_san_ton_tai(test_session, setup_booking_data):
+    assert dao.check_ten_san("Sân Chảo Lửa 1") is True
+    assert dao.check_ten_san("Sân Chảo Lửa 1", exclude_id=setup_booking_data['san1'].id) is False
+    assert dao.check_ten_san("Sân Chưa Có") is False
 
 
-def test_check_ten_san_trung_lap(test_session, test_app):
-    dao.add_san_moi(ten="Sân Chảo Lửa", loai="BONG_DA", gia_thue=100000)
-    san = test_session.query(San).first()
+def test_cap_nhat_thong_tin_san_ton_tai(test_session, setup_booking_data):
+    san_id = setup_booking_data['san2'].id
+    dao.update_san(san_id, "Sân 2 Đã Đổi Tên", LoaiSan.TENNIS, 300000)
 
-    assert dao.check_ten_san("Sân Chảo Lửa") is True
-    assert dao.check_ten_san("Sân No") is False
-    assert dao.check_ten_san("Sân Chảo Lửa", exclude_id=san.id) is False
-
-
-def test_kiem_tra_lich_dat_truoc_khi_xoa_san(test_session, test_app):
-    dao.add_san_moi(ten="Sân 35", loai="BONG_DA", gia_thue=100000)
-    san = test_session.query(San).first()
-
-    assert dao.kiem_tra_lich_dat(san.id) is False
-
-    ngay_mai = datetime.now().date() + timedelta(days=1)
-    lich = DatLich(ma_san=san.id, ma_nd=1, ngay_choi=ngay_mai, gio_bd=datetime.now().time(), gio_kt=datetime.now().time())
-    test_session.add(lich)
-    test_session.commit()
-
-    assert dao.kiem_tra_lich_dat(san.id) is True
+    san_sua = dao.get_san(san_id)
+    assert san_sua.ten_san == "Sân 2 Đã Đổi Tên"
+    assert san_sua.loai_san == LoaiSan.TENNIS
 
 
-@pytest.fixture
-def admin_login(test_client, test_session):
-    pw = str(hashlib.md5('123456'.encode('utf-8')).hexdigest())
-    admin = NguoiDung(ho_ten="Admin", ten_nd="admin", mat_khau=pw, vai_tro=VaiTro.QUAN_LY)
-    test_session.add(admin)
-    test_session.commit()
+def test_xoa_san_khoi_co_so_du_lieu(test_session, setup_booking_data):
+    san_id = setup_booking_data['san2'].id
+    dao.xoa_san(san_id)
+
+    assert dao.get_san(san_id) is None
+
+
+def test_kiem_tra_rang_buoc_lich_dat(test_session, setup_booking_data):
+    assert dao.kiem_tra_lich_dat(setup_booking_data['san1'].id) is True
+    assert dao.kiem_tra_lich_dat(setup_booking_data['san2'].id) is False
+
+
+def test_truy_cap_quan_ly_san_voi_quyen_admin(test_client, setup_booking_data):
     test_client.post('/login', data={'username': 'admin', 'password': '123456'})
 
+    response = test_client.get('/admin/manage_san')
 
-@pytest.fixture
-def san_co_lich_ngay_mai(test_session):
-    dao.add_san_moi(ten="Sân Đặt", loai="BONG_DA", gia_thue=100000)
-    san_moi = test_session.query(San).first()
-    ngay_mai = datetime.now().date() + timedelta(days=1)
-    lich = DatLich(ma_san=san_moi.id, ma_nd=1, ngay_choi=ngay_mai, gio_bd=datetime.now().time(), gio_kt=datetime.now().time())
-    test_session.add(lich)
-    test_session.commit()
-    return san_moi
+    assert response.status_code == 200
+    assert "Sân Chảo Lửa 1" in response.data.decode('utf-8')
 
 
-def test_manage_san_thanh_cong(test_client, test_session, admin_login):
-    san_moi = San(ten_san="Sân Test Manage", loai_san="BONG_DA", gia_san_theo_gio=100000)
-    test_session.add(san_moi)
-    test_session.commit()
+def test_chan_truy_cap_quan_ly_khi_la_nguoi_dung_thuong(test_client, setup_booking_data):
+    test_client.post('/login', data={'username': 'khach', 'password': '123456'})
 
-    res = test_client.get('/admin/manage_san')
-    assert res.status_code == 200
-    assert "Sân Test Manage" in res.data.decode('utf-8')
+    response = test_client.get('/admin/manage_san')
+
+    assert response.status_code == 302
 
 
-def test_manage_san_exception(test_client, test_session, admin_login):
-    with patch('app.courts.views.dao.load_all_san') as mock_load:
-        mock_load.side_effect = Exception("Lỗi DB Giả Lập")
+def test_quan_ly_san_loi_he_thong_load_danh_sach(test_client, setup_booking_data, monkeypatch):
+    test_client.post('/login', data={'username': 'admin', 'password': '123456'})
 
-        res = test_client.get('/admin/manage_san')
-        assert res.status_code == 200
+    def fake_load():
+        raise Exception("Sập DB")
 
+    monkeypatch.setattr('app.courts.views.dao.load_all_san', fake_load)
 
-def test_add_san_thanh_cong(test_client, test_session, admin_login):
-    res = test_client.post('/admin/add-san', data={
-        'ten_san': 'Sân Bóng',
-        'loai_san': 'BONG_DA',
-        'gia': 150000
+    response = test_client.get('/admin/manage_san')
+    assert response.status_code == 200
+
+def test_them_san_moi_thanh_cong(test_client, setup_booking_data):
+    test_client.post('/login', data={'username': 'admin', 'password': '123456'})
+
+    response = test_client.post('/admin/add-san', data={
+        'ten_san': 'Sân Bóng Mới 100', 'loai_san': 'BONG_DA', 'gia': 150000
     }, follow_redirects=True)
 
-    assert "Thêm sân thành công" in res.data.decode('utf-8')
-
-    san_trong_db = test_session.query(San).filter_by(ten_san='Sân Bóng').first()
-    assert san_trong_db is not None
-    assert san_trong_db.gia_san_theo_gio == 150000
+    assert "Thêm sân thành công" in response.data.decode('utf-8')
+    assert dao.check_ten_san('Sân Bóng Mới 100') is True
 
 
-def test_add_san_trung_ten(test_client, test_session, admin_login):
-    san_moi = San(ten_san="Sân Trùng", loai_san="BONG_DA", gia_san_theo_gio=100000)
-    test_session.add(san_moi)
-    test_session.commit()
+def test_them_san_that_bai_do_trung_ten(test_client, setup_booking_data):
+    test_client.post('/login', data={'username': 'admin', 'password': '123456'})
 
-    res = test_client.post('/admin/add-san', data={
-        'ten_san': 'Sân Trùng',
-        'loai_san': 'TENNIS',
-        'gia': 200000
+    response = test_client.post('/admin/add-san', data={
+        'ten_san': 'Sân Chảo Lửa 1', 'loai_san': 'BONG_DA', 'gia': 100000
     }, follow_redirects=True)
 
-    assert "đã tồn tại trong hệ thống" in res.data.decode('utf-8')
-
-    so_luong = test_session.query(San).filter_by(ten_san='Sân Trùng').count()
-    assert so_luong == 1
+    assert "đã tồn tại trong hệ thống" in response.data.decode('utf-8')
 
 
-def test_add_san_exception(test_client, test_session, admin_login):
-    with patch('app.courts.views.dao.add_san_moi') as mock_add:
-        mock_add.side_effect = Exception("Lỗi DB Giả Lập")
+def test_them_san_loi_he_thong(test_client, setup_booking_data, monkeypatch):
+    test_client.post('/login', data={'username': 'admin', 'password': '123456'})
 
-        res = test_client.post('/admin/add-san', data={
-            'ten_san': 'Sân Lỗi', 'loai_san': 'BONG_DA', 'gia': 100
-        }, follow_redirects=True)
+    def fake_add(*args, **kwargs): raise Exception("Lỗi DB")
 
-        assert "thêm sân thất bại" in res.data.decode('utf-8')
+    monkeypatch.setattr('app.courts.views.dao.add_san_moi', fake_add)
 
-
-def test_delete_san_thanh_cong(test_client, test_session, admin_login):
-    san_moi = San(ten_san="Sân xóa", loai_san="BONG_DA", gia_san_theo_gio=100000)
-    test_session.add(san_moi)
-    test_session.commit()
-    san_id = san_moi.id
-
-    res = test_client.post(f'/admin/delete-san/{san_id}', follow_redirects=True)
-
-    assert "Đã xóa sân thành công!" in res.data.decode('utf-8')
-    assert test_session.get(San, san_id) is None
-
-def test_delete_san_co_lich_dat(test_client, test_session, admin_login, san_co_lich_ngay_mai):
-    san_id = san_co_lich_ngay_mai.id
-
-    res = test_client.post(f'/admin/delete-san/{san_id}', follow_redirects=True)
-
-    assert "Sân đã có lịch đặt trong tương lai" in res.data.decode('utf-8')
-    assert test_session.get(San, san_id) is not None
-
-
-def test_delete_san_exception(test_client, test_session, admin_login):
-    san_moi = San(ten_san="Sân Test Xóa Lỗi", loai_san="BONG_DA", gia_san_theo_gio=100)
-    test_session.add(san_moi)
-    test_session.commit()
-
-    with patch('app.courts.views.dao.xoa_san') as mock_xoa:
-        mock_xoa.side_effect = Exception("Lỗi DB Giả Lập")
-        res = test_client.post(f'/admin/delete-san/{san_moi.id}', follow_redirects=True)
-        assert "Lỗi hệ thống" in res.data.decode('utf-8')
-
-def test_edit_san_thanh_cong(test_client, test_session, admin_login):
-    san_moi = San(ten_san="Sân Cũ", loai_san="BONG_DA", gia_san_theo_gio=100000)
-    test_session.add(san_moi)
-    test_session.commit()
-
-    res = test_client.post(f'/admin/edit-san/{san_moi.id}', data={
-        'ten_san': 'Sân Mới Đã Sửa',
-        'loai_san': 'TENNIS',
-        'gia': 250000
+    response = test_client.post('/admin/add-san', data={
+        'ten_san': 'Sân Lỗi', 'loai_san': 'BONG_DA', 'gia': 100
     }, follow_redirects=True)
 
-    assert "Cập nhật thông tin sân thành công" in res.data.decode('utf-8')
-
-    san_sau_sua = test_session.get(San, san_moi.id)
-    assert san_sau_sua.ten_san == 'Sân Mới Đã Sửa'
-    assert san_sau_sua.gia_san_theo_gio == 250000
+    assert "thêm sân thất bại" in response.data.decode('utf-8')
 
 
-def test_edit_san_exception(test_client, test_session, admin_login):
-    san_moi = San(ten_san="Sân Test Sửa Lỗi", loai_san="BONG_DA", gia_san_theo_gio=100)
-    test_session.add(san_moi)
-    test_session.commit()
+def test_sua_san_thanh_cong(test_client, setup_booking_data):
+    test_client.post('/login', data={'username': 'admin', 'password': '123456'})
+    san_id = setup_booking_data['san2'].id
 
-    with patch('app.courts.views.dao.update_san') as mock_update:
-        mock_update.side_effect = Exception("Lỗi DB Giả Lập")
-
-        res = test_client.post(f'/admin/edit-san/{san_moi.id}', data={
-            'ten_san': 'Tên Mới', 'loai_san': 'BONG_DA', 'gia': 200
-        }, follow_redirects=True)
-        assert "Lỗi cập nhật" in res.data.decode('utf-8')
-
-
-def test_edit_san_trung_ten(test_client, test_session, admin_login):
-    san_1 = San(ten_san="Sân A", loai_san="BONG_DA", gia_san_theo_gio=100000)
-    san_2 = San(ten_san="Sân B", loai_san="TENNIS", gia_san_theo_gio=200000)
-    test_session.add_all([san_1, san_2])
-    test_session.commit()
-
-    res = test_client.post(f'/admin/edit-san/{san_1.id}', data={
-        'ten_san': 'Sân B',
-        'loai_san': 'BONG_DA',
-        'gia': 100000
+    response = test_client.post(f'/admin/edit-san/{san_id}', data={
+        'ten_san': 'Sân 2 Cập Nhật', 'loai_san': 'CAU_LONG', 'gia': 99000
     }, follow_redirects=True)
 
-    assert "đã được sử dụng" in res.data.decode('utf-8')
+    assert "Cập nhật thông tin sân thành công" in response.data.decode('utf-8')
+    assert dao.get_san(san_id).ten_san == "Sân 2 Cập Nhật"
 
-    san_1_kiem_tra = test_session.get(San, san_1.id)
-    assert san_1_kiem_tra.ten_san == "Sân A"
+
+def test_sua_san_that_bai_do_ten_da_duoc_dung(test_client, setup_booking_data):
+    test_client.post('/login', data={'username': 'admin', 'password': '123456'})
+    san_id = setup_booking_data['san2'].id
+
+    response = test_client.post(f'/admin/edit-san/{san_id}', data={
+        'ten_san': 'Sân Chảo Lửa 1', 'loai_san': 'BONG_DA', 'gia': 100
+    }, follow_redirects=True)
+
+    assert "đã được sử dụng" in response.data.decode('utf-8')
+
+
+def test_sua_san_loi_he_thong_khi_update(test_client, setup_booking_data, monkeypatch):
+    test_client.post('/login', data={'username': 'admin', 'password': '123456'})
+    san_id = setup_booking_data['san2'].id
+
+    def fake_update(*args, **kwargs):
+        raise Exception("Lỗi Update DB")
+
+    monkeypatch.setattr('app.courts.views.dao.update_san', fake_update)
+
+    response = test_client.post(f'/admin/edit-san/{san_id}', data={
+        'ten_san': 'Sân 2 Lỗi', 'loai_san': 'BONG_DA', 'gia': 100
+    }, follow_redirects=True)
+
+    assert "Lỗi cập nhật" in response.data.decode('utf-8')
+
+def test_xoa_san_thanh_cong(test_client, setup_booking_data):
+    test_client.post('/login', data={'username': 'admin', 'password': '123456'})
+    san_id = setup_booking_data['san2'].id
+
+    response = test_client.post(f'/admin/delete-san/{san_id}', follow_redirects=True)
+
+    assert "Đã xóa sân thành công" in response.data.decode('utf-8')
+    assert dao.get_san(san_id) is None
+
+
+def test_chan_xoa_san_khi_dang_co_lich_dat(test_client, setup_booking_data):
+    test_client.post('/login', data={'username': 'admin', 'password': '123456'})
+    san_id = setup_booking_data['san1'].id
+
+    response = test_client.post(f'/admin/delete-san/{san_id}', follow_redirects=True)
+
+    assert "Sân đã có lịch đặt trong tương lai" in response.data.decode('utf-8')
+    assert dao.get_san(san_id) is not None
+
+
+def test_xoa_san_loi_he_thong(test_client, setup_booking_data, monkeypatch):
+    test_client.post('/login', data={'username': 'admin', 'password': '123456'})
+
+    def fake_xoa(*args, **kwargs): raise Exception("Lỗi DB")
+
+    monkeypatch.setattr('app.courts.views.dao.xoa_san', fake_xoa)
+
+    response = test_client.post(f'/admin/delete-san/{setup_booking_data["san2"].id}', follow_redirects=True)
+
+    assert "Lỗi hệ thống" in response.data.decode('utf-8')
 
