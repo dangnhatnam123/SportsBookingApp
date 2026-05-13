@@ -10,7 +10,7 @@ def test_checkout_thanh_toan_dat_san(driver):
     login_page.open_page()
     login_page.login('user1', '12345678')
 
-    time.sleep(1)
+    time.sleep(2)
 
     target_url = "http://127.0.0.1:5000/checkout/81?ngay=2026-05-15&gio_bd=09:00&gio_kt=16:30"
     driver.get(target_url)
