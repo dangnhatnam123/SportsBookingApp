@@ -1,3 +1,4 @@
+requests
 pytest
 cloudinary
 asgiref==3.11.1
