@@ -28,7 +28,7 @@
                 <i class="bi bi-clock ms-3 text-primary"></i>
                 <select name="gio_bd" class="form-select-custom" required
                         oninvalid="this.setCustomValidity('Vui lòng chọn giờ bắt đầu!')"
-                        onchange="this.setCustomValidity('')">
+                        onchange="this.form.submit()">
                     <option value="" {% if not gio_bd %}selected{% endif %} disabled>Từ giờ</option>
 
                     {% for hour in range(5, 22) %}
@@ -52,15 +52,10 @@
                         onchange="this.setCustomValidity('')">
                     <option value="" {% if not gio_kt %}selected{% endif %} disabled>Đến giờ</option>
 
-                    {% for hour in range(6, 23) %}
-                    <option value="{{ '%02d:00' % hour }}" {% if gio_kt== (
-                    '%02d:00' % hour) %} selected {% endif %}>
-                    {{ '%02d:00' % hour }}
-                    </option>
-
-                    <option value="{{ '%02d:30' % hour }}" {% if gio_kt== (
-                    '%02d:30' % hour) %} selected {% endif %}>
-                    {{ '%02d:30' % hour }}
+                    {% for gio in gio_kt_hop_le %}
+                    <option value="{{ gio }}"
+                            {% if gio_kt== gio %}selected{% endif %}>
+                        {{ gio }}
                     </option>
                     {% endfor %}
                 </select>
@@ -130,14 +125,16 @@
 
                                 {% if current_user.is_authenticated %}
                                 {% if ngay and gio_bd and gio_kt %}
-                                <a href="{{ url_for('booking_bp.checkout_view', san_id=s.id, ngay=ngay, gio_bd=gio_bd, gio_kt=gio_kt) }}"
-                                   class="btn btn-success w-50 fw-bold btn-sm py-2">
-                                    Thanh toán
-                                </a>
+                                <button type="button"
+                                        class="btn btn-success w-50 fw-bold btn-sm py-2"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#confirmModal{{ s.id }}">
+                                    Đặt ngay
+                                </button>
                                 {% else %}
                                 <button type="button" onclick="nhacNhoChonGio()"
                                         class="btn btn-success w-50 fw-bold btn-sm py-2">
-                                    Thanh toán
+                                    Đặt ngay
                                 </button>
                                 {% endif %}
                                 {% else %}
@@ -146,6 +143,146 @@
                                     Đặt ngay
                                 </a>
                                 {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal fade" id="confirmModal{{ s.id }}" tabindex="-1">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content rounded-4">
+
+                                <div class="modal-header">
+                                    <h5 class="modal-title fw-bold">
+                                        Xác nhận đặt sân
+                                    </h5>
+
+                                    <button type="button"
+                                            class="btn-close"
+                                            data-bs-dismiss="modal"></button>
+                                </div>
+
+                                <div class="modal-body">
+
+                                    {% set tong_gio = (
+                                    (
+                                    gio_kt.split(':')[0]|int * 60
+                                    + gio_kt.split(':')[1]|int
+                                    ) -
+                                    (
+                                    gio_bd.split(':')[0]|int * 60
+                                    + gio_bd.split(':')[1]|int
+                                    )
+                                    ) / 60 %}
+
+                                    {% set tong_tien = tong_gio * s.gia_san_theo_gio %}
+
+                                    <div class="text-center mb-3">
+                                        <img src="{{ s.hinh_anh }}"
+                                             class="img-fluid rounded"
+                                             style="height:180px; width:100%; object-fit:cover;">
+                                    </div>
+
+                                    <div class="border rounded p-3 bg-light">
+
+                                        <div class="row mb-2">
+                                            <div class="col-5 fw-bold">
+                                                Sân:
+                                            </div>
+
+                                            <div class="col-7">
+                                                {{ s.ten_san }}
+                                            </div>
+                                        </div>
+
+                                        <div class="row mb-2">
+                                            <div class="col-5 fw-bold">
+                                                Ngày chơi:
+                                            </div>
+
+                                            <div class="col-7">
+                                                {{ ngay }}
+                                            </div>
+                                        </div>
+
+                                        <div class="row mb-2">
+                                            <div class="col-5 fw-bold">
+                                                Khung giờ:
+                                            </div>
+
+                                            <div class="col-7">
+                                                {{ gio_bd }} - {{ gio_kt }}
+                                            </div>
+                                        </div>
+
+                                        <div class="row mb-2">
+                                            <div class="col-5 fw-bold">
+                                                Khách hàng:
+                                            </div>
+
+                                            <div class="col-7">
+                                                {{ current_user.ho_ten }}
+                                            </div>
+                                        </div>
+
+                                        <div class="row mb-2">
+                                            <div class="col-5 fw-bold">
+                                                Email:
+                                            </div>
+
+                                            <div class="col-7">
+                                                {{ current_user.email }}
+                                            </div>
+                                        </div>
+
+                                        <hr>
+
+                                        <div class="row mb-2">
+                                            <div class="col-6">
+                                                Giá sân:
+                                            </div>
+
+                                            <div class="col-6 text-end text-danger fw-bold">
+                                                {{ "{:,.0f}".format(s.gia_san_theo_gio) }}đ / giờ
+                                            </div>
+                                        </div>
+
+                                        <div class="row mb-2">
+                                            <div class="col-6">
+                                                Số giờ thuê:
+                                            </div>
+
+                                            <div class="col-6 text-end fw-bold">
+                                                {{ tong_gio }} giờ
+                                            </div>
+                                        </div>
+
+                                        <div class="row mt-3">
+                                            <div class="col-6 fw-bold fs-5">
+                                                Tổng tiền:
+                                            </div>
+
+                                            <div class="col-6 text-end text-success fw-bold fs-4">
+                                                {{ "{:,.0f}".format(tong_tien) }}đ
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                                <div class="modal-footer">
+
+                                    <button type="button"
+                                            class="btn btn-secondary"
+                                            data-bs-dismiss="modal">
+                                        Hủy
+                                    </button>
+
+                                    <a href="{{ url_for('booking_bp.checkout_view',san_id=s.id,ngay=ngay,gio_bd=gio_bd,gio_kt=gio_kt) }}"
+                                       class="btn btn-success">
+                                        Xác nhận thanh toán
+                                    </a>
+
+                                </div>
                             </div>
                         </div>
                     </div>

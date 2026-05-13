@@ -22,9 +22,7 @@
         <div class="search-wrapper">
             <form action="/search" method="GET" class="search-bar-main">
                 <div class="search-box-item">
-                    <select name="loai_san" class="form-select-custom" required
-                            oninvalid="this.setCustomValidity('Vui lòng chọn loại sân!')"
-                            onchange="this.setCustomValidity('')">
+                    <select name="loai_san" class="form-select-custom" required>
                         <option value="" selected disabled>Chọn loại sân</option>
                         {% for l in LoaiSan %}
                         <option value="{{ l.name }}">{{ l.value }}</option>
@@ -34,16 +32,12 @@
 
                 <div class="search-box-item border-left-line">
                     <i class="bi bi-calendar-event ms-3 text-primary"></i>
-                    <input type="date" name="ngay" class="form-input-custom" required
-                           oninvalid="this.setCustomValidity('Vui lòng chọn ngày chơi!')"
-                           oninput="this.setCustomValidity('')">
+                    <input type="date" name="ngay" class="form-input-custom" required>
                 </div>
 
                 <div class="search-box-item border-left-line">
                     <i class="bi bi-clock ms-3 text-primary"></i>
-                    <select name="gio_bd" class="form-select-custom" required
-                            oninvalid="this.setCustomValidity('Vui lòng chọn giờ bắt đầu!')"
-                            onchange="this.setCustomValidity('')">
+                    <select name="gio_bd" class="form-select-custom" required>
                         <option value="" selected disabled>Từ giờ</option>
                         {% for hour in range(5, 22) %}
                         <option value="{{ '%02d' % hour }}:00">{{ '%02d' % hour }}:00</option>
@@ -54,9 +48,7 @@
 
                 <div class="search-box-item border-left-line">
                     <i class="bi bi-clock-history ms-3 text-primary"></i>
-                    <select name="gio_kt" class="form-select-custom" required
-                            oninvalid="this.setCustomValidity('Vui lòng chọn giờ kết thúc!')"
-                            onchange="this.setCustomValidity('')">
+                    <select name="gio_kt" class="form-select-custom" required>
                         <option value="" selected disabled>Đến giờ</option>
                         {% for hour in range(6, 23) %}
                         <option value="{{ '%02d' % hour }}:00">{{ '%02d' % hour }}:00</option>
@@ -64,6 +56,7 @@
                         {% endfor %}
                     </select>
                 </div>
+
 
                 <button type="submit" class="btn-search-yellow">Tìm sân trống</button>
             </form>

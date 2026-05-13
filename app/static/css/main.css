@@ -432,3 +432,16 @@ ul.main-menu, ul.right-menu {
 }
 
 
+
+body.modal-open {
+    padding-right: 0 !important;
+    overflow: auto !important;
+}
+
+.modal {
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.modal-dialog {
+    margin-top: 10vh;
+}

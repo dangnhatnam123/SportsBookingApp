@@ -16,7 +16,7 @@ def load_san_trong(loai_san_val=None, ngay=None, gio_bd=None, gio_kt=None,ten_sa
     if ngay and gio_bd and gio_kt:
         da_dat = db.session.query(DatLich.ma_san).filter(
             DatLich.ngay_choi == ngay,
-            DatLich.trang_thai != TrangThaiDL.DA_HUY,  # Chỉ tính sân chưa hủy
+            DatLich.trang_thai != TrangThaiDL.DA_HUY,
             (DatLich.gio_bd < gio_kt) & (DatLich.gio_kt > gio_bd)
         )
         query = query.filter(~San.id.in_(da_dat))
@@ -47,6 +47,12 @@ def count_san_by_type():
 
 def get_san_by_id(san_id):
     return San.query.get(san_id)
+
+def get_lich_ban_by_san(san_id, ngay):
+    if not ngay:
+        return []
+    return DatLich.query.filter_by(ma_san=san_id, ngay_choi=ngay)\
+        .filter(DatLich.trang_thai != TrangThaiDL.DA_HUY).all()
 
 
 def luu_dat_san(ma_nd, ma_san, ngay_choi, gio_bd, gio_kt, tong_tien, loai_thanh_toan='truc_tiep'):
