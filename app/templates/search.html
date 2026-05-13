@@ -7,10 +7,6 @@
 <div class="container mt-4 mb-5">
     <div class="search-top-bar p-4 mb-4 bg-light rounded shadow-sm border-top border-4 border-warning">
         <form action="/search" method="get" class="row g-3 align-items-end">
-            <div class="col-md-2"><label class="small fw-bold text-secondary mb-1">Tên sân</label>
-                <input type="text" name="ten_san" value="{{ ten_san }}" class="form-control border-0 shadow-sm py-2"
-                       placeholder="Tên sân...">
-            </div>
             <div class="col-md-3">
                 <label class="small fw-bold text-secondary mb-1">Loại sân</label>
                 <select name="loai_san" class="form-select border-0 shadow-sm py-2">
@@ -24,11 +20,15 @@
             <div class="col-md-3">
                 <label class="small fw-bold text-secondary mb-1">Ngày chơi (*)</label>
                 <input type="date" name="ngay" value="{{ request.args.get('ngay', '') }}"
-                       class="form-control border-0 shadow-sm py-2" required>
+                       class="form-control border-0 shadow-sm py-2" required
+                       oninvalid="this.setCustomValidity('Vui lòng chọn ngày chơi!')"
+                       oninput="this.setCustomValidity('')">
             </div>
             <div class="search-box-item border-left-line">
                 <i class="bi bi-clock ms-3 text-primary"></i>
-                <select name="gio_bd" class="form-select-custom" required>
+                <select name="gio_bd" class="form-select-custom" required
+                        oninvalid="this.setCustomValidity('Vui lòng chọn giờ bắt đầu!')"
+                        onchange="this.setCustomValidity('')">
                     <option value="" {% if not gio_bd %}selected{% endif %} disabled>Từ giờ</option>
 
                     {% for hour in range(5, 22) %}
@@ -47,7 +47,9 @@
 
             <div class="search-box-item border-left-line">
                 <i class="bi bi-clock-history ms-3 text-primary"></i>
-                <select name="gio_kt" class="form-select-custom" required>
+                <select name="gio_kt" class="form-select-custom" required
+                        oninvalid="this.setCustomValidity('Vui lòng chọn giờ kết thúc!')"
+                        onchange="this.setCustomValidity('')">
                     <option value="" {% if not gio_kt %}selected{% endif %} disabled>Đến giờ</option>
 
                     {% for hour in range(6, 23) %}
@@ -141,7 +143,7 @@
                                 {% else %}
                                 <a href="/login?next={{ request.full_path }}"
                                    class="btn btn-warning w-50 fw-bold btn-sm py-2">
-                                    Đăng nhập
+                                    Đặt ngay
                                 </a>
                                 {% endif %}
                             </div>
