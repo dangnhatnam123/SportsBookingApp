@@ -13,44 +13,19 @@ from app.utils import admin_required
 def home():
     return render_template('main.html', LoaiSan=models.LoaiSan)
 
-
 @courts_bp.route('/dieu-khoan')
 def about():
     return render_template('dieu-khoan.html')
-
 
 @courts_bp.route('/gioi-thieu')
 def dieukhoan():
     return render_template('gioi-thieu.html')
 
-
-@courts_bp.route('/profile', methods=['GET', 'POST'])
-@login_required
-def profile_view():
-    err_msg = ''
-    if request.method == 'POST':
-        name = request.form.get('name', '').strip()
-        phone = request.form.get('phone', '').strip()
-        email = request.form.get('email', '').strip()
-        avatar = request.files.get('avatar')
-
-        if not name or not phone or not email:
-            err_msg = "Vui lòng không để trống Họ tên, Email hoặc Số điện thoại!"
-        else:
-            try:
-                dao.update_profile(current_user.id, name, phone, email, avatar)
-                flash('Cập nhật thông tin cá nhân thành công!', 'success')
-                return redirect(url_for('courts_bp.profile_view'))
-            except Exception as ex:
-                err_msg = str(ex)
-
-    return render_template('profile.html', err_msg=err_msg)
-
-
 @courts_bp.route('/admin/manage_san')
 @login_required
 @admin_required
 def manage_san():
+
     try:
         danh_sach = dao.load_all_san()
     except Exception as e:
@@ -63,22 +38,15 @@ def manage_san():
 def add_san():
     ten = request.form.get('ten_san')
     loai = request.form.get('loai_san')
-    gia = float(request.form.get('gia'))
+    gia = request.form.get('gia')
 
-    if dao.check_ten_san(ten):
-        flash(f"Tên sân '{ten}' đã tồn tại trong hệ thống!", "warning")
-        return redirect(url_for('courts_bp.manage_san'))
-    if gia <= 0:
-        flash(f"giá sân '{gia}' không hợp lệ!", "warning")
-        return redirect(url_for('courts_bp.manage_san'))
     try:
-        dao.add_san_moi(ten, loai, gia)
+        dao.add_san_moi(ten,loai,gia)
         flash("Thêm sân thành công!", "success")
     except Exception as e:
         flash("thêm sân thất bại", "danger")
 
     return redirect(url_for('courts_bp.manage_san'))
-
 
 @courts_bp.route('/admin/delete-san/<int:san_id>', methods=['POST'])
 def delete_san(san_id):
@@ -98,7 +66,7 @@ def delete_san(san_id):
 def edit_san(san_id):
     ten = request.form.get('ten_san')
     loai = request.form.get('loai_san')
-    gia = float(request.form.get('gia'))
+    gia = request.form.get('gia')
 
     if dao.check_ten_san(ten, exclude_id=san_id):
         flash(f"Lỗi: Tên sân '{ten}' đã được sử dụng!", "danger")
@@ -113,3 +81,21 @@ def edit_san(san_id):
             flash(f"Lỗi cập nhật: {e}", "danger")
 
     return redirect(url_for('courts_bp.manage_san'))
+
+@courts_bp.route('/admin/truc-san')
+@login_required
+@admin_required
+def admin_truc_san():
+
+    ngay_chon = request.args.get('ngay', datetime.now().strftime('%Y-%m-%d'))
+    # Gọi hàm lấy lịch từ dao.py
+    ds_lich = dao.get_lich_theo_ngay(ngay_chon)
+    return render_template('admin/dashboard.html', ds_lich=ds_lich, ngay_chon=ngay_chon)
+
+@courts_bp.route('/admin/lich-su-giao-dich')
+@login_required
+@admin_required
+def admin_history():
+    # Gọi hàm lấy lịch sử từ dao.py
+    history = dao.get_lich_su_giao_dich()
+    return render_template('admin/my_history.html', history=history)
