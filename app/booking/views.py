@@ -11,7 +11,7 @@ from flask_login import login_required, current_user
 
 from app import models
 from app.booking import booking_bp, dao
-from app.models import DatLich, VaiTro
+from app.models import DatLich, VaiTro, TrangThaiDL
 
 
 @booking_bp.route('/san/<int:san_id>')
@@ -203,8 +203,8 @@ def process_huy_dat(ma_dat_san):
         flash('Lỗi: Bạn không có quyền hủy đơn này!', 'danger')
         return redirect(url_for('booking_bp.history_view'))
 
-    if dat_lich.trang_thai_hien_tai == 'Sân đang được sử dụng':
-        flash('Lỗi: Sân đang chơi, không thể hủy!', 'danger')
+    if dat_lich.trang_thai == TrangThaiDL.DA_HOAN_THANH:
+        flash('Lỗi: Sân đã chơi xong, không thể hủy!', 'danger')
         return redirect(url_for('booking_bp.history_view'))
 
     now = datetime.now()
