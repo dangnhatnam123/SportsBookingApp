@@ -1,7 +1,5 @@
 name: SportBookingApp
 
-name: Run Tests
-
 on:
   push:
     branches: [ main ]
