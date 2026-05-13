@@ -26,3 +26,5 @@ def test_checkout_thanh_toan_dat_san(driver):
     time.sleep(2)
     assert "/process-payment" in driver.current_url or "momo" in driver.current_url.lower()
     print("[PASS] Đã điều hướng đến trang xử lý thanh toán.")
+
+

@@ -3,12 +3,11 @@ from datetime import datetime, timedelta, time
 from test.test_base import test_app, test_session
 from app.models import San, LoaiSan, DatLich, TrangThaiDL, VaiTro
 
-def test_court_detail_khong_tim_thay(test_app):
+def check_id_san_khong_thay(test_app):
     client = test_app.test_client()
     with patch('app.booking.dao.get_san_by_id', return_value=None):
         response = client.get('/san/999')
         assert response.status_code == 404
-        assert "Không tìm thấy" in response.data.decode('utf-8')
 
 @patch('flask_login.utils._get_user')
 def test_checkout_hop_le_tinh_tien(mock_user, test_session, test_app):

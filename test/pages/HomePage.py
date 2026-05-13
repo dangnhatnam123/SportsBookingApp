@@ -35,4 +35,3 @@ class HomePage(BasePage):
 
     def click_submenu_bong_da(self):
         self.click(*self.BONG_DA_SUBMENU)
-
