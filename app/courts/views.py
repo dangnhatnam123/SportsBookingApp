@@ -88,7 +88,6 @@ def edit_san(san_id):
 def admin_truc_san():
 
     ngay_chon = request.args.get('ngay', datetime.now().strftime('%Y-%m-%d'))
-    # Gọi hàm lấy lịch từ dao.py
     ds_lich = dao.get_lich_theo_ngay(ngay_chon)
     return render_template('admin/dashboard.html', ds_lich=ds_lich, ngay_chon=ngay_chon)
 
@@ -96,6 +95,5 @@ def admin_truc_san():
 @login_required
 @admin_required
 def admin_history():
-    # Gọi hàm lấy lịch sử từ dao.py
     history = dao.get_lich_su_giao_dich()
     return render_template('admin/my_history.html', history=history)

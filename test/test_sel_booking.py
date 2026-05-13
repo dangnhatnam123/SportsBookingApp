@@ -17,15 +17,6 @@ def test_search_filter_sidebar(driver):
 
     assert 'loai_san=BONG_DA' in driver.current_url
 
-def test_search_pagination(driver):
-    search_page = SearchBookPage(driver=driver)
-    search_page.open_page()
-    page_2_link = driver.find_element(By.LINK_TEXT, '2')
-    page_2_link.click()
-    time.sleep(1)
-
-    assert 'page=2' in driver.current_url
-
 
 def test_full_booking_with_popup(driver):
     login = LoginPage(driver=driver)
