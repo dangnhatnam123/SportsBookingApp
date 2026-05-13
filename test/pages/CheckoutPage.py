@@ -1,21 +1,25 @@
-from test.pages.BasePage import BasePage
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import re
 
 
-class CheckoutPage(BasePage):
+class CheckoutPage:
+    def __init__(self, driver):
+        self.driver = driver
+        self.wait = WebDriverWait(self.driver, 10)
+        self.tong_tien_locator = (By.CSS_SELECTOR, "h2.text-danger.fw-bold")
+        self.nut_xac_nhan_locator = (By.CSS_SELECTOR, "button[type='submit']")
 
-    CONFIRM_BUTTON = (
-        By.XPATH,
-        "//button[contains(text(),'Xác nhận')]"
-    )
+    def lay_tong_tien(self):
+        element = self.wait.until(EC.visibility_of_element_located(self.tong_tien_locator))
+        text_gia = element.text
+        number_only = re.sub(r'\D', '', text_gia)
+        return float(number_only)
 
-    TOTAL_PRICE = (
-        By.CLASS_NAME,
-        'text-success'
-    )
+    def click_xac_nhan(self):
+        nut = self.wait.until(EC.presence_of_element_located(self.nut_xac_nhan_locator))
 
-    def click_confirm(self):
-        self.click(*self.CONFIRM_BUTTON)
+        self.driver.execute_script("arguments[0].scrollIntoView(true);", nut)
 
-    def get_total_price(self):
-        return self.find(*self.TOTAL_PRICE).text
+        self.driver.execute_script("arguments[0].click();", nut)
