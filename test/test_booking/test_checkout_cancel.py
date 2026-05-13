@@ -56,14 +56,12 @@ def test_view_huy_dat_san_cac_kich_ban_flash(mock_user, test_session, test_app):
     res = client.post(f'/huy-dat-san/{dl_sai.id}')
     assert res.status_code == 302
 
-    with patch('app.models.DatLich.trang_thai_hien_tai', new_callable=PropertyMock) as mock_status:
-        mock_status.return_value = 'Sân đang được sử dụng'
-        dl_da = DatLich(ma_nd=1, ma_san=1, ngay_choi=ngay_xa.date(), gio_bd=time(8, 0), gio_kt=time(9, 0),
-                        trang_thai=TrangThaiDL.CHUA_HOAN_THANH)
-        test_session.add(dl_da)
-        test_session.commit()
-        res = client.post(f'/huy-dat-san/{dl_da.id}')
-        assert res.status_code == 302
+    dl_da = DatLich(ma_nd=1, ma_san=1, ngay_choi=ngay_xa.date(), gio_bd=time(8, 0), gio_kt=time(9, 0),
+                    trang_thai=TrangThaiDL.DA_HOAN_THANH)
+    test_session.add(dl_da)
+    test_session.commit()
+    res = client.post(f'/huy-dat-san/{dl_da.id}')
+    assert res.status_code == 302
 
     hom_qua = datetime.now() - timedelta(days=1)
     dl_past = DatLich(ma_nd=1, ma_san=1, ngay_choi=hom_qua.date(), gio_bd=time(10, 0), gio_kt=time(11, 0),
