@@ -1,5 +1,6 @@
 from datetime import datetime
 
+import flask
 from flask import render_template, request, flash, redirect, url_for
 from flask_login import login_required, current_user
 
@@ -12,13 +13,16 @@ from app.utils import admin_required
 def home():
     return render_template('main.html', LoaiSan=models.LoaiSan)
 
+
 @courts_bp.route('/dieu-khoan')
 def about():
     return render_template('dieu-khoan.html')
 
+
 @courts_bp.route('/gioi-thieu')
 def dieukhoan():
     return render_template('gioi-thieu.html')
+
 
 @courts_bp.route('/profile', methods=['GET', 'POST'])
 @login_required
@@ -42,11 +46,11 @@ def profile_view():
 
     return render_template('profile.html', err_msg=err_msg)
 
+
 @courts_bp.route('/admin/manage_san')
 @login_required
 @admin_required
 def manage_san():
-
     try:
         danh_sach = dao.load_all_san()
     except Exception as e:
@@ -54,23 +58,27 @@ def manage_san():
         danh_sach = []
     return render_template('admin/manage_san.html', danh_sach_san=danh_sach)
 
+
 @courts_bp.route('/admin/add-san', methods=['POST'])
 def add_san():
     ten = request.form.get('ten_san')
     loai = request.form.get('loai_san')
-    gia = request.form.get('gia')
+    gia = float(request.form.get('gia'))
 
     if dao.check_ten_san(ten):
         flash(f"Tên sân '{ten}' đã tồn tại trong hệ thống!", "warning")
         return redirect(url_for('courts_bp.manage_san'))
-
+    if gia <= 0:
+        flash(f"giá sân '{gia}' không hợp lệ!", "warning")
+        return redirect(url_for('courts_bp.manage_san'))
     try:
-        dao.add_san_moi(ten,loai,gia)
+        dao.add_san_moi(ten, loai, gia)
         flash("Thêm sân thành công!", "success")
     except Exception as e:
         flash("thêm sân thất bại", "danger")
 
     return redirect(url_for('courts_bp.manage_san'))
+
 
 @courts_bp.route('/admin/delete-san/<int:san_id>', methods=['POST'])
 def delete_san(san_id):
@@ -90,11 +98,14 @@ def delete_san(san_id):
 def edit_san(san_id):
     ten = request.form.get('ten_san')
     loai = request.form.get('loai_san')
-    gia = request.form.get('gia')
+    gia = float(request.form.get('gia'))
 
     if dao.check_ten_san(ten, exclude_id=san_id):
         flash(f"Lỗi: Tên sân '{ten}' đã được sử dụng!", "danger")
     else:
+        if gia <= 0:
+            flash(f"giá sân '{gia}' không hợp lệ!", "warning")
+            return redirect(url_for('courts_bp.manage_san'))
         try:
             dao.update_san(san_id, ten, loai, gia)
             flash("Cập nhật thông tin sân thành công!", "success")
@@ -102,5 +113,3 @@ def edit_san(san_id):
             flash(f"Lỗi cập nhật: {e}", "danger")
 
     return redirect(url_for('courts_bp.manage_san'))
-
-
