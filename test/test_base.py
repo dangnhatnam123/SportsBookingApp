@@ -1,7 +1,11 @@
 import hashlib
+from selenium import webdriver
+
 from datetime import datetime, timedelta, time
 import pytest
 from flask import Flask
+from selenium.webdriver.chrome.service import Service
+
 from app import db, login_manager
 from app.auth.views import auth_bp
 from app.booking.views import booking_bp
@@ -89,3 +93,11 @@ def setup_booking_data(test_session):
 
     return {'user': user, 'admin': admin, 'san1': s1, 'san2': s2}
 
+@pytest.fixture
+def driver():
+    options = webdriver.ChromeOptions()
+    # options.add_argument('--headless')
+    driver = webdriver.Chrome(options=options)
+    driver.maximize_window()
+    yield driver
+    driver.quit()
