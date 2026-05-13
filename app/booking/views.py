@@ -17,9 +17,22 @@ from app.models import DatLich, VaiTro, TrangThaiDL
 @booking_bp.route('/san/<int:san_id>')
 def court_detail(san_id):
     san = dao.get_san_by_id(san_id)
+    loai_san = request.args.get('loai_san')
+    ngay = request.args.get('ngay')
+    gio_bd = request.args.get('gio_bd')
+    gio_kt = request.args.get('gio_kt')
+    ten_san = request.args.get('ten_san')
     if not san:
         return "Không tìm thấy sân này!", 404
-    return render_template('detail_san.html', san=san)
+    return render_template(
+        'detail_san.html',
+        san=san,
+        loai_san=loai_san,
+        ngay=ngay,
+        gio_bd=gio_bd,
+        gio_kt=gio_kt,
+        ten_san=ten_san
+    )
 
 
 @booking_bp.route('/search')
@@ -40,38 +53,64 @@ def booking_view():
     t2 = None
 
     if ngay_chon and gio_bd and gio_kt:
-        ngay = datetime.strptime(ngay_chon, '%Y-%m-%d').date()
-        t1 = datetime.strptime(gio_bd, '%H:%M').time()
-        t2 = datetime.strptime(gio_kt, '%H:%M').time()
 
-        tong_phut_bd = t1.hour * 60 + t1.minute
-        tong_phut_kt = t2.hour * 60 + t2.minute
-        so_phut_choi = tong_phut_kt - tong_phut_bd
+        try:
+            ngay = datetime.strptime(ngay_chon, '%Y-%m-%d').date()
 
-        if ngay < today:
-            err_msg = "Lỗi: Không thể tìm sân trong quá khứ!"
-        elif ngay == today and t1 < datetime.now().time():
-            err_msg = "Lỗi: Vui lòng chọn giờ khác, không được chọn giờ trong quá khứ!"
-        elif so_phut_choi <= 0:
-            err_msg = "Lỗi: Giờ kết thúc phải lớn hơn giờ bắt đầu!"
-        elif so_phut_choi < 60:
-            err_msg = "Lỗi: Thời gian thuê tối thiểu phải là 1 tiếng!"
+        except ValueError:
+            err_msg = "Lỗi: Ngày không hợp lệ hoặc sai định dạng!"
+            ngay = None
+
+        if not err_msg:
+
+            try:
+                t1 = datetime.strptime(gio_bd, '%H:%M').time()
+                t2 = datetime.strptime(gio_kt, '%H:%M').time()
+
+            except ValueError:
+                err_msg = "Lỗi: Giờ bắt đầu hoặc giờ kết thúc không hợp lệ!"
+                t1 = None
+                t2 = None
+
+            if not err_msg:
+
+                tong_phut_bd = t1.hour * 60 + t1.minute
+                tong_phut_kt = t2.hour * 60 + t2.minute
+                so_phut_choi = tong_phut_kt - tong_phut_bd
+
+                if ngay < today:
+                    err_msg = "Lỗi: Không thể tìm sân trong quá khứ!"
+
+                elif ngay == today and t1 < datetime.now().time():
+                    err_msg = "Lỗi: Vui lòng chọn giờ khác, không được chọn giờ trong quá khứ!"
+
+                elif so_phut_choi <= 0:
+                    err_msg = "Lỗi: Giờ kết thúc phải lớn hơn giờ bắt đầu!"
+
+                elif so_phut_choi < 60:
+                    err_msg = "Lỗi: Thời gian thuê tối thiểu phải là 1 tiếng!"
 
     gio_kt_hop_le = []
 
     if gio_bd:
-        t_bd = datetime.strptime(gio_bd, '%H:%M')
 
-        for hour in range(6, 23):
+        try:
+            t_bd = datetime.strptime(gio_bd, '%H:%M')
 
-            for minute in [0, 30]:
+            for hour in range(6, 23):
 
-                gio = f"{hour:02d}:{minute:02d}"
+                for minute in [0, 30]:
 
-                t_kt = datetime.strptime(gio, '%H:%M')
+                    gio = f"{hour:02d}:{minute:02d}"
 
-                if (t_kt - t_bd).total_seconds() >= 3600:
-                    gio_kt_hop_le.append(gio)
+                    t_kt = datetime.strptime(gio, '%H:%M')
+
+                    if (t_kt - t_bd).total_seconds() >= 3600:
+                        gio_kt_hop_le.append(gio)
+
+        except ValueError:
+            err_msg = "Lỗi: Giờ bắt đầu không hợp lệ!"
+
 
     if not err_msg:
         DS = dao.load_san_trong(loai_san_val=loai, ngay=ngay, gio_bd=t1, gio_kt=t2,ten_san_val=ten_san_kw, page=page)

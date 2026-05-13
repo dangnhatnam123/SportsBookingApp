@@ -118,10 +118,10 @@
                             </p>
 
                             <div class="mt-auto d-flex gap-2">
-                                <a href="{{ url_for('booking_bp.court_detail', san_id=s.id) }}"
-                                   class="btn btn-outline-primary w-50 fw-bold btn-sm py-2">
-                                    Chi tiết
-                                </a>
+                                <<a href="{{ url_for('booking_bp.court_detail',san_id=s.id,loai_san=loai_san,ngay=ngay,gio_bd=gio_bd,gio_kt=gio_kt,ten_san=ten_san) }}"
+                                    class="btn btn-outline-primary w-50 fw-bold btn-sm py-2">
+                                Chi tiết
+                            </a>
 
                                 {% if current_user.is_authenticated %}
                                 {% if ngay and gio_bd and gio_kt %}
@@ -162,18 +162,30 @@
 
                                 <div class="modal-body">
 
-                                    {% set tong_gio = (
+                                    {% if gio_bd and gio_kt %}
+
+                                    {% set bd = gio_bd.split(':') %}
+                                    {% set kt = gio_kt.split(':') %}
+
+                                    {% set tong_gio =
                                     (
-                                    gio_kt.split(':')[0]|int * 60
-                                    + gio_kt.split(':')[1]|int
-                                    ) -
                                     (
-                                    gio_bd.split(':')[0]|int * 60
-                                    + gio_bd.split(':')[1]|int
+                                    kt[0]|int * 60 + kt[1]|int
+                                    )
+                                    -
+                                    (
+                                    bd[0]|int * 60 + bd[1]|int
                                     )
                                     ) / 60 %}
 
                                     {% set tong_tien = tong_gio * s.gia_san_theo_gio %}
+
+                                    {% else %}
+
+                                    {% set tong_gio = 0 %}
+                                    {% set tong_tien = 0 %}
+
+                                    {% endif %}
 
                                     <div class="text-center mb-3">
                                         <img src="{{ s.hinh_anh }}"
