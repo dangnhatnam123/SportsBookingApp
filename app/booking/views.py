@@ -6,7 +6,7 @@ import hmac
 import hashlib
 import requests
 
-from flask import request, render_template, current_app, redirect, url_for, flash
+from flask import request, render_template, current_app, redirect, url_for, flash, abort
 from flask_login import login_required, current_user
 
 from app import models
@@ -18,7 +18,7 @@ from app.models import DatLich, VaiTro
 def court_detail(san_id):
     san = dao.get_san_by_id(san_id)
     if not san:
-        return "Không tìm thấy sân này!", 404
+         abort(404)
     return render_template('detail_san.html', san=san)
 
 
